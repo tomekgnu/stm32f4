@@ -87,19 +87,19 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="Looper.fr.ac6.managedbuild.target.gnu.cross.exe.1361192391" name="Executable" projectType="fr.ac6.managedbuild.target.gnu.cross.exe" />
 	</storageModule>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="" />
-		<scannerConfigBuildInfo instanceId="fr.ac6.managedbuild.config.gnu.cross.exe.debug.1933732381;fr.ac6.managedbuild.config.gnu.cross.exe.debug.1933732381.;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.1958077620;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.1644781068">
-			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId="" />
-		</scannerConfigBuildInfo>
-		<!--scannerConfigBuildInfo instanceId="fr.ac6.managedbuild.config.gnu.cross.exe.release.$(RELEASE_CONFIG_UID);fr.ac6.managedbuild.config.gnu.cross.exe.release.$(RELEASE_CONFIG_UID).;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.$(RELEASE_TOOL_COMPILER_UID);cdt.managedbuild.tool.gnu.c.compiler.input.$(RELEASE_TOOL_COMPILER_INPUT_UID)">
-			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo-->
-	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders" />
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration artifactName="Looper" configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="Looper" />
 		</configuration>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="" />
+		<scannerConfigBuildInfo instanceId="fr.ac6.managedbuild.config.gnu.cross.exe.debug.609624502;fr.ac6.managedbuild.config.gnu.cross.exe.debug.609624502.;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.586008719;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.input.c.495372019">
+			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId="" />
+		</scannerConfigBuildInfo>
+		<!--scannerConfigBuildInfo instanceId="fr.ac6.managedbuild.config.gnu.cross.exe.release.$(RELEASE_CONFIG_UID);fr.ac6.managedbuild.config.gnu.cross.exe.release.$(RELEASE_CONFIG_UID).;fr.ac6.managedbuild.tool.gnu.cross.c.compiler.$(RELEASE_TOOL_COMPILER_UID);cdt.managedbuild.tool.gnu.c.compiler.input.$(RELEASE_TOOL_COMPILER_INPUT_UID)">
+			<autodiscovery enabled="false" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo-->
 	</storageModule>
 </cproject>

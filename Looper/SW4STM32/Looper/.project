@@ -105,11 +105,6 @@
 			<location>PARENT-2-PROJECT_LOC/Src/tim.c</location>
 		</link>
 		<link>
-			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
-			<type>1</type>
-			<location>PARENT-4-PROJECT_LOC/STM32Cube/Repository/STM32Cube_FW_F4_V1.14.0/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/system_stm32f4xx.c</location>
-		</link>
-		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c</location>
