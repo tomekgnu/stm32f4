@@ -4,7 +4,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-../Drivers/CMSIS/system_stm32f4xx.c 
+C:/Users/Tomek/workspace/tom32f4/Looper/Src/system_stm32f4xx.c 
 
 OBJS += \
 ./Drivers/CMSIS/system_stm32f4xx.o 
@@ -14,7 +14,7 @@ C_DEPS += \
 
 
 # Each subdirectory must supply rules for building sources it contributes
-Drivers/CMSIS/%.o: ../Drivers/CMSIS/%.c
+Drivers/CMSIS/system_stm32f4xx.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/system_stm32f4xx.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo %cd%

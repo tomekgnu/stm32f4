@@ -40,9 +40,13 @@
 #include "main.h"
 extern __IO uint8_t ToggleRecording;
 extern __IO uint8_t DmaTransferReady;
-extern __IO uint32_t Recording;
-extern __IO uint32_t Dubbing;
+extern __IO uint8_t Recording;
+extern __IO uint8_t Playback;
+extern __IO uint8_t Dubbing;
 extern __IO uint8_t StartApp;
+extern __IO ButtonStates PlaybackButton;
+extern __IO ButtonStates DubbingPressed;
+extern __IO ButtonStates RecordingButton;
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
@@ -117,6 +121,12 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = Recording_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Recording_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PFPin PFPin PFPin */
   GPIO_InitStruct.Pin = SPI5_SCK_Pin|SPI5_MISO_Pin|SPI5_MOSI_Pin;
@@ -255,6 +265,18 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF14_LTDC;
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = Dubbing_Off_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Dubbing_Off_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = Playback_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Playback_GPIO_Port, &GPIO_InitStruct);
+
   /*Configure GPIO pins : PGPin PGPin */
   GPIO_InitStruct.Pin = G3_Pin|B4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
@@ -270,11 +292,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PBPin PBPin */
-  GPIO_InitStruct.Pin = Dubbing_Button_Pin|Recording_Button_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = Recording_Off_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Recording_Off_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, ADS1256_RESET_Pin|ADS1256_SYNC_Pin|ADS1256_CS_Pin|DAC8552_CS_Pin, GPIO_PIN_SET);
@@ -292,8 +314,14 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOG, LD3_Pin|LD4_Pin, GPIO_PIN_RESET);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI2_IRQn, 2, 3);
+  HAL_NVIC_SetPriority(EXTI2_IRQn, 1, 3);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 3, 3);
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 3, 3);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 
@@ -336,12 +364,49 @@ void KeyboardConfig(void){
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	switch (GPIO_Pin) {
 	case GPIO_PIN_0:	// user button
-		recordToggle();
-		StartApp = 1;
-
+		if(Recording == 1 || Playback == 1){
+			Recording = 0;
+			Playback = 0;
+			StartApp = 0;
+			BSP_LED_Off(RED);
+			BSP_LED_Off(GREEN);
+		}
 		break;
-	case GPIO_PIN_2:
+	case ADS1256_DRDY_Pin:
 		play_record();
+		break;
+
+	case Recording_Pin:
+		if(RecordingButton == PRESS)
+			return;
+		if(Recording == 1)
+			return;
+		RecordingButton = PRESS;
+		Recording = !Recording;
+		if(Recording == 1){
+			Playback = 0;
+			BSP_LED_On(RED);
+			BSP_LED_Off(GREEN);
+		}
+		StartApp = 1;
+		break;
+	case Playback_Pin:
+		if(PlaybackButton == PRESS)
+			return;
+		if(Playback == 1)
+			return;
+		PlaybackButton = PRESS;
+		Playback = !Playback;
+		if(Playback == 1){
+			Recording = 0;
+			BSP_LED_On(GREEN);
+			BSP_LED_Off(RED);
+		}
+		break;
+	case Recording_Off_Pin:
+		break;
+
+	case Dubbing_Off_Pin:
 		break;
 	default: break;
 

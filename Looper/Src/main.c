@@ -54,16 +54,18 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
-
 uint16_t s_index = 0;
 
 __IO uint32_t CommandKey = 0;
-extern __IO uint32_t Recording;
+extern __IO uint8_t Recording;
+extern __IO uint8_t Playback;
 extern __IO uint32_t CommandKey;
 extern __IO uint8_t ToggleRecording;
 extern __IO uint8_t StartApp;
 extern uint8_t CommandKeyTable[4][4];
-
+extern __IO ButtonStates DubbingPressed;
+extern __IO ButtonStates RecordingButton;
+extern __IO ButtonStates PlaybackButton;
 uint16_t taptone_buffer[100];
 /* USER CODE END PV */
 
@@ -112,33 +114,32 @@ int main(void)
   MX_TIM8_Init();
 
   /* USER CODE BEGIN 2 */
-  HAL_NVIC_DisableIRQ(EXTI2_IRQn);
-  //KeyboardConfig();
-  status = HAL_TIM_Base_Start(&htim2);
+	HAL_NVIC_DisableIRQ(EXTI2_IRQn);
+	//KeyboardConfig();
+	status = HAL_TIM_Base_Start(&htim2);
 
-  BSP_LED_Init(LED3);
-  BSP_LED_Init(LED4);
+	BSP_LED_Init(LED3);
+	BSP_LED_Init(LED4);
 
-  BSP_SDRAM_Init();
-  BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
+	BSP_SDRAM_Init();
+	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
 
-  //initTapTone();
+	//initTapTone();
 //  ShortDelayUS(10);
-  ADS1256_WriteCmd(CMD_SELFCAL);
-  ADS1256_WriteCmd(CMD_SDATAC);
+	ADS1256_WriteCmd(CMD_SELFCAL);
+	ADS1256_WriteCmd(CMD_SDATAC);
 
+	data = ADS1256_ReadChipID();
+	ADS1256_CfgADC(ADS1256_GAIN_2, ADS1256_15000SPS);
 
-  data = ADS1256_ReadChipID();
-  ADS1256_CfgADC(ADS1256_GAIN_2, ADS1256_15000SPS);
+	ADS1256_WriteCmd(CMD_RDATAC);
+	HAL_Delay(10);
+	HAL_NVIC_EnableIRQ(EXTI2_IRQn);
 
-  ADS1256_WriteCmd(CMD_RDATAC);
-  HAL_Delay(10);
-  HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+	ADS1256_StartScan(0);
+	ADS1256_SetChannel(0);
 
-  ADS1256_StartScan(0);
-  ADS1256_SetChannel(0);
-
-status = HAL_TIM_Base_Start_IT(&htim3);
+	status = HAL_TIM_Base_Start_IT(&htim3);
 //status = HAL_ADC_Start_IT(&hadc1);
 //status = HAL_TIM_Base_Start(&htim8);
 
@@ -147,30 +148,26 @@ status = HAL_TIM_Base_Start_IT(&htim3);
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 //eraseMemory();
-  while(StartApp == 0)
-	  continue;
 
 
-  while (1)
-  {
+	while (StartApp == 0)
+		continue;
 
-	  if(Recording == 1){
-		recordLoop();
+	while (1) {
 
+		if (Recording == 1) {
+			recordLoop();
 
-	 }
-		  else if(Recording == 0){
-			 playbackLoop();
+		} else if (Playback == 1) {
+			playbackLoop();
 
-
-		  }
-
+		}
 
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
 
- }
+	}
   /* USER CODE END 3 */
 
 }
@@ -240,44 +237,47 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-
-
-
-
-
-
 /**
  * @brief  Perform the SDRAM exernal memory inialization sequence
  * @param  hsdram: SDRAM handle
  * @param  Command: Pointer to SDRAM command structure
  * @retval None
  */
-void initTapTone(){
+void initTapTone() {
 	int i;
-	for(i = 0; i < 100; i++){
+	for (i = 0; i < 100; i++) {
 		taptone_buffer[i] = i;
 	}
 }
-void buttonHandler(){
-	if(HAL_GPIO_ReadPin(Recording_Button_GPIO_Port,Recording_Button_Pin) == GPIO_PIN_RESET){
-		recordToggle();
-		StartApp = 1;
+void buttonHandler() {
+	if(HAL_GPIO_ReadPin(Recording_GPIO_Port,Recording_Pin) == GPIO_PIN_SET) {
+		RecordingButton = RELEASE;
+
 	}
-	if(HAL_GPIO_ReadPin(Dubbing_Button_GPIO_Port,Dubbing_Button_Pin) == GPIO_PIN_RESET)
-		dubToggle();
+	if(HAL_GPIO_ReadPin(Playback_GPIO_Port,Playback_Pin) == GPIO_PIN_SET) {
+		PlaybackButton = RELEASE;
+
+		}
+//	else
+//		RecordingPressed = RELEASE;
+//	if (HAL_GPIO_ReadPin(Dubbing_On_GPIO_Port, Dubbing_On_Pin)	== GPIO_PIN_RESET) {
+//		DubbingPressed = PRESS;
+//
+//	}
+//	else
+//		DubbingPressed = RELEASE;
+
 
 }
 //void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-	//TapToneBufferCount--;
+		//TapToneBufferCount--;
 
-	//if(TapToneBufferCount == 0)
+		//if(TapToneBufferCount == 0)
 		//HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_RESET);
 
-	//if(htim->Instance == TIM3){
+		//if(htim->Instance == TIM3){
 
 //	}
-
-
 
 //}
 
@@ -291,10 +291,9 @@ void buttonHandler(){
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler */
-  /* User can add his own implementation to report the HAL error return state */
-  while(1) 
-  {
-  }
+			/* User can add his own implementation to report the HAL error return state */
+			while (1) {
+			}
   /* USER CODE END Error_Handler */ 
 }
 
@@ -310,8 +309,8 @@ void Error_Handler(void)
 void assert_failed(uint8_t* file, uint32_t line)
 {
   /* USER CODE BEGIN 6 */
-  /* User can add his own implementation to report the file name and line number,
-    ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
+			/* User can add his own implementation to report the file name and line number,
+			 ex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 
 }

@@ -1,4 +1,5 @@
-Drivers/CMSIS/system_stm32f4xx.o: ../Drivers/CMSIS/system_stm32f4xx.c \
+Drivers/CMSIS/system_stm32f4xx.o: \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Src/system_stm32f4xx.c \
  C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f4xx.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Include/core_cm4.h \

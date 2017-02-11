@@ -13,12 +13,16 @@ uint16_t * wrptr;	// pointer for writing
 uint32_t SamplesRead = 0;
 uint32_t SamplesWritten = 0;
 uint32_t DataReady = 0;
-__IO uint32_t Recording = 2;
-__IO uint32_t Dubbing = 0;
-__IO uint32_t DubbingPressed = 0;
+__IO uint8_t Recording = 2;
+__IO uint8_t Playback = 0;
+__IO uint8_t Dubbing = 0;
+
+__IO ButtonStates DubbingPressed = UP;
+__IO ButtonStates PlaybackButton = UP;
+__IO ButtonStates RecordingButton = UP;
 __IO uint32_t BufferCount = 0;
 __IO uint32_t TapToneBufferCount = 1500;
-__IO uint32_t BufferSwitch = 0;
+__IO uint8_t BufferSwitch = 0;
 __IO uint32_t TimeCounter = 0;
 __IO uint8_t ToggleRecording = 0;
 __IO uint8_t StartApp = 0;
@@ -256,10 +260,7 @@ void playbackLoop() {
 	BufferSwitch = 1;
 	BufferCount = 0;
 	SamplesRead = 0;
-	if(DubbingPressed == 1)
-		Dubbing = 1;
-	else
-		Dubbing = 0;
+
 	rdptr = read_buffer_1;
 	wrptr = write_buffer_1;
 
@@ -267,15 +268,15 @@ void playbackLoop() {
 		continue;
 	DmaTransferReady = 0;
 
-	while (Recording == 0) {
+	while (Playback == 1) {
 		while (DataReady == 0){
 			if(SamplesRead == SamplesWritten){
 				DataReady = 1;
 				SamplesRead = 0;
-				if(DubbingPressed == 1)
-						Dubbing = 1;
-					else
-						Dubbing = 0;
+				if(HAL_GPIO_ReadPin(Dubbing_Off_GPIO_Port,Dubbing_Off_Pin) == GPIO_PIN_RESET)
+					Dubbing = 1;
+				else
+					Dubbing = 0;
 				goto END_PLAYBACK;
 			}
 
@@ -362,7 +363,7 @@ void recordToggle() {
 
 	} else {
 		Recording = 0x00;
-
+		Playback = 1;
 	}
 	if (Recording == 0x01) {
 		Dubbing = 0;
@@ -398,13 +399,13 @@ void play_record(){
 	}
 	newsample = getSample();
 	oldsample = rdptr[BufferCount];
-	if(Recording == 0){
+	if(Playback == 1){
 		Write_DAC8552(channel_A,oldsample);
 		if(Dubbing == 1)
 				wrptr[BufferCount] = mix(newsample,oldsample);
 			SamplesRead++;
 		}
-		else{
+		if(Recording == 1){
 			wrptr[BufferCount] = newsample;
 			SamplesWritten++;
 		}
