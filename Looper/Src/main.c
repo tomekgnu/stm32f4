@@ -66,6 +66,8 @@ extern uint8_t CommandKeyTable[4][4];
 extern __IO ButtonStates DubbingPressed;
 extern __IO ButtonStates RecordingButton;
 extern __IO ButtonStates PlaybackButton;
+extern __IO GPIO_PinState GuitarTrigger;
+
 uint16_t taptone_buffer[100];
 /* USER CODE END PV */
 
@@ -140,7 +142,7 @@ int main(void)
 	ADS1256_SetChannel(0);
 
 	status = HAL_TIM_Base_Start_IT(&htim3);
-//status = HAL_ADC_Start_IT(&hadc1);
+	status = HAL_ADC_Start_IT(&hadc1);
 //status = HAL_TIM_Base_Start(&htim8);
 
   /* USER CODE END 2 */
@@ -249,6 +251,12 @@ void initTapTone() {
 		taptone_buffer[i] = i;
 	}
 }
+
+void triggerHandler(){
+
+
+}
+
 void buttonHandler() {
 	if(HAL_GPIO_ReadPin(Recording_GPIO_Port,Recording_Pin) == GPIO_PIN_SET) {
 		RecordingButton = RELEASE;

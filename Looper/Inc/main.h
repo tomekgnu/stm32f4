@@ -38,8 +38,8 @@
 /* USER CODE BEGIN Includes */
 #include "stdint.h"
 uint16_t mix(double a, double b);
-#define SAMPLE_SIZE			2
-#define SAMPLE_ARRAY		512
+#define SAMPLE_SIZE			4
+#define SAMPLE_ARRAY		1024
 #define SAMPLE_BYTES		SAMPLE_ARRAY * SAMPLE_SIZE
 #define READ_SIZE			((SAMPLE_BYTES) / 4)
 #define WRITE_SIZE			((SAMPLE_BYTES) / 4)
@@ -51,6 +51,7 @@ void playbackLoop();
 void recordLoop();
 void play_record();
 void buttonHandler();
+void triggerHandler();
 
 #define delayUS_ASM(us) do {\
 	asm volatile (	"MOV R0,%[loops]\n\t"\
@@ -90,6 +91,8 @@ void buttonHandler();
 #define A4_GPIO_Port GPIOF
 #define A5_Pin GPIO_PIN_5
 #define A5_GPIO_Port GPIOF
+#define Recording_Pin GPIO_PIN_6
+#define Recording_GPIO_Port GPIOF
 #define SPI5_SCK_Pin GPIO_PIN_7
 #define SPI5_SCK_GPIO_Port GPIOF
 #define SPI5_MISO_Pin GPIO_PIN_8
@@ -232,6 +235,10 @@ void buttonHandler();
 #define G7_GPIO_Port GPIOD
 #define B2_Pin GPIO_PIN_6
 #define B2_GPIO_Port GPIOD
+#define Dubbing_Pin GPIO_PIN_7
+#define Dubbing_GPIO_Port GPIOD
+#define Playback_Pin GPIO_PIN_9
+#define Playback_GPIO_Port GPIOG
 #define G3_Pin GPIO_PIN_10
 #define G3_GPIO_Port GPIOG
 #define B3_Pin GPIO_PIN_11
@@ -246,14 +253,12 @@ void buttonHandler();
 #define SDNCAS_GPIO_Port GPIOG
 #define ADS1256_SCK_Pin GPIO_PIN_3
 #define ADS1256_SCK_GPIO_Port GPIOB
-#define Dubbing_Button_Pin GPIO_PIN_4
-#define Dubbing_Button_GPIO_Port GPIOB
+#define Toggle_rhytm_Pin GPIO_PIN_4
+#define Toggle_rhytm_GPIO_Port GPIOB
 #define SDCKE1_Pin GPIO_PIN_5
 #define SDCKE1_GPIO_Port GPIOB
 #define SDNE1_Pin GPIO_PIN_6
 #define SDNE1_GPIO_Port GPIOB
-#define Recording_Button_Pin GPIO_PIN_7
-#define Recording_Button_GPIO_Port GPIOB
 #define B6_Pin GPIO_PIN_8
 #define B6_GPIO_Port GPIOB
 #define B7_Pin GPIO_PIN_9
@@ -266,7 +271,13 @@ void buttonHandler();
 #define BUFFER_SIZE         ((uint32_t)0x0100)
 #define WRITE_READ_ADDR     ((uint32_t)0x0800)
 #define SDRAM_SIZE			((uint32_t)0x800000)
+typedef enum
+{
+  GREEN = 0,
+  RED = 1
+}Led_Colors;
 
+typedef enum ButtonStates { UP, DOWN, PRESS, RELEASE } ButtonStates;
 
 /* USER CODE END Private defines */
 

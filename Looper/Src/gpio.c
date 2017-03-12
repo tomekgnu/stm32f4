@@ -124,7 +124,7 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = Recording_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(Recording_GPIO_Port, &GPIO_InitStruct);
 
@@ -192,11 +192,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF9_LTDC;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = BOOT1_Pin;
+  /*Configure GPIO pins : PBPin PBPin */
+  GPIO_InitStruct.Pin = BOOT1_Pin|Toggle_rhytm_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(BOOT1_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin PBPin PBPin */
   GPIO_InitStruct.Pin = G4_Pin|G5_Pin|B6_Pin|B7_Pin;
@@ -220,11 +220,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(VBUS_FS_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = TE_Pin;
+  /*Configure GPIO pins : PDPin PDPin */
+  GPIO_InitStruct.Pin = TE_Pin|Dubbing_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(TE_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PDPin PDPin PD4 PD5 */
   GPIO_InitStruct.Pin = RDX_Pin|WRX_DCX_Pin|GPIO_PIN_4|GPIO_PIN_5;
@@ -266,12 +266,6 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = Dubbing_Off_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(Dubbing_Off_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = Playback_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -292,12 +286,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = Recording_Off_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(Recording_Off_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOE, ADS1256_RESET_Pin|ADS1256_SYNC_Pin|ADS1256_CS_Pin|DAC8552_CS_Pin, GPIO_PIN_SET);
 
@@ -314,13 +302,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOG, LD3_Pin|LD4_Pin, GPIO_PIN_RESET);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI2_IRQn, 1, 3);
+  HAL_NVIC_SetPriority(EXTI2_IRQn, 2, 3);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI4_IRQn, 3, 3);
-  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
-
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 3, 3);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 3, 1);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
@@ -403,11 +388,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			BSP_LED_Off(RED);
 		}
 		break;
-	case Recording_Off_Pin:
-		break;
 
-	case Dubbing_Off_Pin:
-		break;
 	default: break;
 
 	}

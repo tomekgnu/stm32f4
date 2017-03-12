@@ -54,37 +54,11 @@ extern uint32_t SamplesRead;
 extern uint32_t SamplesWritten;
 extern __IO uint32_t CurrentSize;
 extern __IO uint8_t ToggleRecording;
-
+extern uint32_t readADC;
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-	//BSP_LED_On(LED3);
-	//BSP_LED_Off(LED3);
-	uint16_t newsample = 2 * HAL_ADC_GetValue(hadc) + 512;
-	uint16_t oldsample = rdptr[BufferCount];
-		if(Recording == 2){
-			return;
-		}
-		if(Recording == 0){
-			Write_DAC8552(channel_A,oldsample);
-			if(Dubbing == 1)
-					wrptr[BufferCount] = mix(newsample,oldsample) * 2;
-				SamplesRead++;
-			}
-			else{
-				wrptr[BufferCount] = newsample;
-				SamplesWritten++;
-			}
-
-			BufferCount++;
-
-			if(ToggleRecording == 1){
-				DataReady = 1;
-				ToggleRecording = 0;
-				return;
-			}
-			if(BufferCount == SAMPLE_ARRAY){
-				DataReady = 1;
-	}
+	readADC = HAL_ADC_GetValue(hadc);
+	HAL_ADC_Start_IT(&hadc1);
 
 }
 /* USER CODE END 0 */
@@ -100,12 +74,12 @@ void MX_ADC1_Init(void)
     */
   hadc1.Instance = ADC1;
   hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
-  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc1.Init.Resolution = ADC_RESOLUTION_8B;
   hadc1.Init.ScanConvMode = DISABLE;
-  hadc1.Init.ContinuousConvMode = DISABLE;
+  hadc1.Init.ContinuousConvMode = ENABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
-  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
-  hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T8_TRGO;
+  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
+  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DMAContinuousRequests = DISABLE;
@@ -117,18 +91,9 @@ void MX_ADC1_Init(void)
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
     */
-  sConfig.Channel = ADC_CHANNEL_13;
+  sConfig.Channel = ADC_CHANNEL_5;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_144CYCLES;
-  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
-    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
-    */
-  sConfig.Rank = 2;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
@@ -149,15 +114,15 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     __HAL_RCC_ADC1_CLK_ENABLE();
   
     /**ADC1 GPIO Configuration    
-    PC3     ------> ADC1_IN13 
+    PA5     ------> ADC1_IN5 
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_3;
+    GPIO_InitStruct.Pin = GPIO_PIN_5;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /* Peripheral interrupt init */
-    HAL_NVIC_SetPriority(ADC_IRQn, 1, 2);
+    HAL_NVIC_SetPriority(ADC_IRQn, 3, 3);
     HAL_NVIC_EnableIRQ(ADC_IRQn);
   /* USER CODE BEGIN ADC1_MspInit 1 */
 
@@ -177,9 +142,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     __HAL_RCC_ADC1_CLK_DISABLE();
   
     /**ADC1 GPIO Configuration    
-    PC3     ------> ADC1_IN13 
+    PA5     ------> ADC1_IN5 
     */
-    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_3);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_5);
 
     /* Peripheral interrupt Deinit*/
     HAL_NVIC_DisableIRQ(ADC_IRQn);
