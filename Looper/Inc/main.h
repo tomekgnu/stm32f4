@@ -37,7 +37,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "stdint.h"
-uint16_t mix(double a, double b);
+int32_t mix(double a, double b);
 #define SAMPLE_SIZE			4
 #define SAMPLE_ARRAY		1024
 #define SAMPLE_BYTES		SAMPLE_ARRAY * SAMPLE_SIZE
@@ -50,6 +50,7 @@ void recordToggle();
 void playbackLoop();
 void recordLoop();
 void play_record();
+void lowerMixedSamples(uint32_t * buf);
 void buttonHandler();
 void triggerHandler();
 

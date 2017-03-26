@@ -40,8 +40,12 @@ uint32_t readADC;
 
 extern ADC_HandleTypeDef hadc1;
 
-uint16_t mix(double a, double b) {
-	return (uint16_t) ((a + b) * 0.5);
+int32_t mix(double a, double b) {
+	if(a < 0 && b < 0)
+	   return ((int)a + (int)b) - (((int)a * (int)b) / -32768);
+	if( a > 0 && b > 0)
+	   return ((int)a + (int)b) - (((int)a * (int)b)/ 32768);
+	return (a + b);
 }
 
 int32_t ads1256data;
@@ -50,7 +54,7 @@ static uint16_t getSample() {
 
 	ADS1256_WaitDRDY();
 	ads1256data = ADS1256_ReadData();
-	return (uint16_t) (((ads1256data >> 8) + 32768));
+	return (uint16_t) (((ads1256data >> 8) + 32767));
 }
 static void resetVars(){
 	BufferCount = 0;
@@ -201,6 +205,12 @@ void eraseMemory(){
 		pointer += SAMPLE_BYTES;
 	}
 }
+
+static int32_t mixbuffer[SAMPLE_ARRAY];
+static uint32_t highestmix = 0;
+static float multiplier = 1.0;
+
+
 void recordLoop() {
 	uint32_t write_pointer = 0;
 	uint8_t first_filled = 0;	// first read buffer
@@ -214,6 +224,8 @@ void recordLoop() {
 	wrptr = write_buffer_1;
 
 	while (Recording == 1) {
+		highestmix = 0;
+		multiplier = 1.0;
 		while (DataReady == 0)
 			continue;
 		DataReady = 0;
@@ -274,6 +286,8 @@ void playbackLoop() {
 	DmaTransferReady = 0;
 
 	while (Playback == 1) {
+		highestmix = 0;
+		multiplier = 1.0;
 		while (DataReady == 0){
 			if(SamplesRead == SamplesWritten){
 				DataReady = 1;
@@ -296,6 +310,7 @@ void playbackLoop() {
 			wrptr = write_buffer_2;
 			if (Dubbing == 1){
 				DmaTransferReady = 0;
+				//lowerMixedSamples(write_buffer_1);
 				BSP_SDRAM_WriteData_DMA(SDRAM_DEVICE_ADDR + read_pointer - SAMPLE_BYTES,(uint32_t *) write_buffer_1, SAMPLE_ARRAY);
 				while(!DmaTransferReady)
 					continue;
@@ -313,6 +328,7 @@ void playbackLoop() {
 			wrptr = write_buffer_1;
 			if (Dubbing == 1){
 				DmaTransferReady = 0;
+				//lowerMixedSamples(write_buffer_2);
 				BSP_SDRAM_WriteData_DMA(SDRAM_DEVICE_ADDR + read_pointer - SAMPLE_BYTES,(uint32_t *) write_buffer_2, SAMPLE_ARRAY);
 				while(!DmaTransferReady)
 					continue;
@@ -396,12 +412,24 @@ void dubToggle() {
 	}
 }
 
+
+void lowerMixedSamples(uint32_t * buf){
+	int cnt;
+
+	for(cnt = 0; cnt < SAMPLE_ARRAY; cnt++)
+		buf[cnt] = buf[cnt] | (uint32_t)((float)mixbuffer[cnt] * multiplier);
+	multiplier = 1.0;
+	highestmix = 0;
+
+}
 void play_record(){
 
 	uint16_t newsample;
 	uint16_t upper;
 	uint16_t lower;
-	uint16_t mixed;
+	int32_t mixed;
+	int32_t lowersigned;
+	int32_t newsigned;
 
 	if(StartApp == 0){
 		return;
@@ -411,15 +439,22 @@ void play_record(){
 	newsample = getSample();
 	upper = (uint16_t)(rdptr[BufferCount] >> 16);
 	lower = (uint16_t)(rdptr[BufferCount] & 0x0000FFFF);
-
+	newsigned = newsample - 32767;
+	lowersigned = lower - 32767;
 	if(Playback == 1){
 		Write_DAC8552(channel_A,upper);
 		Write_DAC8552(channel_B,lower);
 		if(Dubbing == 1){
-				mixed = mix(newsample,lower);
-				wrptr[BufferCount] = (((uint32_t)upper) << 16) | (uint32_t)mixed;
+				mixed = mix(newsigned,lowersigned);
+//				if(mixed > 65536 && mixed > highestmix){
+//					highestmix = mixed;
+//					multiplier = (float)65536 / (float)highestmix;
+//				}
+
+				wrptr[BufferCount] = (((uint32_t)upper) << 16) | ((uint32_t)(mixed + 32767));
 
 			}
+
 			SamplesRead++;
 		}
 	if(Recording == 1){

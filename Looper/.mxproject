@@ -1,7 +1,7 @@
 [PreviousGenFiles]
-HeaderPath=C:/Users/Tomek/workspace/tom32f4/Looper/Inc
+HeaderPath=C:/Users/Tomasz/workspace/tom32f4/Looper/Inc
 HeaderFiles=gpio.h;adc.h;fmc.h;i2c.h;spi.h;tim.h;stm32f4xx_it.h;stm32f4xx_hal_conf.h;main.h;
-SourcePath=C:/Users/Tomek/workspace/tom32f4/Looper/Src
+SourcePath=C:/Users/Tomasz/workspace/tom32f4/Looper/Src
 SourceFiles=gpio.h;adc.h;fmc.h;i2c.h;spi.h;tim.h;stm32f4xx_it.h;stm32f4xx_hal_conf.h;main.h;gpio.c;adc.c;fmc.c;i2c.c;spi.c;tim.c;stm32f4xx_it.c;stm32f4xx_hal_msp.c;main.c;
 
 [PreviousLibFiles]
