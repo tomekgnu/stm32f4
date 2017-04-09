@@ -181,5 +181,5 @@ void ShortDelayUS(uint32_t Delay);
 #define channel_B   0x34
 
 void Write_DAC8552(uint8_t channel, uint16_t Data);
-
+void Write_DAC8552_Both(uint16_t A,uint16_t B);
 #endif /* ADS1256_TEST_H_ */

@@ -33,7 +33,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
-#include "adc.h"
 #include "i2c.h"
 #include "spi.h"
 #include "tim.h"
@@ -67,6 +66,7 @@ extern __IO ButtonStates DubbingPressed;
 extern __IO ButtonStates RecordingButton;
 extern __IO ButtonStates PlaybackButton;
 extern __IO GPIO_PinState GuitarTrigger;
+extern __IO uint8_t ToggleRhythm;
 
 uint16_t taptone_buffer[100];
 /* USER CODE END PV */
@@ -112,7 +112,6 @@ int main(void)
   MX_TIM2_Init();
   MX_I2C3_Init();
   MX_FMC_Init();
-  MX_ADC1_Init();
   MX_TIM8_Init();
 
   /* USER CODE BEGIN 2 */
@@ -142,7 +141,9 @@ int main(void)
 	ADS1256_SetChannel(0);
 
 	status = HAL_TIM_Base_Start_IT(&htim3);
-	status = HAL_ADC_Start_IT(&hadc1);
+	//status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+	//status = HAL_ADC_Start_IT(&hadc1);
+
 //status = HAL_TIM_Base_Start(&htim8);
 
   /* USER CODE END 2 */
@@ -264,8 +265,12 @@ void buttonHandler() {
 	}
 	if(HAL_GPIO_ReadPin(Playback_GPIO_Port,Playback_Pin) == GPIO_PIN_SET) {
 		PlaybackButton = RELEASE;
-
-		}
+	}
+	if(HAL_GPIO_ReadPin(Toggle_rhytm_GPIO_Port,Toggle_rhytm_Pin) == GPIO_PIN_SET) {
+			ToggleRhythm = 1;
+	}
+	else
+		ToggleRhythm = 0;
 //	else
 //		RecordingPressed = RELEASE;
 //	if (HAL_GPIO_ReadPin(Dubbing_On_GPIO_Port, Dubbing_On_Pin)	== GPIO_PIN_RESET) {

@@ -37,7 +37,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "stdint.h"
-int32_t mix(double a, double b);
+
 #define SAMPLE_SIZE			4
 #define SAMPLE_ARRAY		1024
 #define SAMPLE_BYTES		SAMPLE_ARRAY * SAMPLE_SIZE

@@ -47,6 +47,8 @@ extern __IO uint8_t StartApp;
 extern __IO ButtonStates PlaybackButton;
 extern __IO ButtonStates DubbingPressed;
 extern __IO ButtonStates RecordingButton;
+extern __IO uint32_t BufferCount;
+
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/

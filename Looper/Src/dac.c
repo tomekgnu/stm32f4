@@ -5,7 +5,7 @@
   *                      of the DAC instances.
   ******************************************************************************
   *
-  * COPYRIGHT(c) 2016 STMicroelectronics
+  * COPYRIGHT(c) 2017 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -65,13 +65,6 @@ void MX_DAC_Init(void)
     Error_Handler();
   }
 
-    /**DAC channel OUT2 config 
-    */
-  if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-
 }
 
 void HAL_DAC_MspInit(DAC_HandleTypeDef* dacHandle)
@@ -87,10 +80,9 @@ void HAL_DAC_MspInit(DAC_HandleTypeDef* dacHandle)
     __HAL_RCC_DAC_CLK_ENABLE();
   
     /**DAC GPIO Configuration    
-    PA4     ------> DAC_OUT1
-    PA5     ------> DAC_OUT2 
+    PA4     ------> DAC_OUT1 
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
+    GPIO_InitStruct.Pin = GPIO_PIN_4;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -113,10 +105,9 @@ void HAL_DAC_MspDeInit(DAC_HandleTypeDef* dacHandle)
     __HAL_RCC_DAC_CLK_DISABLE();
   
     /**DAC GPIO Configuration    
-    PA4     ------> DAC_OUT1
-    PA5     ------> DAC_OUT2 
+    PA4     ------> DAC_OUT1 
     */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_4|GPIO_PIN_5);
+    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_4);
 
   }
   /* USER CODE BEGIN DAC_MspDeInit 1 */
