@@ -45,7 +45,7 @@ extern __IO uint8_t Playback;
 extern __IO uint8_t Dubbing;
 extern __IO uint8_t StartApp;
 extern __IO ButtonStates PlaybackButton;
-extern __IO ButtonStates DubbingPressed;
+extern __IO ButtonStates ToggleDubbing;
 extern __IO ButtonStates RecordingButton;
 extern __IO uint32_t BufferCount;
 
@@ -126,7 +126,7 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = Recording_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(Recording_GPIO_Port, &GPIO_InitStruct);
 
@@ -269,7 +269,7 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = Playback_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(Playback_GPIO_Port, &GPIO_InitStruct);
 
@@ -304,11 +304,8 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOG, LD3_Pin|LD4_Pin, GPIO_PIN_RESET);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI2_IRQn, 2, 3);
+  HAL_NVIC_SetPriority(EXTI2_IRQn, 1, 3);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
-
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 3, 1);
-  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 
@@ -369,11 +366,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(Recording == 1)
 			return;
 		RecordingButton = PRESS;
+
 		Recording = !Recording;
 		if(Recording == 1){
 			Playback = 0;
-			BSP_LED_On(RED);
-			BSP_LED_Off(GREEN);
 		}
 		StartApp = 1;
 		break;
@@ -383,12 +379,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(Playback == 1)
 			return;
 		PlaybackButton = PRESS;
+
 		Playback = !Playback;
 		if(Playback == 1){
 			Recording = 0;
-			BSP_LED_On(GREEN);
-			BSP_LED_Off(RED);
 		}
+
 		break;
 
 	default: break;

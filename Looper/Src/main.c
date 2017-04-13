@@ -62,12 +62,14 @@ extern __IO uint32_t CommandKey;
 extern __IO uint8_t ToggleRecording;
 extern __IO uint8_t StartApp;
 extern uint8_t CommandKeyTable[4][4];
-extern __IO ButtonStates DubbingPressed;
+extern __IO ButtonStates ToggleDubbing;
 extern __IO ButtonStates RecordingButton;
 extern __IO ButtonStates PlaybackButton;
 extern __IO GPIO_PinState GuitarTrigger;
 extern __IO uint8_t ToggleRhythm;
-
+extern __IO uint8_t TogglePlayback;
+extern __IO uint8_t Dubbing;
+extern __IO uint32_t BufferCount;
 uint16_t taptone_buffer[100];
 /* USER CODE END PV */
 
@@ -131,7 +133,7 @@ int main(void)
 	ADS1256_WriteCmd(CMD_SDATAC);
 
 	data = ADS1256_ReadChipID();
-	ADS1256_CfgADC(ADS1256_GAIN_2, ADS1256_15000SPS);
+	ADS1256_CfgADC(ADS1256_GAIN_1, ADS1256_15000SPS);
 
 	ADS1256_WriteCmd(CMD_RDATAC);
 	HAL_Delay(10);
@@ -153,15 +155,19 @@ int main(void)
 //eraseMemory();
 
 
-	while (StartApp == 0)
-		continue;
 
 	while (1) {
 
 		if (Recording == 1) {
+			BSP_LED_On(RED);
+			BSP_LED_Off(GREEN);
 			recordLoop();
 
-		} else if (Playback == 1) {
+		}
+
+		if(Playback == 1) {
+			BSP_LED_On(GREEN);
+			BSP_LED_Off(RED);
 			playbackLoop();
 
 		}
@@ -259,18 +265,34 @@ void triggerHandler(){
 }
 
 void buttonHandler() {
-	if(HAL_GPIO_ReadPin(Recording_GPIO_Port,Recording_Pin) == GPIO_PIN_SET) {
-		RecordingButton = RELEASE;
-
-	}
-	if(HAL_GPIO_ReadPin(Playback_GPIO_Port,Playback_Pin) == GPIO_PIN_SET) {
-		PlaybackButton = RELEASE;
-	}
-	if(HAL_GPIO_ReadPin(Toggle_rhytm_GPIO_Port,Toggle_rhytm_Pin) == GPIO_PIN_SET) {
-			ToggleRhythm = 1;
-	}
+//	if(HAL_GPIO_ReadPin(Recording_GPIO_Port,Recording_Pin) == GPIO_PIN_SET) {
+//		RecordingButton = RELEASE;
+//
+//	}
+//	if(HAL_GPIO_ReadPin(Playback_GPIO_Port,Playback_Pin) == GPIO_PIN_SET) {
+//		PlaybackButton = RELEASE;
+//	}
+	if(HAL_GPIO_ReadPin(Toggle_rhytm_GPIO_Port,Toggle_rhytm_Pin) == GPIO_PIN_SET)
+		ToggleRhythm = 1;
 	else
 		ToggleRhythm = 0;
+
+	if(HAL_GPIO_ReadPin(Dubbing_GPIO_Port,Dubbing_Pin) == GPIO_PIN_RESET)
+		Dubbing = 1;
+	else
+		Dubbing = 0;
+
+	if(HAL_GPIO_ReadPin(Recording_GPIO_Port,Recording_Pin) == GPIO_PIN_RESET){
+			Recording = 1;
+			Playback = 0;
+			return;
+	}
+	if(HAL_GPIO_ReadPin(Playback_GPIO_Port,Playback_Pin) == GPIO_PIN_RESET){
+			Recording = 0;
+			Playback = 1;
+			return;
+	}
+
 //	else
 //		RecordingPressed = RELEASE;
 //	if (HAL_GPIO_ReadPin(Dubbing_On_GPIO_Port, Dubbing_On_Pin)	== GPIO_PIN_RESET) {
