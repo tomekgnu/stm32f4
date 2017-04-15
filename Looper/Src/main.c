@@ -70,6 +70,12 @@ extern __IO uint8_t ToggleRhythm;
 extern __IO uint8_t TogglePlayback;
 extern __IO uint8_t Dubbing;
 extern __IO uint32_t BufferCount;
+extern uint32_t dub_pointer;
+extern uint32_t read_pointer;
+extern uint32_t write_pointer;
+extern uint32_t SamplesRead;
+extern uint32_t SamplesWritten;
+
 uint16_t taptone_buffer[100];
 /* USER CODE END PV */
 
@@ -133,7 +139,7 @@ int main(void)
 	ADS1256_WriteCmd(CMD_SDATAC);
 
 	data = ADS1256_ReadChipID();
-	ADS1256_CfgADC(ADS1256_GAIN_1, ADS1256_15000SPS);
+	ADS1256_CfgADC(ADS1256_GAIN_1, ADS1256_30000SPS);
 
 	ADS1256_WriteCmd(CMD_RDATAC);
 	HAL_Delay(10);
@@ -158,19 +164,7 @@ int main(void)
 
 	while (1) {
 
-		if (Recording == 1) {
-			BSP_LED_On(RED);
-			BSP_LED_Off(GREEN);
-			recordLoop();
 
-		}
-
-		if(Playback == 1) {
-			BSP_LED_On(GREEN);
-			BSP_LED_Off(RED);
-			playbackLoop();
-
-		}
 
   /* USER CODE END WHILE */
 
@@ -265,13 +259,13 @@ void triggerHandler(){
 }
 
 void buttonHandler() {
-//	if(HAL_GPIO_ReadPin(Recording_GPIO_Port,Recording_Pin) == GPIO_PIN_SET) {
-//		RecordingButton = RELEASE;
-//
-//	}
-//	if(HAL_GPIO_ReadPin(Playback_GPIO_Port,Playback_Pin) == GPIO_PIN_SET) {
-//		PlaybackButton = RELEASE;
-//	}
+	if(HAL_GPIO_ReadPin(Recording_GPIO_Port,Recording_Pin) == GPIO_PIN_SET) {
+		RecordingButton = RELEASE;
+
+	}
+	if(HAL_GPIO_ReadPin(Playback_GPIO_Port,Playback_Pin) == GPIO_PIN_SET) {
+		PlaybackButton = RELEASE;
+	}
 	if(HAL_GPIO_ReadPin(Toggle_rhytm_GPIO_Port,Toggle_rhytm_Pin) == GPIO_PIN_SET)
 		ToggleRhythm = 1;
 	else
@@ -282,16 +276,30 @@ void buttonHandler() {
 	else
 		Dubbing = 0;
 
-	if(HAL_GPIO_ReadPin(Recording_GPIO_Port,Recording_Pin) == GPIO_PIN_RESET){
-			Recording = 1;
-			Playback = 0;
-			return;
-	}
-	if(HAL_GPIO_ReadPin(Playback_GPIO_Port,Playback_Pin) == GPIO_PIN_RESET){
-			Recording = 0;
-			Playback = 1;
-			return;
-	}
+//	if(HAL_GPIO_ReadPin(Recording_GPIO_Port,Recording_Pin) == GPIO_PIN_RESET){
+//			StartApp = 0;
+//			BSP_LED_On(RED);
+//			BSP_LED_Off(GREEN);
+//			SamplesWritten = 0;
+//			dub_pointer = 0;
+//			write_pointer = 0;
+//			Recording = 1;
+//			Playback = 0;
+//			StartApp = 1;
+//			return;
+//	}
+//	if(HAL_GPIO_ReadPin(Playback_GPIO_Port,Playback_Pin) == GPIO_PIN_RESET){
+//			StartApp = 0;
+//			BSP_LED_On(GREEN);
+//			BSP_LED_Off(RED);
+//			SamplesRead = 0;
+//			dub_pointer = 0;
+//			read_pointer = 0;
+//			Recording = 0;
+//			Playback = 1;
+//			StartApp = 1;
+//			return;
+//	}
 
 //	else
 //		RecordingPressed = RELEASE;

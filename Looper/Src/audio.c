@@ -14,6 +14,9 @@ uint32_t write_buffer_2[SAMPLE_ARRAY];
 
 uint32_t * rdptr;
 uint32_t * wrptr;	// pointer for writinguint32_t SamplesRead = 0;
+uint32_t dub_pointer = 0;
+uint32_t read_pointer = 0;
+uint32_t write_pointer = 0;
 uint32_t SamplesWritten = 0;
 uint32_t SamplesRead = 0;
 uint32_t DataReady = 0;
@@ -37,8 +40,7 @@ __IO uint8_t DmaTransferReady = 0;
 __IO GPIO_PinState GuitarTrigger = 0;
 
 uint16_t sample;
-uint32_t read_pointer;
-uint32_t write_pointer;
+
 uint8_t first_filled = 0;
 uint32_t readADC;
 
@@ -74,109 +76,11 @@ inline static void adc_play_dac(){
 }
 
 
-void play_memory(){
-	BufferCount = 0;
-	SamplesRead = 0;
-	while(Recording == 0){
-		dac_adc_memory();
-		BufferCount++;
-		if(BufferCount == 90000 || BufferCount == SamplesWritten){
-			BufferCount = 0;
-		}
-	}
-
-}
-
-
-void record_memory(){
-	BufferCount = 0;
-	SamplesWritten = 0;
-	while(Recording == 1){
-		dac_adc_memory();
-		BufferCount++;
-		if(BufferCount == 90000){
-			BufferCount = 0;
-		}
-	}
-}
 
 
 
-inline void dac_adc(){
-	uint16_t newsample = getSample();
-	uint16_t oldsample = rdptr[BufferCount];
-	uint16_t mixed = mix(newsample,oldsample,1);
-
-	if(Recording == 0){
-		Write_DAC8552(channel_A,newsample);
-		Write_DAC8552(channel_B,oldsample);
-		if(Dubbing == 1)
-			wrptr[BufferCount] = mixed;
-		SamplesRead++;
-	}
-	else{
-		Write_DAC8552(channel_A,newsample);
-		wrptr[BufferCount] = newsample;
-		SamplesWritten++;
-	}
-
-	BufferCount++;
-	if(BufferCount == SAMPLE_ARRAY){
-		DataReady = 1;
-		BufferCount = 0;
-	}
-}
-
-void write_sdram(){
-	//uint32_t size = (BufferCount * 2 / 4) + (BufferCount % 2);
-	if (BufferSwitch == 1) {
-			BufferSwitch = 0;
-			wrptr = write_buffer_2;
-			BSP_SDRAM_WriteData_DMA(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) write_buffer_1, MEM_BLOCK);
-			if (first_filled == 0) {
-				memcpy(read_buffer_1, write_buffer_1, BufferCount * 2);
-				first_filled = 1;
-			}
-			bzero(write_buffer_1, SAMPLE_BYTES);
-			write_pointer += (BufferCount * 2);
-		}
-	else {
-			BufferSwitch = 1;
-			wrptr = write_buffer_1;
-			BSP_SDRAM_WriteData_DMA(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) write_buffer_2, MEM_BLOCK);
-			if (first_filled == 1) {
-				memcpy(read_buffer_2, write_buffer_2, MEM_BLOCK);
-				first_filled = 2;
-			}
-			bzero(write_buffer_2, MEM_BLOCK);
-			write_pointer += (BufferCount * 2);
-		}
-
-}
-void read_sdram(){
-	uint32_t size = (BufferCount * 2 / 4) + (BufferCount % 2);
-	if (BufferSwitch == 1) {
-		BufferSwitch = 0;
-		wrptr = write_buffer_2;
-		rdptr = read_buffer_2;
-		if (Dubbing == 1)
-			BSP_SDRAM_WriteData_DMA(SDRAM_DEVICE_ADDR + read_pointer - SAMPLE_BYTES,(uint32_t *) write_buffer_1, size);
-		read_pointer += (BufferCount * 2);
-		BSP_SDRAM_ReadData_DMA(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) read_buffer_1, size);
-	}
-	else {
-			BufferSwitch = 1;
-			wrptr = write_buffer_1;
-			rdptr = read_buffer_1;
-			if (Dubbing == 1)
-				BSP_SDRAM_WriteData_DMA(SDRAM_DEVICE_ADDR + read_pointer - SAMPLE_BYTES,(uint32_t *) write_buffer_2, size);
-			read_pointer += (BufferCount * 2);
-			BSP_SDRAM_ReadData_DMA(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) read_buffer_2, size);
-
-		}
 
 
-}
 
 void eraseMemory(){
 	uint32_t pointer = 0;
@@ -194,62 +98,12 @@ static float multiplier = 1.0;
 
 void recordLoop() {
 
-	uint32_t write_pointer = 0;
-	uint8_t first_filled = 0;	// first read buffer
-	DataReady = 0;
-	BufferSwitch = 1;
-	BufferCount = 0;
+	write_pointer = 0;
 	SamplesWritten = 0;
-	DmaTransferReady = 0;
-	memset(write_buffer_1, 0, SAMPLE_BYTES);
-	memset(write_buffer_2, 0, SAMPLE_BYTES);
-	wrptr = write_buffer_1;
-
 	StartApp = 1;
 	while (Recording == 1) {
-		highestmix = 0;
-		multiplier = 1.0;
-		while (DataReady == 0){
-			continue;
-		}
-		DataReady = 0;
-		CurrentBytes = BufferCount * 4;
-		BufferCount = 0;
-		if (BufferSwitch == 1) {
-			BufferSwitch = 0;
-			wrptr = write_buffer_2;
-			DmaTransferReady = 0;
-			BSP_SDRAM_WriteData_DMA(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *)write_buffer_1, SAMPLE_BYTES);
-			while(!DmaTransferReady)
-				continue;
-
-			if (first_filled == 0) {
-				memcpy(read_buffer_1, write_buffer_1, SAMPLE_BYTES);
-				first_filled = 1;
-			}
-			memset(write_buffer_1, 0, SAMPLE_BYTES);
-		} else {
-			BufferSwitch = 1;
-			wrptr = write_buffer_1;
-			DmaTransferReady = 0;
-			BSP_SDRAM_WriteData_DMA(SDRAM_DEVICE_ADDR + write_pointer, (uint32_t *)write_buffer_2, SAMPLE_BYTES);
-			while(!DmaTransferReady)
-				continue;
-
-			if (first_filled == 1) {
-				memcpy(read_buffer_2, write_buffer_2, SAMPLE_BYTES);
-				first_filled = 2;
-			}
-			memset(write_buffer_2, 0, SAMPLE_BYTES);
-		}
-
-		write_pointer += SAMPLE_BYTES;
-
 		if (write_pointer == SDRAM_SIZE) {
 			write_pointer = 0;
-			wrptr = write_buffer_1;
-			SamplesWritten = 0;
-			BufferCount = 0;
 		}
 	}
 
@@ -257,107 +111,15 @@ void recordLoop() {
 
 }
 void playbackLoop() {
-	uint32_t read_pointer = SAMPLE_BYTES;
-	uint32_t dub_pointer = 0;
-	uint32_t time = 0;
-	DataReady = 0;
-	BufferSwitch = 1;
-	BufferCount = 0;
+	read_pointer = 0;
 	SamplesRead = 0;
-	rdptr = read_buffer_1;
-	wrptr = write_buffer_1;
-	while(!DmaTransferReady)
-		continue;
-	DmaTransferReady = 0;
 	StartApp = 1;
 	while (Playback == 1) {
-		highestmix = 0;
-		multiplier = 1.0;
-
-		while (DataReady == 0){
-			if(SamplesRead == SamplesWritten){
-				SamplesRead = 0;
-				goto END_PLAYBACK;
-			}
-
-			continue;
-		}
-
-		DataReady = 0;
-		CurrentBytes = BufferCount * 4;
-		BufferCount = 0;
-		if (BufferSwitch == 1) {
-			BufferSwitch = 0;
-			rdptr = read_buffer_2;
-			wrptr = write_buffer_2;
-			read_pointer += SAMPLE_BYTES;
-			DmaTransferReady = 0;
-			BSP_SDRAM_ReadData_DMA(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) read_buffer_1, SAMPLE_ARRAY);
-			while(!DmaTransferReady)
-				continue;
-			if (Dubbing == 1){
-//				DmaTransferReady = 0;
-//				//lowerMixedSamples(write_buffer_1);
-//				BSP_SDRAM_WriteData_DMA(SDRAM_DEVICE_ADDR + dub_pointer,(uint32_t *) write_buffer_1, SAMPLE_ARRAY);
-//				while(!DmaTransferReady)
-//					continue;
-
-			}
-			dub_pointer += SAMPLE_BYTES;
-
-
-		} else {
-			BufferSwitch = 1;
-			rdptr = read_buffer_1;
-			wrptr = write_buffer_1;
-			read_pointer += SAMPLE_BYTES;
-			DmaTransferReady = 0;
-			BSP_SDRAM_ReadData_DMA(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) read_buffer_2, SAMPLE_ARRAY);
-			while(!DmaTransferReady)
-				continue;
-			if (Dubbing == 1){
-//				DmaTransferReady = 0;
-//				//lowerMixedSamples(write_buffer_2);
-//				BSP_SDRAM_WriteData_DMA(SDRAM_DEVICE_ADDR + dub_pointer,(uint32_t *) write_buffer_2, SAMPLE_ARRAY);
-//				while(!DmaTransferReady)
-//					continue;
-
-			}
-			dub_pointer += SAMPLE_BYTES;
-
-		}
-
-		time++;
-
-		if (read_pointer == SDRAM_SIZE) {
-			END_PLAYBACK:
-			read_pointer = SAMPLE_BYTES;
-			dub_pointer = 0;
-			time = 0;
-			DataReady = 0;
-			BufferSwitch = 1;
-			BufferCount = 0;
-			DmaTransferReady = 0;
-
-			BSP_SDRAM_ReadData_DMA(SDRAM_DEVICE_ADDR,(uint32_t *) read_buffer_1, SAMPLE_ARRAY);
-			while(!DmaTransferReady)
-				continue;
-
-			DmaTransferReady = 0;
-			BSP_SDRAM_ReadData_DMA(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) read_buffer_2, SAMPLE_ARRAY);
-
-			while(!DmaTransferReady)
-				continue;
-
-			rdptr = read_buffer_1;
-			wrptr = write_buffer_1;
-
-		}
-
 
 	}
 
 	StartApp = 0;
+
 }
 
 
@@ -414,23 +176,31 @@ void lowerMixedSamples(uint32_t * buf){
 
 }
 
+uint16_t newsample;
+uint32_t oldsample;
+uint16_t upper;
+uint16_t lower;
+uint16_t mixed;
+uint32_t upperlower;
 
 void play_record(){
-	uint16_t newsample;
-	uint16_t upper;
-	uint16_t lower;
-	uint16_t mixed;
-	uint32_t upperlower;
 
 	if(StartApp == 0 ){
 		return;
 	}
 
 	newsample = getSample();
-	upper = (uint16_t)(rdptr[BufferCount] >> 16);
-	lower = (uint16_t)(rdptr[BufferCount] & 0x0000FFFF);
+	if(Recording == 1){
+			upperlower = (newsample << 16);
+			BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) &upperlower, 1);
+			SamplesWritten++;
 
-	if(Playback == 1){
+			}
+
+	else if(Playback == 1){
+		BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
+		upper = (upperlower >> 16);
+		lower = (upperlower & 0x0000FFFF);
 		if(ToggleRhythm == 1)
 			Write_DAC8552(channel_A,upper);
 			//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,(upper + 32768) >> 4);
@@ -442,24 +212,27 @@ void play_record(){
 				upperlower = upper;
 				upperlower <<= 16;
 				upperlower |= (uint32_t)mixed;
-				wrptr[BufferCount] = upperlower;
+				//wrptr[BufferCount] = upperlower;
+				DmaTransferReady = 0;
+				BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + dub_pointer,(uint32_t *) &upperlower, 1);
 
-			}
+		}
 
 			SamplesRead++;
-		}
-	if(Recording == 1){
-			wrptr[BufferCount] = (uint32_t)(newsample << 16 );
-			SamplesWritten++;
+			if(SamplesRead == SamplesWritten){
+				dub_pointer = 0;
+				SamplesRead = 0;
+				read_pointer = 0;
+				return;
+			}
 
 		}
+
+
 
 		BufferCount++;
-
-		if(BufferCount == SAMPLE_ARRAY){
-			DataReady = 1;
-		}
-
-
+		dub_pointer += 4;
+		read_pointer += 4;
+		write_pointer += 4;
 
 }

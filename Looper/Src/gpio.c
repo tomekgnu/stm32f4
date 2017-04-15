@@ -48,7 +48,12 @@ extern __IO ButtonStates PlaybackButton;
 extern __IO ButtonStates ToggleDubbing;
 extern __IO ButtonStates RecordingButton;
 extern __IO uint32_t BufferCount;
-
+extern uint32_t SamplesRead;
+extern uint32_t SamplesWritten;
+extern uint32_t DataReady;
+extern uint32_t dub_pointer;
+extern uint32_t read_pointer;
+extern uint32_t write_pointer;
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
@@ -126,7 +131,7 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = Recording_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(Recording_GPIO_Port, &GPIO_InitStruct);
 
@@ -269,7 +274,7 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = Playback_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(Playback_GPIO_Port, &GPIO_InitStruct);
 
@@ -304,8 +309,11 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOG, LD3_Pin|LD4_Pin, GPIO_PIN_RESET);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI2_IRQn, 1, 3);
+  HAL_NVIC_SetPriority(EXTI2_IRQn, 2, 3);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 0);
+  HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
 
@@ -352,6 +360,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			Recording = 0;
 			Playback = 0;
 			StartApp = 0;
+			Dubbing = 0;
+			DataReady = 1;
+			SamplesRead = 0;
+			SamplesWritten = 0;
 			BSP_LED_Off(RED);
 			BSP_LED_Off(GREEN);
 		}
@@ -366,11 +378,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(Recording == 1)
 			return;
 		RecordingButton = PRESS;
-
-		Recording = !Recording;
-		if(Recording == 1){
-			Playback = 0;
-		}
+		StartApp = 0;
+		BSP_LED_On(RED);
+		BSP_LED_Off(GREEN);
+		SamplesWritten = 0;
+		dub_pointer = 0;
+		write_pointer = 0;
+		Recording = 1;
+		Playback = 0;
 		StartApp = 1;
 		break;
 	case Playback_Pin:
@@ -379,12 +394,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(Playback == 1)
 			return;
 		PlaybackButton = PRESS;
-
-		Playback = !Playback;
-		if(Playback == 1){
-			Recording = 0;
-		}
-
+		StartApp = 0;
+		BSP_LED_On(GREEN);
+		BSP_LED_Off(RED);
+		SamplesRead = 0;
+		dub_pointer = 0;
+		read_pointer = 0;
+		Recording = 0;
+		Playback = 1;
+		StartApp = 1;
 		break;
 
 	default: break;
