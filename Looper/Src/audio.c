@@ -228,8 +228,6 @@ void play_record(){
 
 		}
 
-
-
 		BufferCount++;
 		dub_pointer += 4;
 		read_pointer += 4;
