@@ -200,7 +200,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin */
-  GPIO_InitStruct.Pin = BOOT1_Pin|Toggle_rhytm_Pin;
+  GPIO_InitStruct.Pin = BOOT1_Pin|Toggle_channel_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -309,10 +309,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOG, LD3_Pin|LD4_Pin, GPIO_PIN_RESET);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI2_IRQn, 3, 3);
+  HAL_NVIC_SetPriority(EXTI2_IRQn, 2, 3);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 0);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 2, 0);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
@@ -373,11 +373,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		break;
 
 	case Recording_Pin:
-		if(RecordingButton == PRESS)
-			return;
+		//if(RecordingButton == PRESS)
+			//return;
 		if(Recording == 1)
 			return;
-		RecordingButton = PRESS;
+		//RecordingButton = PRESS;
 		StartApp = 0;
 		BSP_LED_On(RED);
 		BSP_LED_Off(GREEN);
@@ -389,11 +389,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		StartApp = 1;
 		break;
 	case Playback_Pin:
-		if(PlaybackButton == PRESS)
-			return;
+		//if(PlaybackButton == PRESS)
+			//return;
 		if(Playback == 1)
 			return;
-		PlaybackButton = PRESS;
+		//PlaybackButton = PRESS;
 		StartApp = 0;
 		BSP_LED_On(GREEN);
 		BSP_LED_Off(RED);

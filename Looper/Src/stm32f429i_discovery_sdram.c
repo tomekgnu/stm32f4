@@ -238,6 +238,15 @@ void BSP_SDRAM_WriteData(uint32_t uwStartAddress, uint32_t *pData, uint32_t uwDa
   HAL_SDRAM_Write_32b(&SdramHandle, (uint32_t *)uwStartAddress, pData, uwDataSize);
 }
 
+void BSP_SDRAM_WriteData16b(uint32_t uwStartAddress, uint16_t *pData, uint32_t uwDataSize)
+{
+  /* Disable write protection */
+  HAL_SDRAM_WriteProtection_Disable(&SdramHandle);
+
+  /*Write 32-bit data buffer to SDRAM memory*/
+  HAL_SDRAM_Write_16b(&SdramHandle, (uint32_t *)uwStartAddress, pData, uwDataSize);
+}
+
 /**
   * @brief  Writes an mount of data to the SDRAM memory in DMA mode.
   * @param  uwStartAddress : Write start address

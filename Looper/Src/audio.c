@@ -23,7 +23,7 @@ uint32_t DataReady = 0;
 __IO uint8_t Recording = 0;
 __IO uint8_t Playback = 0;
 __IO uint8_t Dubbing = 0;
-__IO uint8_t ToggleRhythm = 0;
+__IO uint8_t ToggleChannel = 0;
 __IO ButtonStates ToggleDubbing = UP;
 __IO ButtonStates PlaybackButton = UP;
 __IO ButtonStates RecordingButton = UP;
@@ -191,7 +191,7 @@ void play_record(){
 
 	newsample = getSample();
 	if(Recording == 1){
-			upperlower = (newsample << 16);
+			upperlower = (((uint32_t)newsample) << 16);
 			BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) &upperlower, 1);
 			SamplesWritten++;
 
@@ -201,11 +201,8 @@ void play_record(){
 		BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
 		upper = (upperlower >> 16);
 		lower = (upperlower & 0x0000FFFF);
-		if(ToggleRhythm == 1)
-			Write_DAC8552(channel_A,upper);
-			//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,(upper + 32768) >> 4);
+		Write_DAC8552(channel_A,upper);
 		Write_DAC8552(channel_B,lower);
-		//Write_DAC8552_Both((uint16_t)(upper + 32768),(uint16_t)(lower + 32768));
 
 		if(Dubbing == 1){
 				mixed = mix(newsample,lower,loop);
@@ -232,5 +229,10 @@ void play_record(){
 		dub_pointer += 4;
 		read_pointer += 4;
 		write_pointer += 4;
-
+		if(write_pointer == SDRAM_SIZE)
+			write_pointer = 0;
+		if(read_pointer == SDRAM_SIZE)
+			read_pointer = 0;
+		if(dub_pointer == SDRAM_SIZE)
+			dub_pointer = 0;
 }

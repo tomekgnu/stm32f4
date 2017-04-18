@@ -149,6 +149,7 @@ void              BSP_SDRAM_Initialization_sequence(uint32_t RefreshCount);
 void              BSP_SDRAM_ReadData(uint32_t uwStartAddress, uint32_t* pData, uint32_t uwDataSize);
 void              BSP_SDRAM_ReadData_DMA(uint32_t uwStartAddress, uint32_t* pData, uint32_t uwDataSize);
 void              BSP_SDRAM_WriteData(uint32_t uwStartAddress, uint32_t* pData, uint32_t uwDataSize);
+void              BSP_SDRAM_WriteData16b(uint32_t uwStartAddress, uint16_t* pData, uint32_t uwDataSize);
 void              BSP_SDRAM_WriteData_DMA(uint32_t uwStartAddress, uint32_t* pData, uint32_t uwDataSize);
 HAL_StatusTypeDef BSP_SDRAM_Sendcmd(FMC_SDRAM_CommandTypeDef *SdramCmd);
 void              BSP_SDRAM_DMA_IRQHandler(void);
