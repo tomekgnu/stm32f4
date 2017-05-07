@@ -43,6 +43,7 @@ extern __IO uint8_t DmaTransferReady;
 extern __IO uint8_t Recording;
 extern __IO uint8_t Playback;
 extern __IO uint8_t Dubbing;
+extern __IO uint8_t DubbingStarted;
 extern __IO uint8_t StartApp;
 extern __IO ButtonStates PlaybackButton;
 extern __IO ButtonStates ToggleDubbing;
@@ -361,6 +362,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			Playback = 0;
 			StartApp = 0;
 			Dubbing = 0;
+			DubbingStarted = 0;
 			DataReady = 1;
 			SamplesRead = 0;
 			SamplesWritten = 0;

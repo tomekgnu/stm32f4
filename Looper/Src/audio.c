@@ -23,6 +23,7 @@ uint32_t DataReady = 0;
 __IO uint8_t Recording = 0;
 __IO uint8_t Playback = 0;
 __IO uint8_t Dubbing = 0;
+__IO uint8_t DubbingStarted = 0;
 __IO uint8_t ToggleChannel = 0;
 __IO ButtonStates ToggleDubbing = UP;
 __IO ButtonStates PlaybackButton = UP;
@@ -48,11 +49,13 @@ int16_t loop = 0;
 //extern DAC_HandleTypeDef hdac;
 extern SPI_HandleTypeDef hspi3;
 
-static inline uint16_t mix(uint16_t a, uint16_t b,int16_t loop) {
+static inline uint16_t mix(uint16_t a, uint16_t b,int16_t dubbing) {
 //	if(a < 0 && b < 0)
 //		return (int16_t)((a + b) - ((a * b)/SHRT_MIN));
 //	if( a > 0 && b > 0)
 //	   return (int16_t)((a + b) - ((a * b)/SHRT_MAX));
+	if(dubbing == 0)
+		return b;
 	if(a < 32768 && b < 32768)
 		return (a * b) / 32768;
 	return 2 * (a + b) - ((a * b) /32768) - 65536;
@@ -185,17 +188,17 @@ uint32_t upperlower;
 
 void play_record(){
 
+
 	if(StartApp == 0 ){
 		return;
 	}
-
+	Dubbing = ToggleDubbing;
 	newsample = getSample();
 	if(Recording == 1){
-			upperlower = (((uint32_t)newsample) << 16);
+			upperlower = (((uint32_t)newsample) << 16);// | ((uint32_t)(newsample > 1));
 			BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) &upperlower, 1);
 			SamplesWritten++;
-
-			}
+	}
 
 	else if(Playback == 1){
 		BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
@@ -203,20 +206,14 @@ void play_record(){
 		lower = (upperlower & 0x0000FFFF);
 		Write_DAC8552(channel_A,upper);
 		Write_DAC8552(channel_B,lower);
+		mixed = mix(newsample,lower,Dubbing);
+		upperlower = upper;
+		upperlower <<= 16;
+		upperlower |= (uint32_t)mixed;
+		BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + dub_pointer,(uint32_t *) &upperlower, 1);
 
-		if(Dubbing == 1){
-				mixed = mix(newsample,lower,loop);
-				upperlower = upper;
-				upperlower <<= 16;
-				upperlower |= (uint32_t)mixed;
-				//wrptr[BufferCount] = upperlower;
-				DmaTransferReady = 0;
-				BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + dub_pointer,(uint32_t *) &upperlower, 1);
-
-		}
-
-			SamplesRead++;
-			if(SamplesRead == SamplesWritten){
+		SamplesRead++;
+		if(SamplesRead == SamplesWritten){
 				dub_pointer = 0;
 				SamplesRead = 0;
 				read_pointer = 0;
@@ -225,7 +222,6 @@ void play_record(){
 
 		}
 
-		BufferCount++;
 		dub_pointer += 4;
 		read_pointer += 4;
 		write_pointer += 4;

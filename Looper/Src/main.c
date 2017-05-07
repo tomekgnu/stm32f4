@@ -275,9 +275,9 @@ void buttonHandler() {
 		ToggleChannel = 1;
 	}
 	if(HAL_GPIO_ReadPin(Dubbing_GPIO_Port,Dubbing_Pin) == GPIO_PIN_RESET)
-		Dubbing = 1;
+		ToggleDubbing = 1;
 	else
-		Dubbing = 0;
+		ToggleDubbing = 0;
 
 
 }
