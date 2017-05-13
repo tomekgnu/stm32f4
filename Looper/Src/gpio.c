@@ -38,6 +38,7 @@
 #include "stm32f429i_discovery.h"
 #include "ads1256_test.h"
 #include "main.h"
+extern int16_t drumIndex;
 extern __IO uint8_t ToggleRecording;
 extern __IO uint8_t DmaTransferReady;
 extern __IO uint8_t Recording;
@@ -75,7 +76,6 @@ extern uint32_t write_pointer;
      PF9   ------> SPI5_MOSI
      PF10   ------> LTDC_DE
      PA3   ------> LTDC_B5
-     PA4   ------> COMP_DAC1_group
      PA6   ------> LTDC_G2
      PB0   ------> LTDC_R3
      PB1   ------> LTDC_R6
@@ -131,6 +131,12 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = Snare_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(Snare_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = Recording_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -171,12 +177,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = GPIO_AF14_LTDC;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PA4 */
-  GPIO_InitStruct.Pin = GPIO_PIN_4;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
@@ -369,6 +369,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			BSP_LED_Off(RED);
 			BSP_LED_Off(GREEN);
 		}
+
 		break;
 	case ADS1256_DRDY_Pin:
 		play_record();

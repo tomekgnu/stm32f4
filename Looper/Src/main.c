@@ -33,6 +33,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
+#include "dac.h"
 #include "i2c.h"
 #include "spi.h"
 #include "tim.h"
@@ -45,6 +46,7 @@
 #include "main.h"
 #include "string.h"
 #include "math.h"
+#include "sounds/snare.h"
 #define pi 3.14159
 /* USER CODE END Includes */
 
@@ -55,6 +57,7 @@
 
 uint16_t s_index = 0;
 
+uint16_t drumIndex;
 __IO uint32_t CommandKey = 0;
 extern __IO uint8_t Recording;
 extern __IO uint8_t Playback;
@@ -75,6 +78,8 @@ extern uint32_t read_pointer;
 extern uint32_t write_pointer;
 extern uint32_t SamplesRead;
 extern uint32_t SamplesWritten;
+
+extern DAC_HandleTypeDef hdac;
 
 uint16_t taptone_buffer[100];
 /* USER CODE END PV */
@@ -120,7 +125,8 @@ int main(void)
   MX_TIM2_Init();
   MX_I2C3_Init();
   MX_FMC_Init();
-  MX_TIM8_Init();
+  MX_TIM4_Init();
+  MX_DAC_Init();
 
   /* USER CODE BEGIN 2 */
 	HAL_NVIC_DisableIRQ(EXTI2_IRQn);
@@ -149,7 +155,8 @@ int main(void)
 	ADS1256_SetChannel(0);
 
 	status = HAL_TIM_Base_Start_IT(&htim3);
-	//status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+	status = HAL_TIM_Base_Start_IT(&htim4);
+	status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
 	//status = HAL_ADC_Start_IT(&hadc1);
 
 //status = HAL_TIM_Base_Start(&htim8);
@@ -253,8 +260,12 @@ void initTapTone() {
 	}
 }
 
-void triggerHandler(){
+void drumHandler(){
 
+	if(HAL_GPIO_ReadPin(Snare_GPIO_Port,Snare_Pin) == GPIO_PIN_RESET)
+		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,snare[drumIndex++] >> 4);
+	if(drumIndex == 6044)
+		drumIndex = 0;
 
 }
 

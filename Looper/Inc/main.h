@@ -52,7 +52,7 @@ void recordLoop();
 void play_record();
 void lowerMixedSamples(uint32_t * buf);
 void buttonHandler();
-void triggerHandler();
+void drumHandler();
 
 #define delayUS_ASM(us) do {\
 	asm volatile (	"MOV R0,%[loops]\n\t"\
@@ -76,6 +76,8 @@ void triggerHandler();
 #define ADS1256_CS_GPIO_Port GPIOE
 #define DAC8552_CS_Pin GPIO_PIN_6
 #define DAC8552_CS_GPIO_Port GPIOE
+#define Snare_Pin GPIO_PIN_13
+#define Snare_GPIO_Port GPIOC
 #define PC14_OSC32_IN_Pin GPIO_PIN_14
 #define PC14_OSC32_IN_GPIO_Port GPIOC
 #define PC15_OSC32_OUT_Pin GPIO_PIN_15

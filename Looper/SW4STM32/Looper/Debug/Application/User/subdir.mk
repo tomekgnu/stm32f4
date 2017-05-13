@@ -6,6 +6,7 @@
 C_SRCS += \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/ads1256_test.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/audio.c \
+C:/Users/Tomasz/workspace/tom32f4/Looper/Src/dac.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/fmc.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/gpio.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/i2c.c \
@@ -21,6 +22,7 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Src/tim.c
 OBJS += \
 ./Application/User/ads1256_test.o \
 ./Application/User/audio.o \
+./Application/User/dac.o \
 ./Application/User/fmc.o \
 ./Application/User/gpio.o \
 ./Application/User/i2c.o \
@@ -36,6 +38,7 @@ OBJS += \
 C_DEPS += \
 ./Application/User/ads1256_test.d \
 ./Application/User/audio.d \
+./Application/User/dac.d \
 ./Application/User/fmc.d \
 ./Application/User/gpio.d \
 ./Application/User/i2c.d \
@@ -59,6 +62,14 @@ Application/User/ads1256_test.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/ad
 	@echo ' '
 
 Application/User/audio.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/audio.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU GCC Compiler'
+	@echo %cd%
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -D__weak="__attribute__((weak))" -D__packed="__attribute__((__packed__))" -DUSE_HAL_DRIVER -DSTM32F429xx -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/CMSIS/Include" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Inc"  -O1 -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+Application/User/dac.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/dac.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo %cd%

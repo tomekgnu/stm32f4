@@ -192,6 +192,7 @@ void play_record(){
 	if(StartApp == 0 ){
 		return;
 	}
+	drumHandler();
 	Dubbing = ToggleDubbing;
 	newsample = getSample();
 	if(Recording == 1){
