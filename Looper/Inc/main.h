@@ -44,15 +44,11 @@
 #define READ_SIZE			((SAMPLE_BYTES) / 4)
 #define WRITE_SIZE			((SAMPLE_BYTES) / 4)
 #define MEM_BLOCK			READ_SIZE
-#define CURRENT_BYTES		(BufferCount * 2)
 
-void recordToggle();
-void playbackLoop();
-void recordLoop();
 void play_record();
 void lowerMixedSamples(uint32_t * buf);
 void buttonHandler();
-void drumHandler();
+uint16_t drumHandler();
 
 #define delayUS_ASM(us) do {\
 	asm volatile (	"MOV R0,%[loops]\n\t"\
@@ -206,6 +202,8 @@ void drumHandler();
 #define HSYNC_GPIO_Port GPIOC
 #define G6_Pin GPIO_PIN_7
 #define G6_GPIO_Port GPIOC
+#define fxTom_Pin GPIO_PIN_8
+#define fxTom_GPIO_Port GPIOC
 #define I2C3_SDA_Pin GPIO_PIN_9
 #define I2C3_SDA_GPIO_Port GPIOC
 #define I2C3_SCL_Pin GPIO_PIN_8
@@ -234,6 +232,8 @@ void drumHandler();
 #define D2_GPIO_Port GPIOD
 #define D3_Pin GPIO_PIN_1
 #define D3_GPIO_Port GPIOD
+#define HiHat_Pin GPIO_PIN_2
+#define HiHat_GPIO_Port GPIOD
 #define G7_Pin GPIO_PIN_3
 #define G7_GPIO_Port GPIOD
 #define B2_Pin GPIO_PIN_6
@@ -262,6 +262,8 @@ void drumHandler();
 #define SDCKE1_GPIO_Port GPIOB
 #define SDNE1_Pin GPIO_PIN_6
 #define SDNE1_GPIO_Port GPIOB
+#define Kick_Pin GPIO_PIN_7
+#define Kick_GPIO_Port GPIOB
 #define B6_Pin GPIO_PIN_8
 #define B6_GPIO_Port GPIOB
 #define B7_Pin GPIO_PIN_9

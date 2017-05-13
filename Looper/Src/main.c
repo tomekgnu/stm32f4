@@ -46,7 +46,7 @@
 #include "main.h"
 #include "string.h"
 #include "math.h"
-#include "sounds/snare.h"
+
 #define pi 3.14159
 /* USER CODE END Includes */
 
@@ -57,7 +57,7 @@
 
 uint16_t s_index = 0;
 
-uint16_t drumIndex;
+
 __IO uint32_t CommandKey = 0;
 extern __IO uint8_t Recording;
 extern __IO uint8_t Playback;
@@ -68,18 +68,7 @@ extern uint8_t CommandKeyTable[4][4];
 extern __IO ButtonStates ToggleDubbing;
 extern __IO ButtonStates RecordingButton;
 extern __IO ButtonStates PlaybackButton;
-extern __IO GPIO_PinState GuitarTrigger;
-extern __IO uint8_t ToggleChannel;
-extern __IO uint8_t TogglePlayback;
-extern __IO uint8_t Dubbing;
-extern __IO uint32_t BufferCount;
-extern uint32_t dub_pointer;
-extern uint32_t read_pointer;
-extern uint32_t write_pointer;
-extern uint32_t SamplesRead;
-extern uint32_t SamplesWritten;
 
-extern DAC_HandleTypeDef hdac;
 
 uint16_t taptone_buffer[100];
 /* USER CODE END PV */
@@ -260,14 +249,7 @@ void initTapTone() {
 	}
 }
 
-void drumHandler(){
 
-	if(HAL_GPIO_ReadPin(Snare_GPIO_Port,Snare_Pin) == GPIO_PIN_RESET)
-		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,snare[drumIndex++] >> 4);
-	if(drumIndex == 6044)
-		drumIndex = 0;
-
-}
 
 void buttonHandler() {
 	if(HAL_GPIO_ReadPin(Recording_GPIO_Port,Recording_Pin) == GPIO_PIN_SET) {
@@ -279,11 +261,11 @@ void buttonHandler() {
 	}
 	if(HAL_GPIO_ReadPin(Toggle_channel_GPIO_Port,Toggle_channel_Pin) == GPIO_PIN_SET){
 		//ADS1256_SetChannel(0);
-		ToggleChannel = 0;
+		//ToggleChannel = 0;
 	}
 	else{
 		//ADS1256_SetChannel(1);
-		ToggleChannel = 1;
+		//ToggleChannel = 1;
 	}
 	if(HAL_GPIO_ReadPin(Dubbing_GPIO_Port,Dubbing_Pin) == GPIO_PIN_RESET)
 		ToggleDubbing = 1;

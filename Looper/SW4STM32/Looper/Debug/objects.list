@@ -2,6 +2,7 @@
 "Application/User/ads1256_test.o"
 "Application/User/audio.o"
 "Application/User/dac.o"
+"Application/User/drums.o"
 "Application/User/fmc.o"
 "Application/User/gpio.o"
 "Application/User/i2c.o"

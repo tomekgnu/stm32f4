@@ -25,6 +25,7 @@ __IO uint8_t Playback = 0;
 __IO uint8_t Dubbing = 0;
 __IO uint8_t DubbingStarted = 0;
 __IO uint8_t ToggleChannel = 0;
+__IO uint8_t DrumsPlaying = 0;
 __IO ButtonStates ToggleDubbing = UP;
 __IO ButtonStates PlaybackButton = UP;
 __IO ButtonStates RecordingButton = UP;
@@ -49,7 +50,7 @@ int16_t loop = 0;
 //extern DAC_HandleTypeDef hdac;
 extern SPI_HandleTypeDef hspi3;
 
-static inline uint16_t mix(uint16_t a, uint16_t b,int16_t dubbing) {
+static inline uint16_t mixGuitar(uint16_t a, uint16_t b,int16_t dubbing) {
 //	if(a < 0 && b < 0)
 //		return (int16_t)((a + b) - ((a * b)/SHRT_MIN));
 //	if( a > 0 && b > 0)
@@ -72,111 +73,11 @@ static uint16_t getSample() {
 	return (ads1256data >> 8) + 32768;
 }
 
-inline static void adc_play_dac(){
-	uint16_t sample = getSample();
-	Write_DAC8552(channel_A,sample);
-	Write_DAC8552(channel_B,sample);
-}
-
-
-
-
-
-
-
-
-void eraseMemory(){
-	uint32_t pointer = 0;
-	bzero(write_buffer_1, SAMPLE_BYTES);
-	while(pointer < SDRAM_SIZE){
-		BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + pointer,(uint32_t *) write_buffer_1, MEM_BLOCK);
-		pointer += SAMPLE_BYTES;
-	}
-}
-
-static int32_t mixbuffer[SAMPLE_ARRAY];
-static uint32_t highestmix = 0;
-static float multiplier = 1.0;
-
-
-void recordLoop() {
-
-	write_pointer = 0;
-	SamplesWritten = 0;
-	StartApp = 1;
-	while (Recording == 1) {
-		if (write_pointer == SDRAM_SIZE) {
-			write_pointer = 0;
-		}
-	}
-
-	StartApp = 0;
-
-}
-void playbackLoop() {
-	read_pointer = 0;
-	SamplesRead = 0;
-	StartApp = 1;
-	while (Playback == 1) {
-
-	}
-
-	StartApp = 0;
-
-}
-
 
 void tapToggle() {
 	ToggleRecording = !ToggleRecording;
 	if (ToggleRecording == 1)
 		TapToneBufferCount = 0;
-}
-
-void recordToggle() {
-	if(StartApp == 1){
-			ToggleRecording = 1;
-		}
-	if (Recording == 0x00 || Recording == 0x02) {
-		Recording = 0x01;
-
-	} else {
-		Recording = 0x00;
-		Playback = 1;
-	}
-	if (Recording == 0x01) {
-		Dubbing = 0;
-		//SamplesRead = 0;
-		//DubbingBufferCount = BufferCount;
-		BSP_LED_On(LED4);
-		BSP_LED_Off(LED3);
-	} else {
-		BSP_LED_Off(LED4);
-
-	}
-
-}
-void dubToggle() {
-	if (Recording == 1)
-		return;
-	ToggleDubbing = !ToggleDubbing;
-	if (ToggleDubbing == 1) {
-		//DubbingPressed = 0;
-		BSP_LED_On(LED3);
-		BSP_LED_Off(LED4);
-	} else {
-		BSP_LED_Off(LED3);
-	}
-}
-
-
-void lowerMixedSamples(uint32_t * buf){
-	int cnt;
-
-	for(cnt = 0; cnt < SAMPLE_ARRAY; cnt++)
-		buf[cnt] = buf[cnt] | (uint32_t)((float)mixbuffer[cnt] * multiplier);
-	multiplier = 1.0;
-	highestmix = 0;
-
 }
 
 uint16_t newsample;
@@ -188,11 +89,11 @@ uint32_t upperlower;
 
 void play_record(){
 
-
+	drumHandler();
 	if(StartApp == 0 ){
 		return;
 	}
-	drumHandler();
+
 	Dubbing = ToggleDubbing;
 	newsample = getSample();
 	if(Recording == 1){
@@ -204,10 +105,12 @@ void play_record(){
 	else if(Playback == 1){
 		BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
 		upper = (upperlower >> 16);
+		if(DrumsPlaying == 1)
+			upper = mixGuitar(upper,drumHandler() * 0.3,1);
 		lower = (upperlower & 0x0000FFFF);
 		Write_DAC8552(channel_A,upper);
 		Write_DAC8552(channel_B,lower);
-		mixed = mix(newsample,lower,Dubbing);
+		mixed = mixGuitar(newsample,lower,Dubbing);
 		upperlower = upper;
 		upperlower <<= 16;
 		upperlower |= (uint32_t)mixed;

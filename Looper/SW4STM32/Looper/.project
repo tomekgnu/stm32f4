@@ -24,29 +24,12 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
 	</natures>
-	<linkedResources><link>
-			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dac_ex.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dac_ex.c</location>
-		</link><link>
-			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dac.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dac.c</location>
-		</link><link>
-			<name>Application/User/dac.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/dac.c</location>
-		</link><link>
-			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/system_stm32f4xx.c</location>
-		</link>
+	<linkedResources>
 		<link>
 			<name>Application/SW4STM32/startup_stm32f429xx.s</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Drivers/CMSIS/Device/ST/STM32F4xx/Source/Templates/gcc/startup_stm32f429xx.s</location>
 		</link>
-		
 		<link>
 			<name>Application/User/ads1256_test.c</name>
 			<type>1</type>
@@ -56,6 +39,16 @@
 			<name>Application/User/audio.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/audio.c</location>
+		</link>
+		<link>
+			<name>Application/User/dac.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/dac.c</location>
+		</link>
+		<link>
+			<name>Application/User/drums.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/drums.c</location>
 		</link>
 		<link>
 			<name>Application/User/fmc.c</name>
@@ -113,16 +106,29 @@
 			<location>PARENT-2-PROJECT_LOC/Src/tim.c</location>
 		</link>
 		<link>
+			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/system_stm32f4xx.c</location>
+		</link>
+		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c</location>
 		</link>
-		
-		
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_cortex.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</location>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dac.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dac.c</location>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dac_ex.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dac_ex.c</location>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dma.c</name>
