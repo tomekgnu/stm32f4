@@ -4,29 +4,39 @@
   * Description        : Main program body
   ******************************************************************************
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * Copyright (c) 2017 STMicroelectronics International N.V. 
+  * All rights reserved.
   *
-  * Redistribution and use in source and binary forms, with or without modification,
-  * are permitted provided that the following conditions are met:
-  *   1. Redistributions of source code must retain the above copyright notice,
-  *      this list of conditions and the following disclaimer.
-  *   2. Redistributions in binary form must reproduce the above copyright notice,
-  *      this list of conditions and the following disclaimer in the documentation
-  *      and/or other materials provided with the distribution.
-  *   3. Neither the name of STMicroelectronics nor the names of its contributors
-  *      may be used to endorse or promote products derived from this software
-  *      without specific prior written permission.
+  * Redistribution and use in source and binary forms, with or without 
+  * modification, are permitted, provided that the following conditions are met:
   *
-  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
-  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
-  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
-  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
-  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
-  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
-  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * 1. Redistribution of source code must retain the above copyright notice, 
+  *    this list of conditions and the following disclaimer.
+  * 2. Redistributions in binary form must reproduce the above copyright notice,
+  *    this list of conditions and the following disclaimer in the documentation
+  *    and/or other materials provided with the distribution.
+  * 3. Neither the name of STMicroelectronics nor the names of other 
+  *    contributors to this software may be used to endorse or promote products 
+  *    derived from this software without specific written permission.
+  * 4. This software, including modifications and/or derivative works of this 
+  *    software, must execute solely and exclusively on microcontroller or
+  *    microprocessor devices manufactured by or for STMicroelectronics.
+  * 5. Redistribution and use of this software other than as permitted under 
+  *    this license is void and will automatically terminate your rights under 
+  *    this license. 
+  *
+  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
+  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
+  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
+  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
+  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
+  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
+  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
+  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
   */
@@ -34,7 +44,8 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "dac.h"
-#include "i2c.h"
+#include "fatfs.h"
+#include "sdio.h"
 #include "spi.h"
 #include "tim.h"
 #include "gpio.h"
@@ -46,7 +57,7 @@
 #include "main.h"
 #include "string.h"
 #include "math.h"
-
+#include "waveplayer.h"
 #define pi 3.14159
 /* USER CODE END Includes */
 
@@ -84,7 +95,20 @@ uint32_t selectRow(int rowNum);
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+MSC_ApplicationTypeDef AppliState = APPLICATION_IDLE;
+__IO uint32_t CmdIndex = CMD_PLAY;
+__IO uint32_t PbPressCheck = 0;
+__IO uint32_t RepeatState = REPEAT_ON;
+/* Counter for User button presses. Defined as external in waveplayer.c file */
+__IO uint32_t PressCount = 1;
 
+/* Wave Player Pause/Resume Status. Defined as external in waveplayer.c file */
+__IO uint32_t PauseResumeStatus = IDLE_STATUS;
+
+/* Re-play Wave file status on/off.
+   Defined as external in waveplayer.c file */
+
+extern char SD_Path[];
 /* USER CODE END 0 */
 
 int main(void)
@@ -110,20 +134,22 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_TIM3_Init();
-  MX_SPI3_Init();
   MX_TIM2_Init();
-  MX_I2C3_Init();
   MX_FMC_Init();
   MX_TIM4_Init();
   MX_DAC_Init();
+  MX_SDIO_SD_Init();
+  MX_SPI2_Init();
+  MX_FATFS_Init();
 
   /* USER CODE BEGIN 2 */
+  	//BSP_SD_Init();
 	HAL_NVIC_DisableIRQ(EXTI2_IRQn);
 	//KeyboardConfig();
 	status = HAL_TIM_Base_Start(&htim2);
 
-	BSP_LED_Init(LED3);
-	BSP_LED_Init(LED4);
+	BSP_LED_Init(GREEN);
+	BSP_LED_Init(RED);
 
 	BSP_SDRAM_Init();
 	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
@@ -134,7 +160,7 @@ int main(void)
 	ADS1256_WriteCmd(CMD_SDATAC);
 
 	data = ADS1256_ReadChipID();
-	ADS1256_CfgADC(ADS1256_GAIN_1, ADS1256_30000SPS);
+	ADS1256_CfgADC(ADS1256_GAIN_1, ADS1256_15000SPS);
 
 	ADS1256_WriteCmd(CMD_RDATAC);
 	HAL_Delay(10);
@@ -146,22 +172,17 @@ int main(void)
 	status = HAL_TIM_Base_Start_IT(&htim3);
 	status = HAL_TIM_Base_Start_IT(&htim4);
 	status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-	//status = HAL_ADC_Start_IT(&hadc1);
 
-//status = HAL_TIM_Base_Start(&htim8);
 
+	WavePlayerStart();
+
+	FATFS_UnLinkDriver(SD_Path);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-//eraseMemory();
-
-
-
-	while (1) {
-
-
-
+  while (1)
+  {
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -195,7 +216,7 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLM = 8;
   RCC_OscInitStruct.PLL.PLLN = 180;
   RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
-  RCC_OscInitStruct.PLL.PLLQ = 7;
+  RCC_OscInitStruct.PLL.PLLQ = 8;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();

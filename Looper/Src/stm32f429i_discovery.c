@@ -38,7 +38,7 @@
   
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f429i_discovery.h"
-
+#include "stm32f4xx_hal_i2c.h"
 /** @defgroup BSP BSP
   * @{
   */ 
@@ -121,7 +121,7 @@ static void               I2Cx_WriteBuffer(uint8_t Addr, uint8_t Reg,  uint8_t *
 static uint8_t            I2Cx_ReadData(uint8_t Addr, uint8_t Reg);
 static uint8_t            I2Cx_ReadBuffer(uint8_t Addr, uint8_t Reg, uint8_t *pBuffer, uint16_t Length);
 static void               I2Cx_Error(void);
-static void               I2Cx_MspInit(I2C_HandleTypeDef *hi2c);  
+static void               I2Cx_MspInit(I2C_HandleTypeDef *hi2c);
 #ifdef EE_M24LR64
 static HAL_StatusTypeDef  I2Cx_WriteBufferDMA(uint8_t Addr, uint16_t Reg,  uint8_t *pBuffer, uint16_t Length);
 static HAL_StatusTypeDef  I2Cx_ReadBufferDMA(uint8_t Addr, uint16_t Reg, uint8_t *pBuffer, uint16_t Length);

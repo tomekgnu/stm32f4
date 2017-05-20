@@ -3,7 +3,7 @@
 #include "stm32f429i_discovery_sdram.h"
 #include "string.h"
 #include "limits.h"
-
+#include "waveplayer.h"
 #define USHORT_TO_DOUBLE(x)					((double)(x) / (double)(USHRT_MAX + 1))
 #define DOUBLE_TO_USHORT(x)					(uint16_t)(x * ((double)(USHRT_MAX + 1)))
 
@@ -45,10 +45,13 @@ uint16_t sample;
 
 uint8_t first_filled = 0;
 uint32_t readADC;
+uint32_t audioBufferIndex;
 
 int16_t loop = 0;
-//extern DAC_HandleTypeDef hdac;
+extern DAC_HandleTypeDef hdac;
 extern SPI_HandleTypeDef hspi3;
+extern uint8_t Audio_Buffer[];
+extern __IO BUFFER_StateTypeDef buffer_offset;
 
 static inline uint16_t mixGuitar(uint16_t a, uint16_t b,int16_t dubbing) {
 //	if(a < 0 && b < 0)
@@ -80,6 +83,7 @@ void tapToggle() {
 		TapToneBufferCount = 0;
 }
 
+uint16_t audiosample;
 uint16_t newsample;
 uint32_t oldsample;
 uint16_t upper;
@@ -89,7 +93,8 @@ uint32_t upperlower;
 
 void play_record(){
 
-	drumHandler();
+	//drumHandler();
+
 	if(StartApp == 0 ){
 		return;
 	}
@@ -105,8 +110,8 @@ void play_record(){
 	else if(Playback == 1){
 		BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
 		upper = (upperlower >> 16);
-		if(DrumsPlaying == 1)
-			upper = mixGuitar(upper,drumHandler() * 0.3,1);
+		//if(DrumsPlaying == 1)
+			//upper = mixGuitar(upper,drumHandler() * 0.3,1);
 		lower = (upperlower & 0x0000FFFF);
 		Write_DAC8552(channel_A,upper);
 		Write_DAC8552(channel_B,lower);

@@ -45,8 +45,7 @@ RPI_V2_GPIO_P1_13->RPI_GPIO_P1_13
 #include "stm32f4xx_hal.h"
 #include <stdint.h>
 
-
-extern SPI_HandleTypeDef hspi3;
+extern SPI_HandleTypeDef hspi2;
 extern TIM_HandleTypeDef htim2;
 __STATIC_INLINE void DelayUS(__IO uint32_t micros);
 
@@ -144,7 +143,7 @@ void ADS1256_Send8Bit(uint8_t _data)
 {
 
 	bsp_DelayUS(10);
-	HAL_SPI_Transmit(&hspi3,&_data,1,10);
+	HAL_SPI_Transmit(&hspi2,&_data,1,10);
 	//HAL_SPI_Transmit_DMA(&hspi3,&_data,1);
 }
 
@@ -278,7 +277,7 @@ uint8_t ADS1256_Recive8Bit(void)
 {
 	uint8_t read = 0;
 	uint8_t byte = 0xff;
-	HAL_SPI_Receive(&hspi3,&read,1,10);
+	HAL_SPI_Receive(&hspi2,&read,1,10);
 	//HAL_SPI_Receive_DMA(&hspi3,&read,1);
 	return read;
 }
@@ -641,7 +640,7 @@ void Write_DAC8552(uint8_t channel, uint16_t Data)
 	sample[2] = (uint8_t)(Data & 0xff);
 	CS1_1();
 	CS1_0();
-	HAL_SPI_Transmit(&hspi3,sample,3,100);
+	HAL_SPI_Transmit(&hspi2,sample,3,100);
 	CS1_1();
 }
 
@@ -657,10 +656,10 @@ void Write_DAC8552_Both(uint16_t A,uint16_t B){
 	tab2[2] = (uint8_t)(B & 0x00ff);
 	CS1_1();
 	CS1_0();
-	HAL_SPI_Transmit(&hspi3,tab1,3,100);
+	HAL_SPI_Transmit(&hspi2,tab1,3,100);
 	CS1_1();
 	CS1_0();
-	HAL_SPI_Transmit(&hspi3,tab2,3,100);
+	HAL_SPI_Transmit(&hspi2,tab2,3,100);
 	CS1_1();
 }
 /*

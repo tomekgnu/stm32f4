@@ -28,22 +28,32 @@ Application/User/main.o: \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_sdram.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_fmc.h \
- C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h \
- C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c_ex.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_sd.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_sdmmc.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/dac.h \
- C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/i2c.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/fatfs.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/ff.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/integer.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/ffconf.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/bsp_driver_sd.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/ff_gen_drv.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/diskio.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/ff.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/drivers/sd_diskio.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/sdio.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/spi.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/tim.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/gpio.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/fmc.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/ads1256_test.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery_sdram.h \
- C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/waveplayer.h
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/main.h:
 
@@ -101,13 +111,13 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_fmc.h:
 
-C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c.h:
-
-C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_i2c_ex.h:
-
 C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr.h:
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pwr_ex.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_sd.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_sdmmc.h:
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h:
 
@@ -117,7 +127,25 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/dac.h:
 
-C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/i2c.h:
+C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/fatfs.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/ff.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/integer.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/ffconf.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/bsp_driver_sd.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/ff_gen_drv.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/diskio.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/ff.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/drivers/sd_diskio.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/sdio.h:
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/spi.h:
 
@@ -132,3 +160,5 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/ads1256_test.h:
 C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery_sdram.h:
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/waveplayer.h:
