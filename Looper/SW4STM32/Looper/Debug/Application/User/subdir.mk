@@ -20,8 +20,7 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Src/stm32f429i_discovery.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/stm32f429i_discovery_sdram.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/stm32f4xx_hal_msp.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/stm32f4xx_it.c \
-C:/Users/Tomasz/workspace/tom32f4/Looper/Src/tim.c \
-C:/Users/Tomasz/workspace/tom32f4/Looper/Src/waveplayer.c 
+C:/Users/Tomasz/workspace/tom32f4/Looper/Src/tim.c 
 
 OBJS += \
 ./Application/User/ads1256_test.o \
@@ -40,8 +39,7 @@ OBJS += \
 ./Application/User/stm32f429i_discovery_sdram.o \
 ./Application/User/stm32f4xx_hal_msp.o \
 ./Application/User/stm32f4xx_it.o \
-./Application/User/tim.o \
-./Application/User/waveplayer.o 
+./Application/User/tim.o 
 
 C_DEPS += \
 ./Application/User/ads1256_test.d \
@@ -60,8 +58,7 @@ C_DEPS += \
 ./Application/User/stm32f429i_discovery_sdram.d \
 ./Application/User/stm32f4xx_hal_msp.d \
 ./Application/User/stm32f4xx_it.d \
-./Application/User/tim.d \
-./Application/User/waveplayer.d 
+./Application/User/tim.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
@@ -194,14 +191,6 @@ Application/User/stm32f4xx_it.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/st
 	@echo ' '
 
 Application/User/tim.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/tim.c
-	@echo 'Building file: $<'
-	@echo 'Invoking: MCU GCC Compiler'
-	@echo %cd%
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -D__weak="__attribute__((weak))" -D__packed="__attribute__((__packed__))" -DUSE_HAL_DRIVER -DSTM32F429xx -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/CMSIS/Include" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/drivers" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src"  -O0 -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
-
-Application/User/waveplayer.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/waveplayer.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo %cd%

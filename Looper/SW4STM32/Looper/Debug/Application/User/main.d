@@ -53,7 +53,7 @@ Application/User/main.o: \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/ads1256_test.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery_sdram.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h \
- C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/waveplayer.h
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/drums.h
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/main.h:
 
@@ -161,4 +161,4 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery_sdram.h:
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h:
 
-C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/waveplayer.h:
+C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/drums.h:

@@ -59,6 +59,9 @@ void play_record();
 void lowerMixedSamples(uint32_t * buf);
 void buttonHandler();
 uint16_t drumHandler();
+void SystemClock_Config(void);
+void Error_Handler(void);
+
 
 #define delayUS_ASM(us) do {\
 	asm volatile (	"MOV R0,%[loops]\n\t"\
@@ -194,10 +197,14 @@ uint16_t drumHandler();
 #define BA1_GPIO_Port GPIOG
 #define R7_Pin GPIO_PIN_6
 #define R7_GPIO_Port GPIOG
-#define DOTCLK_Pin GPIO_PIN_7
-#define DOTCLK_GPIO_Port GPIOG
+#define HiHat_Button_Pin GPIO_PIN_7
+#define HiHat_Button_GPIO_Port GPIOG
 #define SDCLK_Pin GPIO_PIN_8
 #define SDCLK_GPIO_Port GPIOG
+#define TomHi_Button_Pin GPIO_PIN_6
+#define TomHi_Button_GPIO_Port GPIOC
+#define Kick_Button_Pin GPIO_PIN_8
+#define Kick_Button_GPIO_Port GPIOA
 #define STLINK_RX_Pin GPIO_PIN_9
 #define STLINK_RX_GPIO_Port GPIOA
 #define STLINK_TX_Pin GPIO_PIN_10
@@ -212,10 +219,16 @@ uint16_t drumHandler();
 #define SWCLK_GPIO_Port GPIOA
 #define TP_INT1_Pin GPIO_PIN_15
 #define TP_INT1_GPIO_Port GPIOA
+#define TomLo_Button_Pin GPIO_PIN_10
+#define TomLo_Button_GPIO_Port GPIOC
 #define D2_Pin GPIO_PIN_0
 #define D2_GPIO_Port GPIOD
 #define D3_Pin GPIO_PIN_1
 #define D3_GPIO_Port GPIOD
+#define Snare_Button_Pin GPIO_PIN_3
+#define Snare_Button_GPIO_Port GPIOD
+#define Crash_Button_Pin GPIO_PIN_5
+#define Crash_Button_GPIO_Port GPIOD
 #define B2_Pin GPIO_PIN_6
 #define B2_GPIO_Port GPIOD
 #define Dubbing_Pin GPIO_PIN_7
@@ -234,8 +247,6 @@ uint16_t drumHandler();
 #define SDCKE1_GPIO_Port GPIOB
 #define SDNE1_Pin GPIO_PIN_6
 #define SDNE1_GPIO_Port GPIOB
-#define Kick_Pin GPIO_PIN_7
-#define Kick_GPIO_Port GPIOB
 #define NBL0_Pin GPIO_PIN_0
 #define NBL0_GPIO_Port GPIOE
 #define NBL1_Pin GPIO_PIN_1
@@ -278,6 +289,8 @@ MSC_ApplicationTypeDef;
 
 #define REPEAT_ON        ((uint32_t)0x00) /* Replay Status in ON */
 #define REPEAT_OFF       ((uint32_t)0x01) /* Replay Status in OFF */
+
+
 /* USER CODE END Private defines */
 
 /**

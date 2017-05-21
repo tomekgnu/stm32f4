@@ -26,6 +26,7 @@ __IO uint8_t Dubbing = 0;
 __IO uint8_t DubbingStarted = 0;
 __IO uint8_t ToggleChannel = 0;
 __IO uint8_t DrumsPlaying = 0;
+extern struct drumStruct drumset;
 __IO ButtonStates ToggleDubbing = UP;
 __IO ButtonStates PlaybackButton = UP;
 __IO ButtonStates RecordingButton = UP;
@@ -83,18 +84,21 @@ void tapToggle() {
 		TapToneBufferCount = 0;
 }
 
-uint16_t audiosample;
+uint16_t drumsample;
 uint16_t newsample;
 uint32_t oldsample;
 uint16_t upper;
 uint16_t lower;
 uint16_t mixed;
 uint32_t upperlower;
+uint8_t *pDrumset;
 
 void play_record(){
 
-	//drumHandler();
-
+	drumsample = drumHandler();
+	pDrumset = (uint8_t *)&drumset;
+	if(StartApp == 0 && *pDrumset > 0   )
+		Write_DAC8552(channel_A,drumsample);
 	if(StartApp == 0 ){
 		return;
 	}
@@ -110,8 +114,8 @@ void play_record(){
 	else if(Playback == 1){
 		BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
 		upper = (upperlower >> 16);
-		//if(DrumsPlaying == 1)
-			//upper = mixGuitar(upper,drumHandler() * 0.3,1);
+		if(*pDrumset > 0)
+			upper = mixGuitar(upper,drumsample,1);
 		lower = (upperlower & 0x0000FFFF);
 		Write_DAC8552(channel_A,upper);
 		Write_DAC8552(channel_B,lower);

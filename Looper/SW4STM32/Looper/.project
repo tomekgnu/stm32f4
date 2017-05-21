@@ -24,35 +24,7 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
 	</natures>
-	<linkedResources><link>
-			<name>Middlewares/FatFs/ff.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/ff.c</location>
-		</link><link>
-			<name>Application/User/bsp_driver_sd.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/bsp_driver_sd.c</location>
-		</link><link>
-			<name>Middlewares/FatFs/ff_gen_drv.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/ff_gen_drv.c</location>
-		</link><link>
-			<name>Middlewares/FatFs/diskio.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/diskio.c</location>
-		</link><link>
-			<name>Middlewares/FatFs/sd_diskio.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/drivers/sd_diskio.c</location>
-		</link><link>
-			<name>Middlewares/FatFs/syscall.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/option/syscall.c</location>
-		</link><link>
-			<name>Application/User/fatfs.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/fatfs.c</location>
-		</link>
+	<linkedResources>
 		<link>
 			<name>Application/SW4STM32/startup_stm32f429xx.s</name>
 			<type>1</type>
@@ -68,7 +40,11 @@
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/audio.c</location>
 		</link>
-		
+		<link>
+			<name>Application/User/bsp_driver_sd.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/bsp_driver_sd.c</location>
+		</link>
 		<link>
 			<name>Application/User/dac.c</name>
 			<type>1</type>
@@ -79,7 +55,11 @@
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/drums.c</location>
 		</link>
-		
+		<link>
+			<name>Application/User/fatfs.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/fatfs.c</location>
+		</link>
 		<link>
 			<name>Application/User/fmc.c</name>
 			<type>1</type>
@@ -134,11 +114,6 @@
 			<name>Application/User/tim.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/tim.c</location>
-		</link>
-		<link>
-			<name>Application/User/waveplayer.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/waveplayer.c</location>
 		</link>
 		<link>
 			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
@@ -250,10 +225,30 @@
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_sdmmc.c</location>
 		</link>
-		
-		
-		
-		
-		
+		<link>
+			<name>Middlewares/FatFs/diskio.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/diskio.c</location>
+		</link>
+		<link>
+			<name>Middlewares/FatFs/ff.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/ff.c</location>
+		</link>
+		<link>
+			<name>Middlewares/FatFs/ff_gen_drv.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/ff_gen_drv.c</location>
+		</link>
+		<link>
+			<name>Middlewares/FatFs/sd_diskio.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/drivers/sd_diskio.c</location>
+		</link>
+		<link>
+			<name>Middlewares/FatFs/syscall.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/option/syscall.c</location>
+		</link>
 	</linkedResources>
 </projectDescription>

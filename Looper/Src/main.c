@@ -57,7 +57,7 @@
 #include "main.h"
 #include "string.h"
 #include "math.h"
-#include "waveplayer.h"
+#include "drums.h"
 #define pi 3.14159
 /* USER CODE END Includes */
 
@@ -174,7 +174,7 @@ int main(void)
 	status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
 
 
-	WavePlayerStart();
+	ReadDrumSamples();
 
 	FATFS_UnLinkDriver(SD_Path);
   /* USER CODE END 2 */
