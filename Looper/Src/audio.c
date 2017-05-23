@@ -91,22 +91,26 @@ uint16_t upper;
 uint16_t lower;
 uint16_t mixed;
 uint32_t upperlower;
-uint8_t *pDrumset;
+uint8_t *pDrumset = (uint8_t *)&drumset;
 
 void play_record(){
 
 	drumsample = drumHandler();
-	pDrumset = (uint8_t *)&drumset;
-	if(StartApp == 0 && *pDrumset > 0   )
-		Write_DAC8552(channel_A,drumsample);
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,drumsample >> 4);
 	if(StartApp == 0 ){
 		return;
 	}
 
 	Dubbing = ToggleDubbing;
 	newsample = getSample();
+
 	if(Recording == 1){
-			upperlower = (((uint32_t)newsample) << 16);// | ((uint32_t)(newsample > 1));
+			if(*pDrumset > 0){
+				upperlower = mixGuitar(newsample,drumsample,1);
+				upperlower = (((uint32_t)upperlower) << 16);
+			}
+			else
+				upperlower = (((uint32_t)newsample) << 16);
 			BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) &upperlower, 1);
 			SamplesWritten++;
 	}
@@ -114,11 +118,13 @@ void play_record(){
 	else if(Playback == 1){
 		BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
 		upper = (upperlower >> 16);
-		if(*pDrumset > 0)
-			upper = mixGuitar(upper,drumsample,1);
 		lower = (upperlower & 0x0000FFFF);
 		Write_DAC8552(channel_A,upper);
+		if(*pDrumset > 0)
+			upper = mixGuitar(upper,drumsample,1);
+		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,upper >> 4);
 		Write_DAC8552(channel_B,lower);
+		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,lower >> 4);
 		mixed = mixGuitar(newsample,lower,Dubbing);
 		upperlower = upper;
 		upperlower <<= 16;

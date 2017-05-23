@@ -160,7 +160,7 @@ int main(void)
 	ADS1256_WriteCmd(CMD_SDATAC);
 
 	data = ADS1256_ReadChipID();
-	ADS1256_CfgADC(ADS1256_GAIN_1, ADS1256_15000SPS);
+	ADS1256_CfgADC(ADS1256_GAIN_1, ADS1256_30000SPS);
 
 	ADS1256_WriteCmd(CMD_RDATAC);
 	HAL_Delay(10);
@@ -172,7 +172,7 @@ int main(void)
 	status = HAL_TIM_Base_Start_IT(&htim3);
 	status = HAL_TIM_Base_Start_IT(&htim4);
 	status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-
+	status = HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
 
 	ReadDrumSamples();
 
