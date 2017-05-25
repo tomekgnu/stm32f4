@@ -225,8 +225,8 @@ void Error_Handler(void);
 #define D2_GPIO_Port GPIOD
 #define D3_Pin GPIO_PIN_1
 #define D3_GPIO_Port GPIOD
-#define Snare_Button_Pin GPIO_PIN_13
-#define Snare_Button_GPIO_Port GPIOC
+#define Snare_Button_Pin GPIO_PIN_3
+#define Snare_Button_GPIO_Port GPIOD
 #define Crash_Button_Pin GPIO_PIN_5
 #define Crash_Button_GPIO_Port GPIOD
 #define B2_Pin GPIO_PIN_6

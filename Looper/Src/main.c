@@ -58,6 +58,7 @@
 #include "string.h"
 #include "math.h"
 #include "drums.h"
+#include "stdlib.h"
 #define pi 3.14159
 /* USER CODE END Includes */
 
@@ -80,7 +81,7 @@ extern __IO ButtonStates ToggleDubbing;
 extern __IO ButtonStates RecordingButton;
 extern __IO ButtonStates PlaybackButton;
 
-
+FMC_SDRAM_CommandTypeDef SDRAMCommandStructure;
 uint16_t taptone_buffer[100];
 /* USER CODE END PV */
 
@@ -121,6 +122,12 @@ int main(void)
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+
+	/*##-3- Issue self-refresh command to SDRAM device #########################*/
+	  SDRAMCommandStructure.CommandMode            = FMC_SDRAM_CMD_SELFREFRESH_MODE;
+	  SDRAMCommandStructure.CommandTarget          = FMC_SDRAM_CMD_TARGET_BANK2;
+	  SDRAMCommandStructure.AutoRefreshNumber      = 1;
+	  SDRAMCommandStructure.ModeRegisterDefinition = 0;
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -154,13 +161,12 @@ int main(void)
 	BSP_SDRAM_Init();
 	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
 
-	//initTapTone();
-//  ShortDelayUS(10);
+	//  ShortDelayUS(10);
 	ADS1256_WriteCmd(CMD_SELFCAL);
 	ADS1256_WriteCmd(CMD_SDATAC);
 
 	data = ADS1256_ReadChipID();
-	ADS1256_CfgADC(ADS1256_GAIN_1, ADS1256_30000SPS);
+	ADS1256_CfgADC(ADS1256_GAIN_1, ADS1256_15000SPS);
 
 	ADS1256_WriteCmd(CMD_RDATAC);
 	HAL_Delay(10);

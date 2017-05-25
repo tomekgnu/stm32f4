@@ -11,7 +11,7 @@ uint32_t read_buffer_1[SAMPLE_ARRAY];
 uint32_t read_buffer_2[SAMPLE_ARRAY];
 uint32_t write_buffer_1[SAMPLE_ARRAY];
 uint32_t write_buffer_2[SAMPLE_ARRAY];
-
+extern FMC_SDRAM_CommandTypeDef SDRAMCommandStructure;
 uint32_t * rdptr;
 uint32_t * wrptr;	// pointer for writinguint32_t SamplesRead = 0;
 uint32_t dub_pointer = 0;
@@ -150,4 +150,10 @@ void play_record(){
 			read_pointer = 0;
 		if(dub_pointer == SDRAM_SIZE)
 			dub_pointer = 0;
+		if(BSP_SDRAM_Sendcmd(&SDRAMCommandStructure) != HAL_OK)
+		  {
+		    /* Command send Error */
+		    Error_Handler();
+		  }
 }
+
