@@ -62,7 +62,7 @@ void MX_SPI2_Init(void)
   hspi2.Init.Direction = SPI_DIRECTION_2LINES;
   hspi2.Init.DataSize = SPI_DATASIZE_8BIT;
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
-  hspi2.Init.CLKPhase = SPI_PHASE_2EDGE;
+  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi2.Init.NSS = SPI_NSS_SOFT;
   hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
@@ -93,19 +93,19 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     PC3     ------> SPI2_MOSI
     PB10     ------> SPI2_SCK 
     */
-    GPIO_InitStruct.Pin = SPI2_MISO_Pin|SPI2_MOSI_Pin;
+    GPIO_InitStruct.Pin = GPIO_PIN_2|GPIO_PIN_3;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = SPI2_SCK_Pin;
+    GPIO_InitStruct.Pin = GPIO_PIN_10;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
-    HAL_GPIO_Init(SPI2_SCK_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN SPI2_MspInit 1 */
 
@@ -129,9 +129,9 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
     PC3     ------> SPI2_MOSI
     PB10     ------> SPI2_SCK 
     */
-    HAL_GPIO_DeInit(GPIOC, SPI2_MISO_Pin|SPI2_MOSI_Pin);
+    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_2|GPIO_PIN_3);
 
-    HAL_GPIO_DeInit(SPI2_SCK_GPIO_Port, SPI2_SCK_Pin);
+    HAL_GPIO_DeInit(GPIOB, GPIO_PIN_10);
 
   }
   /* USER CODE BEGIN SPI2_MspDeInit 1 */
@@ -140,7 +140,40 @@ void HAL_SPI_MspDeInit(SPI_HandleTypeDef* spiHandle)
 } 
 
 /* USER CODE BEGIN 1 */
+void setSPIMode(spi_mode mode) {
 
+
+
+}
+
+void MX_SPI2_InitMode(spi_mode mode)
+{
+
+  switch(mode){
+  case SPI_MODE_0:
+	  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
+	  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+	  break;
+  case SPI_MODE_1:
+  	  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
+  	  hspi2.Init.CLKPhase = SPI_PHASE_2EDGE;
+  	  break;
+  case SPI_MODE_2:
+  	  hspi2.Init.CLKPolarity = SPI_POLARITY_HIGH;
+  	  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+  	  break;
+  case SPI_MODE_3:
+  	  hspi2.Init.CLKPolarity = SPI_POLARITY_HIGH;
+  	  hspi2.Init.CLKPhase = SPI_PHASE_2EDGE;
+  	  break;
+  default:
+	  hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
+	  hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
+
+  }
+
+
+}
 /* USER CODE END 1 */
 
 /**

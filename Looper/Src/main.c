@@ -43,7 +43,9 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
+#include "adc.h"
 #include "dac.h"
+#include "dma.h"
 #include "fatfs.h"
 #include "sdio.h"
 #include "spi.h"
@@ -52,13 +54,15 @@
 #include "fmc.h"
 
 /* USER CODE BEGIN Includes */
-#include "ads1256_test.h"
+#include "analogShield.h"
 #include "stm32f429i_discovery_sdram.h"
 #include "main.h"
 #include "string.h"
 #include "math.h"
 #include "drums.h"
 #include "stdlib.h"
+
+
 #define pi 3.14159
 /* USER CODE END Includes */
 
@@ -80,6 +84,7 @@ extern uint8_t CommandKeyTable[4][4];
 extern __IO ButtonStates ToggleDubbing;
 extern __IO ButtonStates RecordingButton;
 extern __IO ButtonStates PlaybackButton;
+extern uint16_t readADC[];
 
 FMC_SDRAM_CommandTypeDef SDRAMCommandStructure;
 uint16_t taptone_buffer[100];
@@ -116,9 +121,9 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	uint8_t data;
+	uint32_t data = 'dupa';
+
 	HAL_StatusTypeDef status;
-	g_tADS1256.ScanMode = 2;
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
@@ -140,55 +145,51 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_TIM3_Init();
   MX_TIM2_Init();
   MX_FMC_Init();
   MX_TIM4_Init();
   MX_DAC_Init();
   MX_SDIO_SD_Init();
-  MX_SPI2_Init();
   MX_FATFS_Init();
+  MX_SPI2_Init();
+  MX_ADC3_Init();
 
   /* USER CODE BEGIN 2 */
-  	//BSP_SD_Init();
-	HAL_NVIC_DisableIRQ(EXTI2_IRQn);
-	//KeyboardConfig();
-	status = HAL_TIM_Base_Start(&htim2);
+  BSP_SDRAM_Init();
+  BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR,(uint32_t *) &data, 1);
+  data = 0;
+  BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR,(uint32_t *) &data, 1);
+  status = HAL_TIM_Base_Start(&htim2);
 
-	BSP_LED_Init(GREEN);
-	BSP_LED_Init(RED);
+  BSP_LED_Init(GREEN);
+  BSP_LED_Init(RED);
 
-	BSP_SDRAM_Init();
-	BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
 
-	//  ShortDelayUS(10);
-	ADS1256_WriteCmd(CMD_SELFCAL);
-	ADS1256_WriteCmd(CMD_SDATAC);
+  BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
 
-	data = ADS1256_ReadChipID();
-	ADS1256_CfgADC(ADS1256_GAIN_1, ADS1256_15000SPS);
+  //status = HAL_ADC_Start_DMA(&hadc3,(uint32_t *)readADC,2);
+  status = HAL_TIM_Base_Start_IT(&htim3);
+  status = HAL_TIM_Base_Start_IT(&htim4);
+  status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+  status = HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
+  //status = HAL_ADC_Start_IT(&hadc3);
 
-	ADS1256_WriteCmd(CMD_RDATAC);
-	HAL_Delay(10);
-	HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+  status = HAL_ADC_Start_DMA(&hadc3,(uint32_t *)readADC,2);
+	//ReadDrumSamples();
 
-	ADS1256_StartScan(0);
-	ADS1256_SetChannel(0);
+  FATFS_UnLinkDriver(SD_Path);
 
-	status = HAL_TIM_Base_Start_IT(&htim3);
-	status = HAL_TIM_Base_Start_IT(&htim4);
-	status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-	status = HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
-
-	ReadDrumSamples();
-
-	FATFS_UnLinkDriver(SD_Path);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+
   while (1)
   {
+
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */

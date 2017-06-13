@@ -36,16 +36,21 @@
 #include "stm32f4xx_it.h"
 
 /* USER CODE BEGIN 0 */
-#include "ads1256_test.h"
 #include "main.h"
 #include "stm32f429i_discovery.h"
 #include "stm32f429i_discovery_sdram.h"
 
-
+extern ADC_HandleTypeDef hadc1;
 extern __IO uint8_t DmaTransferReady;
+extern __IO uint8_t Playback;
+extern uint16_t readADC[];
+extern DAC_HandleTypeDef hdac;
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DMA_HandleTypeDef hdma_adc3;
+extern ADC_HandleTypeDef hadc3;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
 
@@ -116,17 +121,17 @@ void PVD_IRQHandler(void)
 }
 
 /**
-* @brief This function handles EXTI line2 interrupt.
+* @brief This function handles ADC1, ADC2 and ADC3 global interrupts.
 */
-void EXTI2_IRQHandler(void)
+void ADC_IRQHandler(void)
 {
-  /* USER CODE BEGIN EXTI2_IRQn 0 */
+  /* USER CODE BEGIN ADC_IRQn 0 */
 
-  /* USER CODE END EXTI2_IRQn 0 */
-  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_2);
-  /* USER CODE BEGIN EXTI2_IRQn 1 */
+  /* USER CODE END ADC_IRQn 0 */
+  HAL_ADC_IRQHandler(&hadc3);
+  /* USER CODE BEGIN ADC_IRQn 1 */
 
-  /* USER CODE END EXTI2_IRQn 1 */
+  /* USER CODE END ADC_IRQn 1 */
 }
 
 /**
@@ -151,12 +156,10 @@ void TIM3_IRQHandler(void)
 {
   /* USER CODE BEGIN TIM3_IRQn 0 */
 
-
   /* USER CODE END TIM3_IRQn 0 */
   HAL_TIM_IRQHandler(&htim3);
   /* USER CODE BEGIN TIM3_IRQn 1 */
-  buttonHandler();
-  //triggerHandler();
+
   /* USER CODE END TIM3_IRQn 1 */
 }
 
@@ -170,22 +173,34 @@ void TIM4_IRQHandler(void)
   /* USER CODE END TIM4_IRQn 0 */
   HAL_TIM_IRQHandler(&htim4);
   /* USER CODE BEGIN TIM4_IRQn 1 */
-
+  buttonHandler();
   /* USER CODE END TIM4_IRQn 1 */
+}
+
+/**
+* @brief This function handles DMA2 stream1 global interrupt.
+*/
+void DMA2_Stream1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Stream1_IRQn 0 */
+
+  /* USER CODE END DMA2_Stream1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc3);
+  /* USER CODE BEGIN DMA2_Stream1_IRQn 1 */
+
+  /* USER CODE END DMA2_Stream1_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
 /**
 * @brief This function handles DMA2 stream0 global interrupt.
 */
-void DMA2_Stream0_IRQHandler(void){
-	BSP_SDRAM_DMA_IRQHandler();
 
-}
 /* User blue button */
 void EXTI0_IRQHandler(void) {
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
 }
+
 
 void HAL_SDRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma){
 	DmaTransferReady = 1;

@@ -1,5 +1,4 @@
 #include "main.h"
-#include "ads1256_test.h"
 #include "stm32f429i_discovery_sdram.h"
 #include "string.h"
 #include "limits.h"
@@ -45,12 +44,13 @@ __IO GPIO_PinState GuitarTrigger = 0;
 uint16_t sample;
 
 uint8_t first_filled = 0;
-uint32_t readADC;
+
+uint16_t readADC[2];
 uint32_t audioBufferIndex;
 
 int16_t loop = 0;
 extern DAC_HandleTypeDef hdac;
-extern SPI_HandleTypeDef hspi3;
+//extern SPI_HandleTypeDef hspi3;
 extern uint8_t Audio_Buffer[];
 extern __IO BUFFER_StateTypeDef buffer_offset;
 
@@ -59,11 +59,12 @@ static inline uint16_t mixGuitar(uint16_t a, uint16_t b,int16_t dubbing) {
 //		return (int16_t)((a + b) - ((a * b)/SHRT_MIN));
 //	if( a > 0 && b > 0)
 //	   return (int16_t)((a + b) - ((a * b)/SHRT_MAX));
+
 	if(dubbing == 0)
 		return b;
-	if(a < 32768 && b < 32768)
-		return (a * b) / 32768;
-	return 2 * (a + b) - ((a * b) /32768) - 65536;
+	if(a < 2048 && b < 2048)
+		return (a * b) / 2048;
+	return 2 * (a + b) - ((a * b) /2048) - 4096;
 	//return (uint16_t)((a + b) / 2);
 	//return (int16_t)((a + b*1.2)*0.5);
 }
@@ -72,8 +73,8 @@ int32_t ads1256data;
 
 static uint16_t getSample() {
 
-	ADS1256_WaitDRDY();
-	ads1256data = ADS1256_ReadData();
+	//ADS1256_WaitDRDY();
+	//ads1256data = ADS1256_ReadData();
 	return (ads1256data >> 8) + 32768;
 }
 
@@ -86,12 +87,63 @@ void tapToggle() {
 
 uint16_t drumsample;
 uint16_t newsample;
+uint16_t newsampledebug;
 uint32_t oldsample;
 uint16_t upper;
 uint16_t lower;
 uint16_t mixed;
 uint32_t upperlower;
 uint8_t *pDrumset = (uint8_t *)&drumset;
+
+void play(uint16_t newsample){
+	newsampledebug = newsample;
+	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
+	upper = (upperlower >> 16);
+	lower = (upperlower & 0x0000FFFF);
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,upper);
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,lower);
+	Dubbing = ToggleDubbing;
+	//Write_DAC8552(channel_A,upper);
+	//if(*pDrumset > 0)
+		//upper = mixGuitar(upper,drumsample,1);
+	mixed = mixGuitar(newsample,lower,Dubbing);
+	upperlower = upper;
+	upperlower <<= 16;
+	upperlower |= (uint32_t)mixed;
+	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
+
+	SamplesRead++;
+	if(SamplesRead == SamplesWritten){
+		dub_pointer = 0;
+		SamplesRead = 0;
+		read_pointer = 0;
+		return;
+	}
+		dub_pointer += 4;
+		read_pointer += 4;
+		if(read_pointer == SDRAM_SIZE)
+			read_pointer = 0;
+		if(dub_pointer == SDRAM_SIZE)
+			dub_pointer = 0;
+
+}
+
+void record(uint16_t sample){
+	drumsample = drumHandler();
+	if(StartApp == 0 ){
+		return;
+	}
+
+	upperlower = (((uint32_t)sample) << 16);
+
+	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) &upperlower, 1);
+	SamplesWritten++;
+	write_pointer += 4;
+	if(write_pointer == SDRAM_SIZE)
+		write_pointer = 0;
+
+
+}
 
 void play_record(){
 
@@ -119,11 +171,11 @@ void play_record(){
 		BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
 		upper = (upperlower >> 16);
 		lower = (upperlower & 0x0000FFFF);
-		Write_DAC8552(channel_A,upper);
+		//Write_DAC8552(channel_A,upper);
 		if(*pDrumset > 0)
 			upper = mixGuitar(upper,drumsample,1);
 		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,upper >> 4);
-		Write_DAC8552(channel_B,lower);
+		//Write_DAC8552(channel_B,lower);
 		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,lower >> 4);
 		mixed = mixGuitar(newsample,lower,Dubbing);
 		upperlower = upper;

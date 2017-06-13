@@ -4,10 +4,11 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
-C:/Users/Tomasz/workspace/tom32f4/Looper/Src/ads1256_test.c \
+C:/Users/Tomasz/workspace/tom32f4/Looper/Src/adc.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/audio.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/bsp_driver_sd.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/dac.c \
+C:/Users/Tomasz/workspace/tom32f4/Looper/Src/dma.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/drums.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/fatfs.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/fmc.c \
@@ -23,10 +24,11 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Src/stm32f4xx_it.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/tim.c 
 
 OBJS += \
-./Application/User/ads1256_test.o \
+./Application/User/adc.o \
 ./Application/User/audio.o \
 ./Application/User/bsp_driver_sd.o \
 ./Application/User/dac.o \
+./Application/User/dma.o \
 ./Application/User/drums.o \
 ./Application/User/fatfs.o \
 ./Application/User/fmc.o \
@@ -42,10 +44,11 @@ OBJS += \
 ./Application/User/tim.o 
 
 C_DEPS += \
-./Application/User/ads1256_test.d \
+./Application/User/adc.d \
 ./Application/User/audio.d \
 ./Application/User/bsp_driver_sd.d \
 ./Application/User/dac.d \
+./Application/User/dma.d \
 ./Application/User/drums.d \
 ./Application/User/fatfs.d \
 ./Application/User/fmc.d \
@@ -62,7 +65,7 @@ C_DEPS += \
 
 
 # Each subdirectory must supply rules for building sources it contributes
-Application/User/ads1256_test.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/ads1256_test.c
+Application/User/adc.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/adc.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo %cd%
@@ -87,6 +90,14 @@ Application/User/bsp_driver_sd.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/b
 	@echo ' '
 
 Application/User/dac.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/dac.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU GCC Compiler'
+	@echo %cd%
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -D__weak="__attribute__((weak))" -D__packed="__attribute__((__packed__))" -DUSE_HAL_DRIVER -DSTM32F429xx -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/CMSIS/Include" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/drivers" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src"  -O0 -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+Application/User/dma.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/dma.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo %cd%

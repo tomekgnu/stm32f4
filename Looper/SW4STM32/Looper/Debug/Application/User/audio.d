@@ -1,7 +1,8 @@
 Application/User/audio.o: \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Src/audio.c \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/main.h \
- C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/ads1256_test.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery_sdram.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f4xx_hal_conf.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/main.h \
@@ -22,6 +23,8 @@ Application/User/audio.o: \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma_ex.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc_ex.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dac.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dac_ex.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h \
@@ -36,13 +39,13 @@ Application/User/audio.o: \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
- C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery_sdram.h \
- C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/waveplayer.h
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/main.h:
 
-C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/ads1256_test.h:
+C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery_sdram.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h:
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 
@@ -84,6 +87,10 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h:
 
+C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_adc_ex.h:
+
 C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dac.h:
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dac_ex.h:
@@ -111,9 +118,5 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f
 C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h:
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
-
-C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery_sdram.h:
-
-C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h:
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/waveplayer.h:

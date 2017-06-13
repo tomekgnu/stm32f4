@@ -55,7 +55,12 @@
 #define WRITE_SIZE			((SAMPLE_BYTES) / 4)
 #define MEM_BLOCK			READ_SIZE
 
+typedef enum {FALSE,TRUE}BOOL;
+typedef uint8_t byte;
+
 void play_record();
+void play(uint16_t newsample);
+void record(uint16_t sample);
 void lowerMixedSamples(uint32_t * buf);
 void buttonHandler();
 uint16_t drumHandler();
@@ -75,16 +80,6 @@ void Error_Handler(void);
 
 /* Private define ------------------------------------------------------------*/
 
-#define ADS1256_DRDY_Pin GPIO_PIN_2
-#define ADS1256_DRDY_GPIO_Port GPIOE
-#define ADS1256_RESET_Pin GPIO_PIN_3
-#define ADS1256_RESET_GPIO_Port GPIOE
-#define ADS1256_SYNC_Pin GPIO_PIN_4
-#define ADS1256_SYNC_GPIO_Port GPIOE
-#define ADS1256_CS_Pin GPIO_PIN_5
-#define ADS1256_CS_GPIO_Port GPIOE
-#define DAC8552_CS_Pin GPIO_PIN_6
-#define DAC8552_CS_GPIO_Port GPIOE
 #define Snare_Pin GPIO_PIN_13
 #define Snare_GPIO_Port GPIOC
 #define PC14_OSC32_IN_Pin GPIO_PIN_14
@@ -111,10 +106,6 @@ void Error_Handler(void);
 #define PH1_OSC_OUT_GPIO_Port GPIOH
 #define SDNWE_Pin GPIO_PIN_0
 #define SDNWE_GPIO_Port GPIOC
-#define SPI2_MISO_Pin GPIO_PIN_2
-#define SPI2_MISO_GPIO_Port GPIOC
-#define SPI2_MOSI_Pin GPIO_PIN_3
-#define SPI2_MOSI_GPIO_Port GPIOC
 #define B5_Pin GPIO_PIN_3
 #define B5_GPIO_Port GPIOA
 #define G2_Pin GPIO_PIN_6
@@ -163,8 +154,6 @@ void Error_Handler(void);
 #define D11_GPIO_Port GPIOE
 #define D12_Pin GPIO_PIN_15
 #define D12_GPIO_Port GPIOE
-#define SPI2_SCK_Pin GPIO_PIN_10
-#define SPI2_SCK_GPIO_Port GPIOB
 #define G5_Pin GPIO_PIN_11
 #define G5_GPIO_Port GPIOB
 #define OTG_FS_ID_Pin GPIO_PIN_12
