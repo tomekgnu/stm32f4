@@ -48,7 +48,7 @@
 #include "stm32f429i_discovery.h"
 
 #include "main.h"
-
+extern float mainfactor;
 extern __IO uint8_t Recording;
 extern __IO uint8_t Playback;
 extern __IO uint8_t Dubbing;
@@ -278,7 +278,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOG, LD3_Pin|LD4_Pin, GPIO_PIN_RESET);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 2, 3);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 3);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
@@ -363,6 +363,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			return;
 		//PlaybackButton = PRESS;
 		StartApp = 0;
+		mainfactor = 1.00;
 		BSP_LED_On(GREEN);
 		BSP_LED_Off(RED);
 		SamplesRead = 0;

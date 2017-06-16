@@ -1,4 +1,5 @@
 #include "main.h"
+#include "audio.h"
 #include "stm32f429i_discovery_sdram.h"
 #include "string.h"
 #include "limits.h"
@@ -10,6 +11,9 @@ uint32_t read_buffer_1[SAMPLE_ARRAY];
 uint32_t read_buffer_2[SAMPLE_ARRAY];
 uint32_t write_buffer_1[SAMPLE_ARRAY];
 uint32_t write_buffer_2[SAMPLE_ARRAY];
+uint32_t highest_sample_sum;
+float mainfactor;
+float tmpfactor;
 extern FMC_SDRAM_CommandTypeDef SDRAMCommandStructure;
 uint32_t * rdptr;
 uint32_t * wrptr;	// pointer for writinguint32_t SamplesRead = 0;
@@ -55,13 +59,16 @@ extern uint8_t Audio_Buffer[];
 extern __IO BUFFER_StateTypeDef buffer_offset;
 
 static inline uint16_t mixGuitar(uint16_t a, uint16_t b,int16_t dubbing) {
+
 //	if(a < 0 && b < 0)
 //		return (int16_t)((a + b) - ((a * b)/SHRT_MIN));
 //	if( a > 0 && b > 0)
 //	   return (int16_t)((a + b) - ((a * b)/SHRT_MAX));
 
+
 	if(dubbing == 0)
 		return b;
+	//return (a + b) / 2;
 	if(a < 2048 && b < 2048)
 		return (a * b) / 2048;
 	return 2 * (a + b) - ((a * b) /2048) - 4096;
@@ -87,8 +94,7 @@ void tapToggle() {
 
 uint16_t drumsample;
 uint16_t newsample;
-uint16_t newsampledebug;
-uint32_t oldsample;
+
 uint16_t upper;
 uint16_t lower;
 uint16_t mixed;
@@ -96,7 +102,6 @@ uint32_t upperlower;
 uint8_t *pDrumset = (uint8_t *)&drumset;
 
 void play(uint16_t newsample){
-	newsampledebug = newsample;
 	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
 	upper = (upperlower >> 16);
 	lower = (upperlower & 0x0000FFFF);
@@ -134,7 +139,7 @@ void record(uint16_t sample){
 		return;
 	}
 
-	upperlower = (((uint32_t)sample) << 16);
+	upperlower = (((uint32_t)sample) << 16) | ((uint32_t)(sample / 2));
 
 	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) &upperlower, 1);
 	SamplesWritten++;
@@ -145,67 +150,33 @@ void record(uint16_t sample){
 
 }
 
-void play_record(){
-
-	drumsample = drumHandler();
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,drumsample >> 4);
-	if(StartApp == 0 ){
+void playMulti(uint8_t number,uint16_t sample,struct tracks * tr){
+	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,tr->sum / 1);
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,tr->sum / 1);
+	SamplesRead++;
+	if(SamplesRead == SamplesWritten){
+		dub_pointer = 0;
+		SamplesRead = 0;
+		read_pointer = 0;
 		return;
 	}
-
-	Dubbing = ToggleDubbing;
-	newsample = getSample();
-
-	if(Recording == 1){
-			if(*pDrumset > 0){
-				upperlower = mixGuitar(newsample,drumsample,1);
-				upperlower = (((uint32_t)upperlower) << 16);
-			}
-			else
-				upperlower = (((uint32_t)newsample) << 16);
-			BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) &upperlower, 1);
-			SamplesWritten++;
-	}
-
-	else if(Playback == 1){
-		BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
-		upper = (upperlower >> 16);
-		lower = (upperlower & 0x0000FFFF);
-		//Write_DAC8552(channel_A,upper);
-		if(*pDrumset > 0)
-			upper = mixGuitar(upper,drumsample,1);
-		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,upper >> 4);
-		//Write_DAC8552(channel_B,lower);
-		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,lower >> 4);
-		mixed = mixGuitar(newsample,lower,Dubbing);
-		upperlower = upper;
-		upperlower <<= 16;
-		upperlower |= (uint32_t)mixed;
-		BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + dub_pointer,(uint32_t *) &upperlower, 1);
-
-		SamplesRead++;
-		if(SamplesRead == SamplesWritten){
-				dub_pointer = 0;
-				SamplesRead = 0;
-				read_pointer = 0;
-				return;
-			}
-
-		}
-
-		dub_pointer += 4;
-		read_pointer += 4;
-		write_pointer += 4;
-		if(write_pointer == SDRAM_SIZE)
-			write_pointer = 0;
-		if(read_pointer == SDRAM_SIZE)
-			read_pointer = 0;
-		if(dub_pointer == SDRAM_SIZE)
-			dub_pointer = 0;
-		if(BSP_SDRAM_Sendcmd(&SDRAMCommandStructure) != HAL_OK)
-		  {
-		    /* Command send Error */
-		    Error_Handler();
-		  }
+	dub_pointer += 12;
+	read_pointer += 12;
+	if(read_pointer == SDRAM_SIZE)
+		read_pointer = 0;
+	if(dub_pointer == SDRAM_SIZE)
+		dub_pointer = 0;
+}
+void recordMulti(uint8_t number,uint16_t sample,struct tracks * tr){
+	if(StartApp == 0 )
+		return;
+	tr->samples[number] = sample;
+	tr->sum = tr->samples[TRACK1] + tr->samples[TRACK2] + tr->samples[TRACK3] + tr->samples[TRACK4];
+	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) tr, 3);
+	SamplesWritten++;
+	write_pointer += 12;
+	if(write_pointer == SDRAM_SIZE)
+		write_pointer = 0;
 }
 

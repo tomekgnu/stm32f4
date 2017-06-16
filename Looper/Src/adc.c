@@ -50,6 +50,7 @@
 
 /* USER CODE BEGIN 0 */
 #include "main.h"
+#include "audio.h"
 #include "stm32f429i_discovery.h"
 #include "math.h"
 #define pi 3.14159
@@ -69,14 +70,21 @@ extern uint16_t readADC[];
 extern DAC_HandleTypeDef hdac;
 extern __IO uint8_t StartApp;
 
+struct tracks trcs;
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-	if(StartApp == 0)
+	if(StartApp == 0){
+		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,readADC[0]);
 		return;
+	}
+
 	if(Recording == 1)
+		recordMulti(TRACK1,readADC[0],&trcs);
 		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,readADC[0]);
-		record(readADC[0]);	// PIN PF10
+		//record(readADC[0]);	// PIN PF10
 	if(Playback == 1)
-		play(readADC[0]);
+		playMulti(TRACK1,readADC[0],&trcs);
+		//play(readADC[0]);
 }
 //
 //	//if(StartApp == 0)

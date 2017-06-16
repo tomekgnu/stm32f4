@@ -61,7 +61,7 @@
 #include "math.h"
 #include "drums.h"
 #include "stdlib.h"
-
+#include "audio.h"
 
 #define pi 3.14159
 /* USER CODE END Includes */
@@ -178,6 +178,8 @@ int main(void)
 
   status = HAL_ADC_Start_DMA(&hadc3,(uint32_t *)readADC,2);
 	//ReadDrumSamples();
+
+  data = sizeof(struct tracks);
 
   FATFS_UnLinkDriver(SD_Path);
 
