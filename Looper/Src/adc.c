@@ -71,6 +71,8 @@ extern DAC_HandleTypeDef hdac;
 extern __IO uint8_t StartApp;
 
 struct tracks trcs;
+uint8_t currentLoop;
+uint8_t tracksPlaying;
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 	if(StartApp == 0){
@@ -79,12 +81,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 	}
 
 	if(Recording == 1)
-		recordMulti(TRACK1,readADC[0],&trcs);
+		//recordMulti(TRACK1,readADC[0],readADC[1],&trcs);
 		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,readADC[0]);
-		//record(readADC[0]);	// PIN PF10
+		record(readADC[0]);	// PIN PF10
 	if(Playback == 1)
-		playMulti(TRACK1,readADC[0],&trcs);
-		//play(readADC[0]);
+		//playMulti(TRACK1,readADC[0],readADC[1],&trcs);
+		play(readADC[0]);
 }
 //
 //	//if(StartApp == 0)

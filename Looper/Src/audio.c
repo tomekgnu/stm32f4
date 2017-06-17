@@ -12,8 +12,8 @@ uint32_t read_buffer_2[SAMPLE_ARRAY];
 uint32_t write_buffer_1[SAMPLE_ARRAY];
 uint32_t write_buffer_2[SAMPLE_ARRAY];
 uint32_t highest_sample_sum;
-float mainfactor;
-float tmpfactor;
+extern uint8_t tracksPlaying;
+extern uint8_t currentLoop;
 extern FMC_SDRAM_CommandTypeDef SDRAMCommandStructure;
 uint32_t * rdptr;
 uint32_t * wrptr;	// pointer for writinguint32_t SamplesRead = 0;
@@ -150,12 +150,26 @@ void record(uint16_t sample){
 
 }
 
-void playMulti(uint8_t number,uint16_t sample,struct tracks * tr){
+void playMulti(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct tracks * tr){
 	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,tr->sum / 1);
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,tr->sum / 1);
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,tr->sum / tracksPlaying);
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,tr->sum / tracksPlaying);
+	Dubbing = ToggleDubbing;
+	if(Dubbing == 1){
+		tr->samples[currentLoop] = sampleA;
+		tr->sum = tr->samples[TRACK1] + tr->samples[TRACK2] + tr->samples[TRACK3] + tr->samples[TRACK4];
+		BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
+	}
 	SamplesRead++;
 	if(SamplesRead == SamplesWritten){
+		if(Dubbing == 1){
+			tracksPlaying++;
+			currentLoop++;
+		}
+		if(tracksPlaying == 5)
+			tracksPlaying = 4;
+		if(currentLoop == 4)
+			currentLoop = 1;
 		dub_pointer = 0;
 		SamplesRead = 0;
 		read_pointer = 0;
@@ -168,10 +182,10 @@ void playMulti(uint8_t number,uint16_t sample,struct tracks * tr){
 	if(dub_pointer == SDRAM_SIZE)
 		dub_pointer = 0;
 }
-void recordMulti(uint8_t number,uint16_t sample,struct tracks * tr){
+void recordMulti(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct tracks * tr){
 	if(StartApp == 0 )
 		return;
-	tr->samples[number] = sample;
+	tr->samples[number] = sampleA;
 	tr->sum = tr->samples[TRACK1] + tr->samples[TRACK2] + tr->samples[TRACK3] + tr->samples[TRACK4];
 	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) tr, 3);
 	SamplesWritten++;

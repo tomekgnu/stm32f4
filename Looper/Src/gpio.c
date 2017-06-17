@@ -46,9 +46,11 @@
 #include "gpio.h"
 /* USER CODE BEGIN 0 */
 #include "stm32f429i_discovery.h"
-
+#include "audio.h"
 #include "main.h"
-extern float mainfactor;
+extern struct tracks trcs;
+extern uint8_t currentLoop;
+extern uint8_t tracksPlaying;
 extern __IO uint8_t Recording;
 extern __IO uint8_t Playback;
 extern __IO uint8_t Dubbing;
@@ -349,6 +351,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		StartApp = 0;
 		BSP_LED_On(RED);
 		BSP_LED_Off(GREEN);
+		trcs.sum = 0;
+		trcs.samples[0] = trcs.samples[1] = trcs.samples[2] = trcs.samples[3] = 0;
+		currentLoop = 1;
+		tracksPlaying = 1;
 		SamplesWritten = 0;
 		dub_pointer = 0;
 		write_pointer = 0;
@@ -363,7 +369,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			return;
 		//PlaybackButton = PRESS;
 		StartApp = 0;
-		mainfactor = 1.00;
 		BSP_LED_On(GREEN);
 		BSP_LED_Off(RED);
 		SamplesRead = 0;
