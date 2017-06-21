@@ -80,8 +80,8 @@ void Error_Handler(void);
 
 /* Private define ------------------------------------------------------------*/
 
-#define Snare_Pin GPIO_PIN_13
-#define Snare_GPIO_Port GPIOC
+#define SF3_CS_Pin GPIO_PIN_2
+#define SF3_CS_GPIO_Port GPIOE
 #define PC14_OSC32_IN_Pin GPIO_PIN_14
 #define PC14_OSC32_IN_GPIO_Port GPIOC
 #define PC15_OSC32_OUT_Pin GPIO_PIN_15

@@ -62,7 +62,7 @@
 #include "drums.h"
 #include "stdlib.h"
 #include "audio.h"
-
+#include "SF3.h"
 #define pi 3.14159
 /* USER CODE END Includes */
 
@@ -122,7 +122,7 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
 	uint32_t data = 'dupa';
-
+	uint8_t sf3_ID[20];
 	HAL_StatusTypeDef status;
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
@@ -177,10 +177,10 @@ int main(void)
   //status = HAL_ADC_Start_IT(&hadc3);
 
   status = HAL_ADC_Start_DMA(&hadc3,(uint32_t *)readADC,2);
-	//ReadDrumSamples();
+  ReadDrumSamples();
 
   data = sizeof(struct tracks);
-
+  data = getDeviceID(sf3_ID);
   FATFS_UnLinkDriver(SD_Path);
 
   /* USER CODE END 2 */

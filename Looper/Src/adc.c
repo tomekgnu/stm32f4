@@ -76,7 +76,7 @@ uint8_t tracksPlaying;
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 	if(StartApp == 0){
-		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,readADC[0]);
+		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,readADC[0]);
 		return;
 	}
 

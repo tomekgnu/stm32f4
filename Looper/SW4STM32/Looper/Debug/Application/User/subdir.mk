@@ -4,6 +4,7 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
+C:/Users/Tomasz/workspace/tom32f4/Looper/Src/SF3.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/adc.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/audio.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/bsp_driver_sd.c \
@@ -24,6 +25,7 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Src/stm32f4xx_it.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/tim.c 
 
 OBJS += \
+./Application/User/SF3.o \
 ./Application/User/adc.o \
 ./Application/User/audio.o \
 ./Application/User/bsp_driver_sd.o \
@@ -44,6 +46,7 @@ OBJS += \
 ./Application/User/tim.o 
 
 C_DEPS += \
+./Application/User/SF3.d \
 ./Application/User/adc.d \
 ./Application/User/audio.d \
 ./Application/User/bsp_driver_sd.d \
@@ -65,6 +68,14 @@ C_DEPS += \
 
 
 # Each subdirectory must supply rules for building sources it contributes
+Application/User/SF3.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/SF3.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU GCC Compiler'
+	@echo %cd%
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -D__weak="__attribute__((weak))" -D__packed="__attribute__((__packed__))" -DUSE_HAL_DRIVER -DSTM32F429xx -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/CMSIS/Include" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/drivers" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src"  -O0 -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
 Application/User/adc.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/adc.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'

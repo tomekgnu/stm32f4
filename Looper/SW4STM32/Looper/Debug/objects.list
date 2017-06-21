@@ -1,4 +1,5 @@
 "Application/SW4STM32/startup_stm32f429xx.o"
+"Application/User/SF3.o"
 "Application/User/adc.o"
 "Application/User/audio.o"
 "Application/User/bsp_driver_sd.o"

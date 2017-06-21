@@ -76,13 +76,13 @@ static inline uint16_t mixGuitar(uint16_t a, uint16_t b,int16_t dubbing) {
 	//return (int16_t)((a + b*1.2)*0.5);
 }
 
-int32_t ads1256data;
-
-static uint16_t getSample() {
-
-	//ADS1256_WaitDRDY();
-	//ads1256data = ADS1256_ReadData();
-	return (ads1256data >> 8) + 32768;
+static inline uint16_t mixMultiple(struct tracks *trck,uint8_t playing){
+	switch(playing){
+	case 1:	return 0;
+	case 2:	return trck->sum;
+	case 3: return trck->sum / 2;
+	case 4: return trck->sum / 3;
+	}
 }
 
 
@@ -151,9 +151,11 @@ void record(uint16_t sample){
 }
 
 void playMulti(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct tracks * tr){
+	uint16_t mix;
 	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,tr->sum / tracksPlaying);
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,tr->sum / tracksPlaying);
+	mix = mixMultiple(tr,tracksPlaying);
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,tr->samples[TRACK1]);
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,mix);
 	Dubbing = ToggleDubbing;
 	if(Dubbing == 1){
 		tr->samples[currentLoop] = sampleA;
