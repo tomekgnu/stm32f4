@@ -59,8 +59,6 @@ typedef enum {FALSE,TRUE}BOOL;
 typedef uint8_t byte;
 
 void play_record();
-void play(uint16_t newsample);
-void record(uint16_t sample);
 void lowerMixedSamples(uint32_t * buf);
 void buttonHandler();
 uint16_t drumHandler();

@@ -73,20 +73,22 @@ extern __IO uint8_t StartApp;
 struct tracks trcs;
 uint8_t currentLoop;
 uint8_t tracksPlaying;
+__IO uint8_t conversions = 0;
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+
 	if(StartApp == 0){
 		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,readADC[0]);
 		return;
 	}
 
 	if(Recording == 1)
-		//recordMulti(TRACK1,readADC[0],readADC[1],&trcs);
+		recordMulti(TRACK1,readADC[0],readADC[1],&trcs);
 		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,readADC[0]);
-		record(readADC[0]);	// PIN PF10
+		//record(readADC[0]);	// PIN PF10
 	if(Playback == 1)
-		//playMulti(TRACK1,readADC[0],readADC[1],&trcs);
-		play(readADC[0]);
+		playMulti(TRACK1,readADC[0],readADC[1],&trcs);
+		//play(readADC[0]);
 }
 //
 //	//if(StartApp == 0)
@@ -127,7 +129,7 @@ void MX_ADC3_Init(void)
   hadc3.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc3.Init.Resolution = ADC_RESOLUTION_12B;
   hadc3.Init.ScanConvMode = ENABLE;
-  hadc3.Init.ContinuousConvMode = ENABLE;
+  hadc3.Init.ContinuousConvMode = DISABLE;
   hadc3.Init.DiscontinuousConvMode = DISABLE;
   hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
   hadc3.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T3_TRGO;
@@ -197,7 +199,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     hdma_adc3.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
     hdma_adc3.Init.MemDataAlignment = DMA_MDATAALIGN_HALFWORD;
     hdma_adc3.Init.Mode = DMA_CIRCULAR;
-    hdma_adc3.Init.Priority = DMA_PRIORITY_LOW;
+    hdma_adc3.Init.Priority = DMA_PRIORITY_HIGH;
     hdma_adc3.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_adc3) != HAL_OK)
     {
@@ -206,9 +208,6 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
 
     __HAL_LINKDMA(adcHandle,DMA_Handle,hdma_adc3);
 
-    /* Peripheral interrupt init */
-    HAL_NVIC_SetPriority(ADC_IRQn, 1, 2);
-    HAL_NVIC_EnableIRQ(ADC_IRQn);
   /* USER CODE BEGIN ADC3_MspInit 1 */
 
   /* USER CODE END ADC3_MspInit 1 */
@@ -236,10 +235,6 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 
     /* Peripheral DMA DeInit*/
     HAL_DMA_DeInit(adcHandle->DMA_Handle);
-
-    /* Peripheral interrupt Deinit*/
-    HAL_NVIC_DisableIRQ(ADC_IRQn);
-
   }
   /* USER CODE BEGIN ADC3_MspDeInit 1 */
 

@@ -68,7 +68,7 @@ static inline uint16_t mixGuitar(uint16_t a, uint16_t b,int16_t dubbing) {
 
 	if(dubbing == 0)
 		return b;
-	//return (a + b) / 2;
+	return (a + b) / 2;
 	if(a < 2048 && b < 2048)
 		return (a * b) / 2048;
 	return 2 * (a + b) - ((a * b) /2048) - 4096;
@@ -77,12 +77,9 @@ static inline uint16_t mixGuitar(uint16_t a, uint16_t b,int16_t dubbing) {
 }
 
 static inline uint16_t mixMultiple(struct tracks *trck,uint8_t playing){
-	switch(playing){
-	case 1:	return 0;
-	case 2:	return trck->sum;
-	case 3: return trck->sum / 2;
-	case 4: return trck->sum / 3;
-	}
+	if(playing == 1)
+		return (trck->sum / 2 ) ;
+	return (trck->sum / playing ) ;
 }
 
 
@@ -154,7 +151,7 @@ void playMulti(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct tracks * 
 	uint16_t mix;
 	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
 	mix = mixMultiple(tr,tracksPlaying);
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,tr->samples[TRACK1]);
+	//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,tr->samples[TRACK1]);
 	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,mix);
 	Dubbing = ToggleDubbing;
 	if(Dubbing == 1){
@@ -171,7 +168,7 @@ void playMulti(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct tracks * 
 		if(tracksPlaying == 5)
 			tracksPlaying = 4;
 		if(currentLoop == 4)
-			currentLoop = 1;
+			currentLoop = 0;
 		dub_pointer = 0;
 		SamplesRead = 0;
 		read_pointer = 0;
@@ -187,6 +184,7 @@ void playMulti(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct tracks * 
 void recordMulti(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct tracks * tr){
 	if(StartApp == 0 )
 		return;
+
 	tr->samples[number] = sampleA;
 	tr->sum = tr->samples[TRACK1] + tr->samples[TRACK2] + tr->samples[TRACK3] + tr->samples[TRACK4];
 	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) tr, 3);

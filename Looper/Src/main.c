@@ -170,7 +170,7 @@ int main(void)
   BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
 
   //status = HAL_ADC_Start_DMA(&hadc3,(uint32_t *)readADC,2);
-  status = HAL_TIM_Base_Start_IT(&htim3);
+  status = HAL_TIM_Base_Start(&htim3);
   status = HAL_TIM_Base_Start_IT(&htim4);
   status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   status = HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
