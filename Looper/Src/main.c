@@ -155,6 +155,7 @@ int main(void)
   MX_FATFS_Init();
   MX_SPI2_Init();
   MX_ADC3_Init();
+  MX_TIM8_Init();
 
   /* USER CODE BEGIN 2 */
   BSP_SDRAM_Init();
@@ -170,7 +171,7 @@ int main(void)
   BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
 
   //status = HAL_ADC_Start_DMA(&hadc3,(uint32_t *)readADC,2);
-  status = HAL_TIM_Base_Start(&htim3);
+  status = HAL_TIM_Base_Start_IT(&htim8);
   status = HAL_TIM_Base_Start_IT(&htim4);
   status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   status = HAL_DAC_Start(&hdac,DAC_CHANNEL_2);

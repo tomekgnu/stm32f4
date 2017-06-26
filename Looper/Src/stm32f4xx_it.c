@@ -39,18 +39,20 @@
 #include "main.h"
 #include "stm32f429i_discovery.h"
 #include "stm32f429i_discovery_sdram.h"
+#include "audio.h"
 
 extern ADC_HandleTypeDef hadc1;
 extern __IO uint8_t DmaTransferReady;
 extern __IO uint8_t Playback;
 extern uint16_t readADC[];
 extern DAC_HandleTypeDef hdac;
-
+extern struct tracks trcs;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc3;
 extern TIM_HandleTypeDef htim4;
+extern TIM_HandleTypeDef htim8;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -145,6 +147,21 @@ void TIM4_IRQHandler(void)
   /* USER CODE BEGIN TIM4_IRQn 1 */
   buttonHandler();
   /* USER CODE END TIM4_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM8 update interrupt and TIM13 global interrupt.
+*/
+void TIM8_UP_TIM13_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM8_UP_TIM13_IRQn 0 */
+
+  /* USER CODE END TIM8_UP_TIM13_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim8);
+  /* USER CODE BEGIN TIM8_UP_TIM13_IRQn 1 */
+  if(Playback == 1)
+  		playMultiFromTimer(TRACK1,readADC[0],readADC[1],&trcs);
+  /* USER CODE END TIM8_UP_TIM13_IRQn 1 */
 }
 
 /**

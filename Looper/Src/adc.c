@@ -52,9 +52,11 @@
 #include "main.h"
 #include "audio.h"
 #include "stm32f429i_discovery.h"
+#include "stm32f429i_discovery_sdram.h"
 #include "math.h"
 #define pi 3.14159
-
+extern __IO ButtonStates ToggleDubbing;
+extern uint32_t read_pointer;
 extern uint32_t DataReady;
 extern __IO uint32_t BufferCount;
 extern uint16_t * rdptr;
@@ -84,11 +86,34 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 	if(Recording == 1)
 		recordMulti(TRACK1,readADC[0],readADC[1],&trcs);
-		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,readADC[0]);
-		//record(readADC[0]);	// PIN PF10
-	if(Playback == 1)
-		playMulti(TRACK1,readADC[0],readADC[1],&trcs);
-		//play(readADC[0]);
+	if(Playback == 1){
+		Dubbing = ToggleDubbing;
+		if(Dubbing == 1){
+			trcs.samples[currentLoop] = readADC[0];
+			trcs.sum = trcs.samples[TRACK1] + trcs.samples[TRACK2] + trcs.samples[TRACK3] + trcs.samples[TRACK4];
+			BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &trcs, 3);
+		}
+		SamplesRead++;
+		if(SamplesRead == SamplesWritten){
+			if(Dubbing == 1){
+				tracksPlaying++;
+				currentLoop++;
+			}
+			if(tracksPlaying == 5)
+				tracksPlaying = 4;
+			if(currentLoop == 4)
+				currentLoop = 0;
+				SamplesRead = 0;
+				read_pointer = 0;
+				return;
+			}
+
+			read_pointer += 12;
+			if(read_pointer == SDRAM_SIZE)
+				read_pointer = 0;
+
+	}
+
 }
 //
 //	//if(StartApp == 0)
@@ -132,7 +157,7 @@ void MX_ADC3_Init(void)
   hadc3.Init.ContinuousConvMode = DISABLE;
   hadc3.Init.DiscontinuousConvMode = DISABLE;
   hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
-  hadc3.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T3_TRGO;
+  hadc3.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_T8_TRGO;
   hadc3.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc3.Init.NbrOfConversion = 2;
   hadc3.Init.DMAContinuousRequests = ENABLE;

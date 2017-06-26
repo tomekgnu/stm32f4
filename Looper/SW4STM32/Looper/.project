@@ -24,7 +24,11 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
 	</natures>
-	<linkedResources>
+	<linkedResources><link>
+			<name>Application/User/tim.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/tim.c</location>
+		</link>
 		<link>
 			<name>Application/SW4STM32/startup_stm32f429xx.s</name>
 			<type>1</type>
@@ -119,11 +123,6 @@
 			<name>Application/User/stm32f4xx_it.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/stm32f4xx_it.c</location>
-		</link>
-		<link>
-			<name>Application/User/tim.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/tim.c</location>
 		</link>
 		<link>
 			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
