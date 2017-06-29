@@ -37,6 +37,7 @@ Application/User/gpio.o: \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_spi.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/audio.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/main.h
@@ -114,6 +115,8 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f
 C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h:
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h:
 

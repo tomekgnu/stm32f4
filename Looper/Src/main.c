@@ -50,6 +50,7 @@
 #include "sdio.h"
 #include "spi.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 #include "fmc.h"
 
@@ -57,6 +58,7 @@
 #include "analogShield.h"
 #include "stm32f429i_discovery_sdram.h"
 #include "main.h"
+#include "midi.h"
 #include "string.h"
 #include "math.h"
 #include "drums.h"
@@ -156,6 +158,7 @@ int main(void)
   MX_SPI2_Init();
   MX_ADC3_Init();
   MX_TIM8_Init();
+  MX_USART1_UART_Init();
 
   /* USER CODE BEGIN 2 */
   BSP_SDRAM_Init();
@@ -183,7 +186,7 @@ int main(void)
   data = sizeof(struct tracks);
   data = getDeviceID(sf3_ID);
   FATFS_UnLinkDriver(SD_Path);
-
+  setupMidi();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -192,7 +195,22 @@ int main(void)
 
   while (1)
   {
+	  uint32_t instrument = 0;
+	  talkMIDI(0xB0, 0, 0x01); //Default bank GM1
 
+	    //Change to different instrument
+	    for(instrument = 34 ; instrument < 80 ; instrument++) {
+	      playPercussion(NOTEON,Low_Floor_Tom);
+	      playPercussion(NOTEON,Closed_Hi_Hat);
+	      playPercussion(NOTEON,Open_Hi_Hat);
+	      HAL_Delay(50);
+	      playPercussion(NOTEOFF,Low_Floor_Tom);
+	      playPercussion(NOTEOFF,Closed_Hi_Hat);
+	      playPercussion(NOTEOFF,Open_Hi_Hat);
+	      //}
+
+	      HAL_Delay(1000); //Delay between instruments
+	    }
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */

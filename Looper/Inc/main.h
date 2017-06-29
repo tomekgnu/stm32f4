@@ -80,6 +80,8 @@ void Error_Handler(void);
 
 #define SF3_CS_Pin GPIO_PIN_2
 #define SF3_CS_GPIO_Port GPIOE
+#define VS1053_RESET_Pin GPIO_PIN_3
+#define VS1053_RESET_GPIO_Port GPIOE
 #define PC14_OSC32_IN_Pin GPIO_PIN_14
 #define PC14_OSC32_IN_GPIO_Port GPIOC
 #define PC15_OSC32_OUT_Pin GPIO_PIN_15
@@ -190,8 +192,6 @@ void Error_Handler(void);
 #define SDCLK_GPIO_Port GPIOG
 #define TomHi_Button_Pin GPIO_PIN_6
 #define TomHi_Button_GPIO_Port GPIOC
-#define Kick_Button_Pin GPIO_PIN_8
-#define Kick_Button_GPIO_Port GPIOA
 #define STLINK_RX_Pin GPIO_PIN_9
 #define STLINK_RX_GPIO_Port GPIOA
 #define STLINK_TX_Pin GPIO_PIN_10

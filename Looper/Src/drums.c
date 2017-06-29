@@ -55,13 +55,13 @@ uint16_t drumHandler(){
 			drumset.snare = 1;
 		}
 	}
-	if(HAL_GPIO_ReadPin(Kick_Button_GPIO_Port,Kick_Button_Pin) == GPIO_PIN_RESET){
-			if(drumset.kick == 0){
-				kickIndex = 0;
-				drumset.kick = 1;
-			}
-
-		}
+//	if(HAL_GPIO_ReadPin(Kick_Button_GPIO_Port,Kick_Button_Pin) == GPIO_PIN_RESET){
+//			if(drumset.kick == 0){
+//				kickIndex = 0;
+//				drumset.kick = 1;
+//			}
+//
+//		}
 	if(HAL_GPIO_ReadPin(Crash_Button_GPIO_Port,Crash_Button_Pin) == GPIO_PIN_RESET){
 			if(drumset.crash == 0){
 				crashIndex = 0;

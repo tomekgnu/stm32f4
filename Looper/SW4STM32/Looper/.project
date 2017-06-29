@@ -25,9 +25,9 @@
 		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
 	</natures>
 	<linkedResources><link>
-			<name>Application/User/tim.c</name>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_uart.c</name>
 			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/tim.c</location>
+			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c</location>
 		</link>
 		<link>
 			<name>Application/SW4STM32/startup_stm32f429xx.s</name>
@@ -95,6 +95,11 @@
 			<location>PARENT-2-PROJECT_LOC/Src/main.c</location>
 		</link>
 		<link>
+			<name>Application/User/midi.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/midi.c</location>
+		</link>
+		<link>
 			<name>Application/User/sdio.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/sdio.c</location>
@@ -123,6 +128,16 @@
 			<name>Application/User/stm32f4xx_it.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/stm32f4xx_it.c</location>
+		</link>
+		<link>
+			<name>Application/User/tim.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/tim.c</location>
+		</link>
+		<link>
+			<name>Application/User/usart.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/usart.c</location>
 		</link>
 		<link>
 			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
@@ -233,6 +248,11 @@
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_tim_ex.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c</location>
+		</link>
+		<link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_uart.c</name>
+			<type>1</type>
+			<location>PARENT-5-PROJECT_LOC/STM32Cube/Repository/STM32Cube_FW_F4_V1.14.0/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c</location>
 		</link>
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_ll_fmc.c</name>
