@@ -151,7 +151,7 @@ void playMultiFromTimer(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct 
 	uint16_t mix;
 		BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
 		mix = mixMultiple(tr,tracksPlaying);
-		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,tr->samples[TRACK1]);
+		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,mix);
 		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,mix);
 
 }

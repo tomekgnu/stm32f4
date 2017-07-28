@@ -44,6 +44,7 @@
 extern ADC_HandleTypeDef hadc1;
 extern __IO uint8_t DmaTransferReady;
 extern __IO uint8_t Playback;
+extern __IO uint8_t StartApp;
 extern uint16_t readADC[];
 extern DAC_HandleTypeDef hdac;
 extern struct tracks trcs;
@@ -159,6 +160,10 @@ void TIM8_UP_TIM13_IRQHandler(void)
   /* USER CODE END TIM8_UP_TIM13_IRQn 0 */
   HAL_TIM_IRQHandler(&htim8);
   /* USER CODE BEGIN TIM8_UP_TIM13_IRQn 1 */
+  if(StartApp == 0){
+  		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,readADC[0]);
+  		return;
+  	}
   if(Playback == 1)
   		playMultiFromTimer(TRACK1,readADC[0],readADC[1],&trcs);
   /* USER CODE END TIM8_UP_TIM13_IRQn 1 */

@@ -159,6 +159,7 @@ int main(void)
   MX_ADC3_Init();
   MX_TIM8_Init();
   MX_USART1_UART_Init();
+  MX_UART4_Init();
 
   /* USER CODE BEGIN 2 */
   BSP_SDRAM_Init();
@@ -186,7 +187,7 @@ int main(void)
   data = sizeof(struct tracks);
   data = getDeviceID(sf3_ID);
   FATFS_UnLinkDriver(SD_Path);
-  setupMidi();
+ // setupMidi();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -196,17 +197,17 @@ int main(void)
   while (1)
   {
 	  uint32_t instrument = 0;
-	  talkMIDI(0xB0, 0, 0x01); //Default bank GM1
+	  //talkMIDI(0xB0, 0, 0x01); //Default bank GM1
 
 	    //Change to different instrument
 	    for(instrument = 34 ; instrument < 80 ; instrument++) {
-	      playPercussion(NOTEON,Low_Floor_Tom);
-	      playPercussion(NOTEON,Closed_Hi_Hat);
-	      playPercussion(NOTEON,Open_Hi_Hat);
-	      HAL_Delay(50);
-	      playPercussion(NOTEOFF,Low_Floor_Tom);
-	      playPercussion(NOTEOFF,Closed_Hi_Hat);
-	      playPercussion(NOTEOFF,Open_Hi_Hat);
+//	      playPercussion(NOTEON,Low_Floor_Tom);
+//	      playPercussion(NOTEON,Closed_Hi_Hat);
+//	      playPercussion(NOTEON,Open_Hi_Hat);
+//	      HAL_Delay(50);
+//	      playPercussion(NOTEOFF,Low_Floor_Tom);
+//	      playPercussion(NOTEOFF,Closed_Hi_Hat);
+//	      playPercussion(NOTEOFF,Open_Hi_Hat);
 	      //}
 
 	      HAL_Delay(1000); //Delay between instruments

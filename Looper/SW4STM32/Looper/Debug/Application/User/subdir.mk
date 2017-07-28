@@ -16,7 +16,6 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Src/fmc.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/gpio.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/keyboard.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/main.c \
-C:/Users/Tomasz/workspace/tom32f4/Looper/Src/midi.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/sdio.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/spi.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/stm32f429i_discovery.c \
@@ -39,7 +38,6 @@ OBJS += \
 ./Application/User/gpio.o \
 ./Application/User/keyboard.o \
 ./Application/User/main.o \
-./Application/User/midi.o \
 ./Application/User/sdio.o \
 ./Application/User/spi.o \
 ./Application/User/stm32f429i_discovery.o \
@@ -62,7 +60,6 @@ C_DEPS += \
 ./Application/User/gpio.d \
 ./Application/User/keyboard.d \
 ./Application/User/main.d \
-./Application/User/midi.d \
 ./Application/User/sdio.d \
 ./Application/User/spi.d \
 ./Application/User/stm32f429i_discovery.d \
@@ -163,14 +160,6 @@ Application/User/keyboard.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/keyboa
 	@echo ' '
 
 Application/User/main.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/main.c
-	@echo 'Building file: $<'
-	@echo 'Invoking: MCU GCC Compiler'
-	@echo %cd%
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -D__weak="__attribute__((weak))" -D__packed="__attribute__((__packed__))" -DUSE_HAL_DRIVER -DSTM32F429xx -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/CMSIS/Include" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src/drivers" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Middlewares/Third_Party/FatFs/src"  -O0 -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
-
-Application/User/midi.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/midi.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo %cd%

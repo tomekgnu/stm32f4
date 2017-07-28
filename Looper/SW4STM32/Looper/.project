@@ -95,11 +95,6 @@
 			<location>PARENT-2-PROJECT_LOC/Src/main.c</location>
 		</link>
 		<link>
-			<name>Application/User/midi.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/midi.c</location>
-		</link>
-		<link>
 			<name>Application/User/sdio.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/sdio.c</location>

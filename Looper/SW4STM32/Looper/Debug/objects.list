@@ -11,7 +11,6 @@
 "Application/User/gpio.o"
 "Application/User/keyboard.o"
 "Application/User/main.o"
-"Application/User/midi.o"
 "Application/User/sdio.o"
 "Application/User/spi.o"
 "Application/User/stm32f429i_discovery.o"

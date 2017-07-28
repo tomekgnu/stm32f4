@@ -56,6 +56,7 @@
 #define MEM_BLOCK			READ_SIZE
 
 typedef enum {FALSE,TRUE}BOOL;
+enum{LOW,HIGH};
 typedef uint8_t byte;
 
 void play_record();
@@ -82,6 +83,14 @@ void Error_Handler(void);
 #define SF3_CS_GPIO_Port GPIOE
 #define VS1053_RESET_Pin GPIO_PIN_3
 #define VS1053_RESET_GPIO_Port GPIOE
+#define KEYPAD_COLUMN_1_Pin GPIO_PIN_4
+#define KEYPAD_COLUMN_1_GPIO_Port GPIOE
+#define KEYPAD_COLUMN_2_Pin GPIO_PIN_5
+#define KEYPAD_COLUMN_2_GPIO_Port GPIOE
+#define KEYPAD_COLUMN_3_Pin GPIO_PIN_6
+#define KEYPAD_COLUMN_3_GPIO_Port GPIOE
+#define KEYPAD_COLUMN_4_Pin GPIO_PIN_13
+#define KEYPAD_COLUMN_4_GPIO_Port GPIOC
 #define PC14_OSC32_IN_Pin GPIO_PIN_14
 #define PC14_OSC32_IN_GPIO_Port GPIOC
 #define PC15_OSC32_OUT_Pin GPIO_PIN_15
@@ -100,6 +109,12 @@ void Error_Handler(void);
 #define A5_GPIO_Port GPIOF
 #define Recording_Pin GPIO_PIN_6
 #define Recording_GPIO_Port GPIOF
+#define KEYPAD_ROW_1_Pin GPIO_PIN_7
+#define KEYPAD_ROW_1_GPIO_Port GPIOF
+#define KEYPAD_ROW_2_Pin GPIO_PIN_8
+#define KEYPAD_ROW_2_GPIO_Port GPIOF
+#define KEYPAD_ROW_3_Pin GPIO_PIN_9
+#define KEYPAD_ROW_3_GPIO_Port GPIOF
 #define PH0_OSC_IN_Pin GPIO_PIN_0
 #define PH0_OSC_IN_GPIO_Port GPIOH
 #define PH1_OSC_OUT_Pin GPIO_PIN_1
@@ -234,6 +249,8 @@ void Error_Handler(void);
 #define SDCKE1_GPIO_Port GPIOB
 #define SDNE1_Pin GPIO_PIN_6
 #define SDNE1_GPIO_Port GPIOB
+#define KEYPAD_ROW_4_Pin GPIO_PIN_9
+#define KEYPAD_ROW_4_GPIO_Port GPIOB
 #define NBL0_Pin GPIO_PIN_0
 #define NBL0_GPIO_Port GPIOE
 #define NBL1_Pin GPIO_PIN_1
