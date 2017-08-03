@@ -4,39 +4,29 @@
   * Description        : Main program body
   ******************************************************************************
   *
-  * Copyright (c) 2017 STMicroelectronics International N.V. 
-  * All rights reserved.
+  * COPYRIGHT(c) 2017 STMicroelectronics
   *
-  * Redistribution and use in source and binary forms, with or without 
-  * modification, are permitted, provided that the following conditions are met:
+  * Redistribution and use in source and binary forms, with or without modification,
+  * are permitted provided that the following conditions are met:
+  *   1. Redistributions of source code must retain the above copyright notice,
+  *      this list of conditions and the following disclaimer.
+  *   2. Redistributions in binary form must reproduce the above copyright notice,
+  *      this list of conditions and the following disclaimer in the documentation
+  *      and/or other materials provided with the distribution.
+  *   3. Neither the name of STMicroelectronics nor the names of its contributors
+  *      may be used to endorse or promote products derived from this software
+  *      without specific prior written permission.
   *
-  * 1. Redistribution of source code must retain the above copyright notice, 
-  *    this list of conditions and the following disclaimer.
-  * 2. Redistributions in binary form must reproduce the above copyright notice,
-  *    this list of conditions and the following disclaimer in the documentation
-  *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other 
-  *    contributors to this software may be used to endorse or promote products 
-  *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this 
-  *    software, must execute solely and exclusively on microcontroller or
-  *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under 
-  *    this license is void and will automatically terminate your rights under 
-  *    this license. 
-  *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
-  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
-  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+  * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+  * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+  * DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+  * FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+  * DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+  * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+  * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   *
   ******************************************************************************
   */
@@ -46,8 +36,6 @@
 #include "adc.h"
 #include "dac.h"
 #include "dma.h"
-#include "fatfs.h"
-#include "sdio.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -55,7 +43,7 @@
 #include "fmc.h"
 
 /* USER CODE BEGIN Includes */
-#include "analogShield.h"
+#include "ads1256_test.h"
 #include "stm32f429i_discovery_sdram.h"
 #include "main.h"
 #include "midi.h"
@@ -153,19 +141,16 @@ int main(void)
   MX_FMC_Init();
   MX_TIM4_Init();
   MX_DAC_Init();
-  MX_SDIO_SD_Init();
-  MX_FATFS_Init();
   MX_SPI2_Init();
   MX_ADC3_Init();
   MX_TIM8_Init();
   MX_USART1_UART_Init();
   MX_UART4_Init();
+  MX_SPI3_Init();
 
   /* USER CODE BEGIN 2 */
+  HAL_NVIC_DisableIRQ(EXTI2_IRQn);
   BSP_SDRAM_Init();
-  BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR,(uint32_t *) &data, 1);
-  data = 0;
-  BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR,(uint32_t *) &data, 1);
   status = HAL_TIM_Base_Start(&htim2);
 
   BSP_LED_Init(GREEN);
@@ -175,18 +160,26 @@ int main(void)
   BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
 
   //status = HAL_ADC_Start_DMA(&hadc3,(uint32_t *)readADC,2);
-  status = HAL_TIM_Base_Start_IT(&htim8);
+  //status = HAL_TIM_Base_Start_IT(&htim8);
   status = HAL_TIM_Base_Start_IT(&htim4);
-  status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-  status = HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
+  //status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
+  //status = HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
   //status = HAL_ADC_Start_IT(&hadc3);
 
-  status = HAL_ADC_Start_DMA(&hadc3,(uint32_t *)readADC,2);
-  ReadDrumSamples();
+  //status = HAL_ADC_Start_DMA(&hadc3,(uint32_t *)readADC,2);
+  //ReadDrumSamples();
 
   data = sizeof(struct tracks);
-  data = getDeviceID(sf3_ID);
-  FATFS_UnLinkDriver(SD_Path);
+
+  ADS1256_WriteCmd(CMD_SDATAC);
+  ADS1256_WriteCmd(CMD_SELFCAL);
+
+  data = ADS1256_ReadChipID();
+  ADS1256_CfgADC(ADS1256_GAIN_2, ADS1256_15000SPS);
+  ADS1256_SetChannel(0);
+  ADS1256_WriteCmd(CMD_RDATAC);
+  HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+  //FATFS_UnLinkDriver(SD_Path);
  // setupMidi();
   /* USER CODE END 2 */
 
@@ -196,11 +189,12 @@ int main(void)
 
   while (1)
   {
-	  uint32_t instrument = 0;
+
+	  //uint32_t instrument = 0;
 	  //talkMIDI(0xB0, 0, 0x01); //Default bank GM1
 
 	    //Change to different instrument
-	    for(instrument = 34 ; instrument < 80 ; instrument++) {
+	    //for(instrument = 34 ; instrument < 80 ; instrument++) {
 //	      playPercussion(NOTEON,Low_Floor_Tom);
 //	      playPercussion(NOTEON,Closed_Hi_Hat);
 //	      playPercussion(NOTEON,Open_Hi_Hat);
@@ -210,8 +204,8 @@ int main(void)
 //	      playPercussion(NOTEOFF,Open_Hi_Hat);
 	      //}
 
-	      HAL_Delay(1000); //Delay between instruments
-	    }
+	  //    HAL_Delay(1000); //Delay between instruments
+	 //   }
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */

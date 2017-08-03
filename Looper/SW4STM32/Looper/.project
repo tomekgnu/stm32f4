@@ -45,14 +45,14 @@
 			<location>PARENT-2-PROJECT_LOC/Src/adc.c</location>
 		</link>
 		<link>
+			<name>Application/User/ads1256_test.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/ads1256_test.c</location>
+		</link>
+		<link>
 			<name>Application/User/audio.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/audio.c</location>
-		</link>
-		<link>
-			<name>Application/User/bsp_driver_sd.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/bsp_driver_sd.c</location>
 		</link>
 		<link>
 			<name>Application/User/dac.c</name>
@@ -63,16 +63,6 @@
 			<name>Application/User/dma.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/dma.c</location>
-		</link>
-		<link>
-			<name>Application/User/drums.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/drums.c</location>
-		</link>
-		<link>
-			<name>Application/User/fatfs.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/fatfs.c</location>
 		</link>
 		<link>
 			<name>Application/User/fmc.c</name>
@@ -93,11 +83,6 @@
 			<name>Application/User/main.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/main.c</location>
-		</link>
-		<link>
-			<name>Application/User/sdio.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/sdio.c</location>
 		</link>
 		<link>
 			<name>Application/User/spi.c</name>
@@ -220,11 +205,6 @@
 			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc_ex.c</location>
 		</link>
 		<link>
-			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_sd.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_sd.c</location>
-		</link>
-		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_sdram.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_sdram.c</location>
@@ -253,36 +233,6 @@
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_ll_fmc.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_fmc.c</location>
-		</link>
-		<link>
-			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_ll_sdmmc.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_sdmmc.c</location>
-		</link>
-		<link>
-			<name>Middlewares/FatFs/diskio.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/diskio.c</location>
-		</link>
-		<link>
-			<name>Middlewares/FatFs/ff.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/ff.c</location>
-		</link>
-		<link>
-			<name>Middlewares/FatFs/ff_gen_drv.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/ff_gen_drv.c</location>
-		</link>
-		<link>
-			<name>Middlewares/FatFs/sd_diskio.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/drivers/sd_diskio.c</location>
-		</link>
-		<link>
-			<name>Middlewares/FatFs/syscall.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/FatFs/src/option/syscall.c</location>
 		</link>
 	</linkedResources>
 </projectDescription>

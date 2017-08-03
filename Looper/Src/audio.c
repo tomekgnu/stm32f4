@@ -1,6 +1,7 @@
 #include "main.h"
 #include "audio.h"
 #include "stm32f429i_discovery_sdram.h"
+#include "ads1256_test.h"
 #include "string.h"
 #include "limits.h"
 #include "waveplayer.h"
@@ -58,7 +59,7 @@ extern DAC_HandleTypeDef hdac;
 extern uint8_t Audio_Buffer[];
 extern __IO BUFFER_StateTypeDef buffer_offset;
 
-static inline uint16_t mixGuitar(uint16_t a, uint16_t b,int16_t dubbing) {
+static inline uint16_t mixGuitar(uint16_t a, uint16_t b) {
 
 //	if(a < 0 && b < 0)
 //		return (int16_t)((a + b) - ((a * b)/SHRT_MIN));
@@ -66,19 +67,14 @@ static inline uint16_t mixGuitar(uint16_t a, uint16_t b,int16_t dubbing) {
 //	   return (int16_t)((a + b) - ((a * b)/SHRT_MAX));
 
 
-	if(dubbing == 0)
-		return b;
-	return (a + b) / 2;
-	if(a < 2048 && b < 2048)
-		return (a * b) / 2048;
-	return 2 * (a + b) - ((a * b) /2048) - 4096;
+	if(a < 32768 && b < 32768)
+		return (a * b) / 32768;
+	return 2 * (a + b) - ((a * b) /32768) - 65536;
 	//return (uint16_t)((a + b) / 2);
 	//return (int16_t)((a + b*1.2)*0.5);
 }
 
 static inline uint16_t mixMultiple(struct tracks *trck,uint8_t playing){
-	if(playing == 1)
-		return (trck->sum / 2 ) ;
 	return (trck->sum / playing ) ;
 }
 
@@ -108,7 +104,7 @@ void play(uint16_t newsample){
 	//Write_DAC8552(channel_A,upper);
 	//if(*pDrumset > 0)
 		//upper = mixGuitar(upper,drumsample,1);
-	mixed = mixGuitar(newsample,lower,Dubbing);
+	mixed = mixGuitar(newsample,lower);
 	upperlower = upper;
 	upperlower <<= 16;
 	upperlower |= (uint32_t)mixed;
@@ -151,22 +147,22 @@ void playMultiFromTimer(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct 
 	uint16_t mix;
 		BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
 		mix = mixMultiple(tr,tracksPlaying);
-		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,mix);
-		HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,mix);
+		Write_DAC8552(channel_B,(uint16_t)sampleA);
+		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,mix);
+		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,mix);
 
 }
 void playMulti(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct tracks * tr){
 	uint16_t mix;
 	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
-	mix = mixMultiple(tr,tracksPlaying);
-	//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,tr->samples[TRACK1]);
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,mix);
+	Write_DAC8552(channel_B,tr->samples[TRACK1]);
+
 	Dubbing = ToggleDubbing;
 	if(Dubbing == 1){
-		tr->samples[currentLoop] = sampleA;
-		tr->sum = tr->samples[TRACK1] + tr->samples[TRACK2] + tr->samples[TRACK3] + tr->samples[TRACK4];
-		BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
-	}
+			tr->samples[TRACK1] = (tr->samples[TRACK1] + sampleA) / 2; //mixGuitar(sampleA,tr->samples[TRACK1]);
+			tr->sum = tr->samples[TRACK1] + tr->samples[TRACK2] + tr->samples[TRACK3] + tr->samples[TRACK4];
+			BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
+		}
 	SamplesRead++;
 	if(SamplesRead == SamplesWritten){
 		if(Dubbing == 1){

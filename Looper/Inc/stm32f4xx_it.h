@@ -49,6 +49,7 @@ void SVC_Handler(void);
 void PendSV_Handler(void);
 void SysTick_Handler(void);
 void PVD_IRQHandler(void);
+void EXTI2_IRQHandler(void);
 void EXTI9_5_IRQHandler(void);
 void TIM4_IRQHandler(void);
 void TIM8_UP_TIM13_IRQHandler(void);

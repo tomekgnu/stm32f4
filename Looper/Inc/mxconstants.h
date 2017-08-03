@@ -41,16 +41,6 @@
 
 /* Private define ------------------------------------------------------------*/
 
-#define ADS1256_DRDY_Pin GPIO_PIN_2
-#define ADS1256_DRDY_GPIO_Port GPIOE
-#define ADS1256_RESET_Pin GPIO_PIN_3
-#define ADS1256_RESET_GPIO_Port GPIOE
-#define ADS1256_SYNC_Pin GPIO_PIN_4
-#define ADS1256_SYNC_GPIO_Port GPIOE
-#define ADS1256_CS_Pin GPIO_PIN_5
-#define ADS1256_CS_GPIO_Port GPIOE
-#define DAC8552_CS_Pin GPIO_PIN_6
-#define DAC8552_CS_GPIO_Port GPIOE
 #define PC14_OSC32_IN_Pin GPIO_PIN_14
 #define PC14_OSC32_IN_GPIO_Port GPIOC
 #define PC15_OSC32_OUT_Pin GPIO_PIN_15
