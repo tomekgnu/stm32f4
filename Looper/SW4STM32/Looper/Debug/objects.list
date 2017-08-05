@@ -15,6 +15,7 @@
 "Application/User/stm32f4xx_hal_msp.o"
 "Application/User/stm32f4xx_it.o"
 "Application/User/tim.o"
+"Application/User/tm_stm32f4_keypad.o"
 "Application/User/usart.o"
 "Drivers/CMSIS/system_stm32f4xx.o"
 "Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal.o"

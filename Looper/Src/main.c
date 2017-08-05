@@ -44,6 +44,7 @@
 
 /* USER CODE BEGIN Includes */
 #include "ads1256_test.h"
+#include "tm_stm32f4_keypad.h"
 #include "stm32f429i_discovery_sdram.h"
 #include "main.h"
 #include "midi.h"
@@ -114,6 +115,7 @@ int main(void)
 	uint32_t data = 'dupa';
 	uint8_t sf3_ID[20];
 	HAL_StatusTypeDef status;
+	TM_KEYPAD_Button_t Keypad_Button;
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
@@ -151,7 +153,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   HAL_NVIC_DisableIRQ(EXTI2_IRQn);
   BSP_SDRAM_Init();
-  status = HAL_TIM_Base_Start(&htim2);
+  status = HAL_TIM_Base_Start_IT(&htim2);
 
   BSP_LED_Init(GREEN);
   BSP_LED_Init(RED);
@@ -170,16 +172,15 @@ int main(void)
   //ReadDrumSamples();
 
   data = sizeof(struct tracks);
-
   ADS1256_WriteCmd(CMD_SDATAC);
   ADS1256_WriteCmd(CMD_SELFCAL);
-
   data = ADS1256_ReadChipID();
-  ADS1256_CfgADC(ADS1256_GAIN_2, ADS1256_15000SPS);
+  ADS1256_CfgADC(ADS1256_GAIN_1, ADS1256_15000SPS);
   ADS1256_SetChannel(0);
   ADS1256_WriteCmd(CMD_RDATAC);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
   //FATFS_UnLinkDriver(SD_Path);
+  TM_KEYPAD_Init();
  // setupMidi();
   /* USER CODE END 2 */
 
@@ -189,7 +190,52 @@ int main(void)
 
   while (1)
   {
+	  Keypad_Button = TM_KEYPAD_Read();
 
+	          /* Keypad was pressed */
+	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
+	              switch (Keypad_Button) {
+	                  case TM_KEYPAD_Button_0:        /* Button 0 pressed */
+	                      break;
+	                  case TM_KEYPAD_Button_1:        /* Button 1 pressed */
+	                      break;
+	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
+	                      break;
+	                  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
+	                      break;
+	                  case TM_KEYPAD_Button_4:        /* Button 4 pressed */
+	                      break;
+	                  case TM_KEYPAD_Button_5:        /* Button 5 pressed */
+	                      break;
+	                  case TM_KEYPAD_Button_6:        /* Button 6 pressed */
+	                      break;
+	                  case TM_KEYPAD_Button_7:        /* Button 7 pressed */
+	                     break;
+	                  case TM_KEYPAD_Button_8:        /* Button 8 pressed */
+	                      break;
+	                  case TM_KEYPAD_Button_9:        /* Button 9 pressed */
+	                      /* Do your stuff here */
+	                      break;
+	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
+	                      break;
+	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
+	                      break;
+	                  case TM_KEYPAD_Button_A:        /* Button A pressed, only on large keyboard */
+	                      /* Do your stuff here */
+	                      break;
+	                  case TM_KEYPAD_Button_B:        /* Button B pressed, only on large keyboard */
+	                      /* Do your stuff here */
+	                      break;
+	                  case TM_KEYPAD_Button_C:        /* Button C pressed, only on large keyboard */
+	                      /* Do your stuff here */
+	                      break;
+	                  case TM_KEYPAD_Button_D:        /* Button D pressed, only on large keyboard */
+	                      /* Do your stuff here */
+	                      break;
+	                  default:
+	                      break;
+	              }
+	          }
 	  //uint32_t instrument = 0;
 	  //talkMIDI(0xB0, 0, 0x01); //Default bank GM1
 

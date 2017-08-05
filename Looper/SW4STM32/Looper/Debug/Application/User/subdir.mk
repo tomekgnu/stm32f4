@@ -20,6 +20,7 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Src/stm32f429i_discovery_sdram.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/stm32f4xx_hal_msp.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/stm32f4xx_it.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/tim.c \
+C:/Users/Tomasz/workspace/tom32f4/Looper/Src/tm_stm32f4_keypad.c \
 C:/Users/Tomasz/workspace/tom32f4/Looper/Src/usart.c 
 
 OBJS += \
@@ -39,6 +40,7 @@ OBJS += \
 ./Application/User/stm32f4xx_hal_msp.o \
 ./Application/User/stm32f4xx_it.o \
 ./Application/User/tim.o \
+./Application/User/tm_stm32f4_keypad.o \
 ./Application/User/usart.o 
 
 C_DEPS += \
@@ -58,6 +60,7 @@ C_DEPS += \
 ./Application/User/stm32f4xx_hal_msp.d \
 ./Application/User/stm32f4xx_it.d \
 ./Application/User/tim.d \
+./Application/User/tm_stm32f4_keypad.d \
 ./Application/User/usart.d 
 
 
@@ -183,6 +186,14 @@ Application/User/stm32f4xx_it.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/st
 	@echo ' '
 
 Application/User/tim.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/tim.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU GCC Compiler'
+	@echo %cd%
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 -D__weak="__attribute__((weak))" -D__packed="__attribute__((__packed__))" -DUSE_HAL_DRIVER -DSTM32F429xx -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/CMSIS/Include" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Tomasz/workspace/tom32f4/Looper/Inc"  -O0 -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+Application/User/tm_stm32f4_keypad.o: C:/Users/Tomasz/workspace/tom32f4/Looper/Src/tm_stm32f4_keypad.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo %cd%

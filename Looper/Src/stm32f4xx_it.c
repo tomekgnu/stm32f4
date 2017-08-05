@@ -39,6 +39,7 @@
 #include "main.h"
 #include "stm32f429i_discovery.h"
 #include "stm32f429i_discovery_sdram.h"
+#include "tm_stm32f4_keypad.h"
 #include "audio.h"
 
 extern ADC_HandleTypeDef hadc1;
@@ -52,6 +53,7 @@ extern struct tracks trcs;
 
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc3;
+extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim8;
 
@@ -148,6 +150,20 @@ void EXTI9_5_IRQHandler(void)
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
 
   /* USER CODE END EXTI9_5_IRQn 1 */
+}
+
+/**
+* @brief This function handles TIM2 global interrupt.
+*/
+void TIM2_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM2_IRQn 0 */
+
+  /* USER CODE END TIM2_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim2);
+  /* USER CODE BEGIN TIM2_IRQn 1 */
+  TM_KEYPAD_Update();
+  /* USER CODE END TIM2_IRQn 1 */
 }
 
 /**

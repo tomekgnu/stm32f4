@@ -45,6 +45,7 @@ Application/User/main.o: \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/gpio.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/fmc.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/ads1256_test.h \
+ C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/tm_stm32f4_keypad.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery_sdram.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h \
  C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/midi.h \
@@ -142,6 +143,8 @@ C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/gpio.h:
 C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/fmc.h:
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/ads1256_test.h:
+
+C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/tm_stm32f4_keypad.h:
 
 C:/Users/Tomasz/workspace/tom32f4/Looper/Inc/stm32f429i_discovery_sdram.h:
 

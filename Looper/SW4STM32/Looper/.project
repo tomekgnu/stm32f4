@@ -115,6 +115,11 @@
 			<location>PARENT-2-PROJECT_LOC/Src/tim.c</location>
 		</link>
 		<link>
+			<name>Application/User/tm_stm32f4_keypad.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/tm_stm32f4_keypad.c</location>
+		</link>
+		<link>
 			<name>Application/User/usart.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/usart.c</location>
