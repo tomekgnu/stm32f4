@@ -66,17 +66,19 @@ uint16_t s_index = 0;
 
 
 __IO uint32_t CommandKey = 0;
-extern __IO uint8_t Recording;
-extern __IO uint8_t Playback;
+extern __IO uint8_t midiRecording;
+extern __IO uint8_t midiPlayback;
+extern uint32_t midiClock;
+extern uint32_t midiPointer;
 extern __IO uint32_t CommandKey;
-extern __IO uint8_t ToggleRecording;
 extern __IO uint8_t StartApp;
-extern uint8_t CommandKeyTable[4][4];
 extern __IO ButtonStates ToggleDubbing;
+extern __IO uint8_t ToggleChannel;
 extern __IO ButtonStates RecordingButton;
 extern __IO ButtonStates PlaybackButton;
-extern uint16_t readADC[];
-
+extern uint8_t key_to_drum[];
+extern uint8_t midiEvents[];
+extern uint32_t midiTimes[];
 FMC_SDRAM_CommandTypeDef SDRAMCommandStructure;
 uint16_t taptone_buffer[100];
 /* USER CODE END PV */
@@ -146,9 +148,8 @@ int main(void)
   MX_SPI2_Init();
   MX_ADC3_Init();
   MX_TIM8_Init();
-  MX_USART1_UART_Init();
-  MX_UART4_Init();
   MX_SPI3_Init();
+  MX_USART1_UART_Init();
 
   /* USER CODE BEGIN 2 */
   HAL_NVIC_DisableIRQ(EXTI2_IRQn);
@@ -181,42 +182,56 @@ int main(void)
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
   //FATFS_UnLinkDriver(SD_Path);
   TM_KEYPAD_Init();
- // setupMidi();
+  setupMidi();
+  talkMIDI(0xB0, 0, 0x01); //Default bank GM1
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
-
   while (1)
   {
 	  Keypad_Button = TM_KEYPAD_Read();
 
 	          /* Keypad was pressed */
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
-	              switch (Keypad_Button) {
+	        	  //setActiveButton(Keypad_Button);
+	        	  switch (Keypad_Button) {
 	                  case TM_KEYPAD_Button_0:        /* Button 0 pressed */
-	                      break;
 	                  case TM_KEYPAD_Button_1:        /* Button 1 pressed */
-	                      break;
 	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
-	                      break;
 	                  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
-	                      break;
 	                  case TM_KEYPAD_Button_4:        /* Button 4 pressed */
-	                      break;
 	                  case TM_KEYPAD_Button_5:        /* Button 5 pressed */
-	                      break;
 	                  case TM_KEYPAD_Button_6:        /* Button 6 pressed */
-	                      break;
 	                  case TM_KEYPAD_Button_7:        /* Button 7 pressed */
-	                     break;
 	                  case TM_KEYPAD_Button_8:        /* Button 8 pressed */
-	                      break;
 	                  case TM_KEYPAD_Button_9:        /* Button 9 pressed */
-	                      /* Do your stuff here */
-	                      break;
+	                	  if(midiRecording == 0){
+	                		  midiPointer = 0;
+	                		  midiClock = 0;
+	                		  midiRecording = 1;
+	                		  midiPlayback = 0;
+	                	  }
+	                	  if(midiPointer < MIDI_QUEUE)
+	                	  	recordPercussionEvent(Keypad_Button);
+	                	  else{
+	                	  	     midiEvents[999] = No_Event;
+	                	  	     midiTimes[999] = midiClock;
+	                	  	     midiPointer = 0;
+	                	  	     midiClock = 0;
+	                	  }
+	                	   playPercussion(NOTEON,key_to_drum[Keypad_Button]);
+
+	                       break;
 	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
+	                	  if(midiRecording == 1){
+	                		  midiEvents[midiPointer] = No_Event;
+	                		  midiTimes[midiPointer] = midiClock;
+	                	  	  midiRecording = 0;
+	                	  	  midiPlayback = 1;
+	                	  	  midiClock = 0;
+	                	  	  midiPointer = 0;
+	                	  }
 	                      break;
 	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
 	                      break;
@@ -234,8 +249,20 @@ int main(void)
 	                      break;
 	                  default:
 	                      break;
-	              }
-	          }
+	              } // end of switch
+
+	        	  }// end of key pressed
+	          if(midiPlayback == 1){
+	          	if(midiPointer == MIDI_QUEUE || midiEvents[midiPointer] == No_Event){
+	          		if(midiClock >= midiTimes[midiPointer]){
+	          			midiPointer = 0;
+	          			midiClock = 0;
+	          		}
+	          	 }
+	          	 else
+	          	    playPercussionEvent();
+	          }		// end of while
+
 	  //uint32_t instrument = 0;
 	  //talkMIDI(0xB0, 0, 0x01); //Default bank GM1
 
@@ -351,11 +378,11 @@ void buttonHandler() {
 	}
 	if(HAL_GPIO_ReadPin(Toggle_channel_GPIO_Port,Toggle_channel_Pin) == GPIO_PIN_SET){
 		//ADS1256_SetChannel(0);
-		//ToggleChannel = 0;
+		ToggleChannel = 0;
 	}
 	else{
 		//ADS1256_SetChannel(1);
-		//ToggleChannel = 1;
+		ToggleChannel = 1;
 	}
 	if(HAL_GPIO_ReadPin(Dubbing_GPIO_Port,Dubbing_Pin) == GPIO_PIN_RESET)
 		ToggleDubbing = 1;

@@ -25,6 +25,10 @@
 		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
 	</natures>
 	<linkedResources><link>
+			<name>Application/User/usart.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/usart.c</location>
+		</link><link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_uart.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c</location>
@@ -85,6 +89,11 @@
 			<location>PARENT-2-PROJECT_LOC/Src/main.c</location>
 		</link>
 		<link>
+			<name>Application/User/midi.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/midi.c</location>
+		</link>
+		<link>
 			<name>Application/User/spi.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/spi.c</location>
@@ -119,11 +128,7 @@
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/tm_stm32f4_keypad.c</location>
 		</link>
-		<link>
-			<name>Application/User/usart.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/usart.c</location>
-		</link>
+		
 		<link>
 			<name>Drivers/CMSIS/system_stm32f4xx.c</name>
 			<type>1</type>

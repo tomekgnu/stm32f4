@@ -1,13 +1,18 @@
 #ifndef __MIDI_H__
 #define  __MIDI_H__
 
+#define MIDI_QUEUE 	1000	// size of event array
 #include "main.h"
 #include "stm32f429xx.h"
+#include "tm_stm32f4_keypad.h"
+
 void setupMidi();
 void noteOn(byte channel, byte note, byte attack_velocity);
 void noteOff(byte channel, byte note, byte release_velocity);
 void talkMIDI(byte cmd, byte data1, byte data2);
 void playPercussion(byte onoff,byte instrument);
+void recordPercussionEvent(TM_KEYPAD_Button_t but);
+void playPercussionEvent();
 
 #define	VS1053_LOW()	HAL_GPIO_WritePin(VS1053_RESET_GPIO_Port,VS1053_RESET_Pin,GPIO_PIN_RESET);
 #define	VS1053_HIGH()	HAL_GPIO_WritePin(VS1053_RESET_GPIO_Port,VS1053_RESET_Pin,GPIO_PIN_SET);
@@ -15,6 +20,7 @@ void playPercussion(byte onoff,byte instrument);
 #define NOTEON				1
 #define NOTEOFF				0
 
+#define No_Event			255
 #define	High_Q				27
 #define	Slap				28
 #define	Scratch_Push		29
@@ -35,7 +41,7 @@ void playPercussion(byte onoff,byte instrument);
 #define	Pedal_Hi_Hat		44
 #define	Low_Tom				45
 #define	Open_Hi_Hat			46
-#define	Low-Mid_Tom			47
+#define	Low_Mid_Tom			47
 #define	Hi_Mid_Tom			48
 #define	Crash_Cymbal_1		49
 #define	High_Tom			50
@@ -47,7 +53,7 @@ void playPercussion(byte onoff,byte instrument);
 #define	Cowbell				56
 #define	Crash_Cymbal_2		57
 #define	Vibraslap			58
-#define	Ride_Cymbal 2		59
+#define	Ride_Cymbal_2		59
 #define	Hi_Bongo			60
 #define	Low_Bongo			61
 #define	Mute_Hi_Conga		62

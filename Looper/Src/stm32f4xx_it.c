@@ -44,6 +44,7 @@
 
 extern ADC_HandleTypeDef hadc1;
 extern __IO uint8_t DmaTransferReady;
+extern uint32_t midiClock;
 extern __IO uint8_t Playback;
 extern __IO uint8_t StartApp;
 extern uint16_t readADC[];
@@ -163,6 +164,8 @@ void TIM2_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
   TM_KEYPAD_Update();
+  buttonTimesUpdate();
+  midiClock++;
   /* USER CODE END TIM2_IRQn 1 */
 }
 

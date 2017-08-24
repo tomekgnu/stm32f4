@@ -19,6 +19,7 @@
 #include "tm_stm32f4_keypad.h"
 #include "stm32f429xx.h"
 #include "main.h"
+#include "midi.h"
 
 /* Pins configuration, columns are outputs */
 #define KEYPAD_COLUMN_1_HIGH		HAL_GPIO_WritePin(KEYPAD_COLUMN_1_GPIO_Port, KEYPAD_COLUMN_1_GPIO_Port,GPIO_PIN_SET)
@@ -35,6 +36,9 @@
 #define KEYPAD_ROW_2_CHECK			(!HAL_GPIO_ReadPin(KEYPAD_ROW_2_GPIO_Port, KEYPAD_ROW_2_Pin))
 #define KEYPAD_ROW_3_CHECK			(!HAL_GPIO_ReadPin(KEYPAD_ROW_3_GPIO_Port, KEYPAD_ROW_3_Pin))
 #define KEYPAD_ROW_4_CHECK			(!HAL_GPIO_ReadPin(KEYPAD_ROW_4_GPIO_Port, KEYPAD_ROW_4_Pin))
+
+
+uint16_t Button_Times[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 
 uint8_t KEYPAD_INT_Buttons[4][4] = {
 	{0x01, 0x02, 0x03, 0x0C},
@@ -92,6 +96,10 @@ void TM_KEYPAD_INT_SetColumn(uint8_t column) {
 	}
 }
 
+void setActiveButton(TM_KEYPAD_Button_t but) {
+	Button_Times[but] = 1;
+}
+
 uint8_t TM_KEYPAD_INT_CheckRow(uint8_t column) {
 	/* Read rows */
 	
@@ -115,6 +123,7 @@ uint8_t TM_KEYPAD_INT_CheckRow(uint8_t column) {
 	/* Not pressed */
 	return KEYPAD_NO_PRESSED;
 }
+
 
 uint8_t TM_KEYPAD_INT_Read(void) {
 	uint8_t check;
@@ -154,6 +163,21 @@ uint8_t TM_KEYPAD_INT_Read(void) {
 	
 	/* Not pressed */
 	return KEYPAD_NO_PRESSED;
+}
+
+void sendNotesOff(){
+	uint8_t i;
+	for(i = 0; i < 16; i++)
+		if(Button_Times[i] > 50){
+			Button_Times[i] = 0;
+			playPercussion(NOTEOFF,Open_Hi_Hat);
+		}
+}
+void buttonTimesUpdate(){
+	uint8_t i;
+	for(i = 0; i < 16; i++)
+		if(Button_Times[i] > 0 && Button_Times[i] < 50)
+			Button_Times[i]++;
 }
 
 void TM_KEYPAD_Update(void) {

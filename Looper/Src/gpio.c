@@ -44,11 +44,13 @@ extern uint8_t currentLoop;
 extern uint8_t tracksPlaying;
 extern __IO uint8_t Recording;
 extern __IO uint8_t Playback;
+extern __IO uint8_t midiRecording;
+extern __IO uint8_t midiPlayback;
 extern __IO uint8_t Dubbing;
 extern __IO uint8_t DubbingStarted;
 extern __IO uint8_t StartApp;
-extern __IO uint8_t DrumsPlaying;
-extern uint16_t kickIndex;
+extern uint32_t midiClock;
+extern uint32_t midiPointer;
 extern uint32_t SamplesRead;
 extern uint32_t SamplesWritten;
 extern uint32_t DataReady;
@@ -314,7 +316,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(KEYPAD_ROW_4_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
-  HAL_NVIC_SetPriority(EXTI2_IRQn, 2, 0);
+  HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 1);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
 
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 3);
@@ -362,6 +364,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	int32_t sample;
 	switch (GPIO_Pin) {
 	case GPIO_PIN_0:	// user button
+			midiRecording = 0;
+			midiPlayback = 0;
+			midiPointer = 0;
+			midiClock = 0;
+
 		if(Recording == 1 || Playback == 1){
 			Recording = 0;
 			Playback = 0;
@@ -384,6 +391,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			sample |= 0x8000;
 		if(StartApp == 0)
 			Write_DAC8552(channel_B,(uint16_t)sample);
+		//if(ToggleChannel == 1)
+			//break;
 		if(Playback == 1)
 		  	playMulti(TRACK1,sample,0,&trcs);
 		if(Recording == 1)
@@ -407,6 +416,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		SamplesWritten = 0;
 		dub_pointer = 0;
 		write_pointer = 0;
+		midiPointer = 0;
+		midiClock = 0;
 		Recording = 1;
 		Playback = 0;
 		StartApp = 1;
