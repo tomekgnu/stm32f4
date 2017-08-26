@@ -49,8 +49,8 @@ extern __IO uint8_t midiPlayback;
 extern __IO uint8_t Dubbing;
 extern __IO uint8_t DubbingStarted;
 extern __IO uint8_t StartApp;
-extern uint32_t midiClock;
-extern uint32_t midiPointer;
+extern __IO uint32_t midiDrumClock;
+extern __IO uint32_t midiDrumPointer;
 extern uint32_t SamplesRead;
 extern uint32_t SamplesWritten;
 extern uint32_t DataReady;
@@ -366,8 +366,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	case GPIO_PIN_0:	// user button
 			midiRecording = 0;
 			midiPlayback = 0;
-			midiPointer = 0;
-			midiClock = 0;
+			midiDrumPointer = 0;
+			midiDrumClock = 0;
 
 		if(Recording == 1 || Playback == 1){
 			Recording = 0;
@@ -416,8 +416,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		SamplesWritten = 0;
 		dub_pointer = 0;
 		write_pointer = 0;
-		midiPointer = 0;
-		midiClock = 0;
+		midiDrumPointer = 0;
+		midiDrumClock = 0;
 		Recording = 1;
 		Playback = 0;
 		StartApp = 1;
@@ -434,6 +434,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		SamplesRead = 0;
 		dub_pointer = 0;
 		read_pointer = 0;
+		midiDrumPointer = 0;
+		midiDrumClock = 0;
 		Recording = 0;
 		Playback = 1;
 		StartApp = 1;

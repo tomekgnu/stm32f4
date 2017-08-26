@@ -20,6 +20,8 @@ uint32_t * rdptr;
 uint32_t * wrptr;	// pointer for writinguint32_t SamplesRead = 0;
 uint32_t dub_pointer = 0;
 uint32_t read_pointer = 0;
+extern __IO uint32_t midiDrumClock;
+extern __IO uint32_t midiDrumPointer;
 uint32_t write_pointer = 0;
 uint32_t SamplesWritten = 0;
 uint32_t SamplesRead = 0;
@@ -165,6 +167,8 @@ void playMulti(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct tracks * 
 		}
 	SamplesRead++;
 	if(SamplesRead == SamplesWritten){
+		midiDrumPointer = 0;
+		midiDrumClock = 0;
 		if(Dubbing == 1){
 			tracksPlaying++;
 			currentLoop++;

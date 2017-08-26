@@ -66,10 +66,12 @@ uint16_t s_index = 0;
 
 
 __IO uint32_t CommandKey = 0;
+extern __IO uint8_t midiMetronome;
 extern __IO uint8_t midiRecording;
 extern __IO uint8_t midiPlayback;
-extern uint32_t midiClock;
-extern uint32_t midiPointer;
+extern __IO uint32_t midiDrumClock;
+extern __IO uint32_t midiDrumPointer;
+extern __IO uint32_t midiMetronomeClock;
 extern __IO uint32_t CommandKey;
 extern __IO uint8_t StartApp;
 extern __IO ButtonStates ToggleDubbing;
@@ -206,34 +208,40 @@ int main(void)
 	                  case TM_KEYPAD_Button_7:        /* Button 7 pressed */
 	                  case TM_KEYPAD_Button_8:        /* Button 8 pressed */
 	                  case TM_KEYPAD_Button_9:        /* Button 9 pressed */
-	                	  if(midiRecording == 0){
-	                		  midiPointer = 0;
-	                		  midiClock = 0;
+	                	   if(midiRecording == 0){
+	                		  midiDrumPointer = 0;
+	                		  midiDrumClock = 0;
 	                		  midiRecording = 1;
 	                		  midiPlayback = 0;
 	                	  }
-	                	  if(midiPointer < MIDI_QUEUE)
-	                	  	recordPercussionEvent(Keypad_Button);
-	                	  else{
-	                	  	     midiEvents[999] = No_Event;
-	                	  	     midiTimes[999] = midiClock;
-	                	  	     midiPointer = 0;
-	                	  	     midiClock = 0;
+	                	  recordPercussionEvent(Keypad_Button);
+	                	  playPercussion(NOTEON,key_to_drum[Keypad_Button]);
+	                	  midiDrumPointer++;
+	                	  if(midiDrumPointer == MIDI_QUEUE){
+	                		  midiEvents[MIDI_QUEUE - 1] = No_Event;
+	                		  midiTimes[MIDI_QUEUE - 1] = midiDrumClock;
+	                		  midiDrumClock = 0;
+	                		  midiDrumPointer = 0;
 	                	  }
-	                	   playPercussion(NOTEON,key_to_drum[Keypad_Button]);
-
-	                       break;
+	                      break;
 	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
 	                	  if(midiRecording == 1){
-	                		  midiEvents[midiPointer] = No_Event;
-	                		  midiTimes[midiPointer] = midiClock;
-	                	  	  midiRecording = 0;
-	                	  	  midiPlayback = 1;
-	                	  	  midiClock = 0;
-	                	  	  midiPointer = 0;
+	                		  midiEvents[midiDrumPointer] = No_Event;
+	                		  midiTimes[midiDrumPointer] = midiDrumClock;
+	                		  midiRecording = 0;
+	                		  midiPlayback = 1;
+	                		  midiDrumClock = 0;
+	                		  midiDrumPointer = 0;
 	                	  }
 	                      break;
 	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
+	                	  if(midiMetronome == 0){
+	                		  playPercussion(NOTEON,Metronome_Bell);
+	                		  midiMetronome = 1;
+	                	  }
+	                	  else
+	                		  midiMetronome = 0;
+	                	  midiMetronomeClock = 0;
 	                      break;
 	                  case TM_KEYPAD_Button_A:        /* Button A pressed, only on large keyboard */
 	                      /* Do your stuff here */
@@ -252,16 +260,21 @@ int main(void)
 	              } // end of switch
 
 	        	  }// end of key pressed
-	          if(midiPlayback == 1){
-	          	if(midiPointer == MIDI_QUEUE || midiEvents[midiPointer] == No_Event){
-	          		if(midiClock >= midiTimes[midiPointer]){
-	          			midiPointer = 0;
-	          			midiClock = 0;
-	          		}
-	          	 }
-	          	 else
-	          	    playPercussionEvent();
-	          }		// end of while
+	          if(midiMetronome == 1 && midiMetronomeClock >= 10000){
+	        	  midiMetronomeClock = 0;
+	        	  playPercussion(NOTEON,Metronome_Bell);
+	          }
+
+	          if(midiPlayback == 1 && midiDrumClock >= midiTimes[midiDrumPointer]){
+	          	playPercussionEvent();
+	          	if(midiEvents[midiDrumPointer] == No_Event){
+	          		midiDrumPointer = 0;
+	          		midiDrumClock = 0;
+	          	}
+	          	else
+	          		midiDrumPointer++;
+
+	          }
 
 	  //uint32_t instrument = 0;
 	  //talkMIDI(0xB0, 0, 0x01); //Default bank GM1

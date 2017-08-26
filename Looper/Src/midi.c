@@ -3,13 +3,16 @@
 #include "usart.h"
 #include "tm_stm32f4_keypad.h"
 
-uint32_t midiClock = 0;
-uint32_t midiPointer = 0;
+__IO uint32_t midiDrumClock = 0;
+__IO uint32_t midiMetronomeClock = 0;
+__IO uint32_t midiDrumPointer = 0;
+__IO uint32_t midiMetronomePointer = 0;
 uint8_t midiEvents[MIDI_QUEUE];
 uint32_t midiTimes[MIDI_QUEUE];
 
 __IO uint8_t midiRecording = 0;
 __IO uint8_t midiPlayback = 0;
+__IO uint8_t midiMetronome = 0;
 
 uint8_t key_to_drum[10] = {
 		Acoustic_Bass_Drum,
@@ -25,17 +28,13 @@ uint8_t key_to_drum[10] = {
 };
 
 void playPercussionEvent(){
-	if(midiClock >= midiTimes[midiPointer]){
-		playPercussion(NOTEON,midiEvents[midiPointer]);
-		midiPointer++;
-	}
-
+	if(midiEvents[midiDrumPointer] != No_Event)
+		playPercussion(NOTEON,midiEvents[midiDrumPointer]);
 }
 
 void recordPercussionEvent(TM_KEYPAD_Button_t e){
-	midiEvents[midiPointer] = key_to_drum[e];
-	midiTimes[midiPointer] = midiClock;
-	midiPointer++;
+	midiEvents[midiDrumPointer] = key_to_drum[e];
+	midiTimes[midiDrumPointer] = midiDrumClock;
 }
 void setupMidi(){
 	//Reset the VS1053
