@@ -56,7 +56,7 @@ uint16_t readADC[2];
 uint32_t audioBufferIndex;
 
 int16_t loop = 0;
-extern DAC_HandleTypeDef hdac;
+
 //extern SPI_HandleTypeDef hspi3;
 extern uint8_t Audio_Buffer[];
 extern __IO BUFFER_StateTypeDef buffer_offset;
@@ -100,8 +100,8 @@ void play(uint16_t newsample){
 	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
 	upper = (upperlower >> 16);
 	lower = (upperlower & 0x0000FFFF);
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,upper);
-	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,lower);
+	//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,upper);
+	//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,lower);
 	Dubbing = ToggleDubbing;
 	//Write_DAC8552(channel_A,upper);
 	//if(*pDrumset > 0)

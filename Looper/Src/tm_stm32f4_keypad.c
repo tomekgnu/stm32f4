@@ -38,7 +38,7 @@
 #define KEYPAD_ROW_4_CHECK			(!HAL_GPIO_ReadPin(KEYPAD_ROW_4_GPIO_Port, KEYPAD_ROW_4_Pin))
 
 
-uint16_t Button_Times[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+extern uint32_t pressed;
 
 uint8_t KEYPAD_INT_Buttons[4][4] = {
 	{0x01, 0x02, 0x03, 0x0C},
@@ -96,9 +96,7 @@ void TM_KEYPAD_INT_SetColumn(uint8_t column) {
 	}
 }
 
-void setActiveButton(TM_KEYPAD_Button_t but) {
-	Button_Times[but] = 1;
-}
+
 
 uint8_t TM_KEYPAD_INT_CheckRow(uint8_t column) {
 	/* Read rows */
@@ -165,20 +163,6 @@ uint8_t TM_KEYPAD_INT_Read(void) {
 	return KEYPAD_NO_PRESSED;
 }
 
-void sendNotesOff(){
-	uint8_t i;
-	for(i = 0; i < 16; i++)
-		if(Button_Times[i] > 50){
-			Button_Times[i] = 0;
-			playPercussion(NOTEOFF,Open_Hi_Hat);
-		}
-}
-void buttonTimesUpdate(){
-	uint8_t i;
-	for(i = 0; i < 16; i++)
-		if(Button_Times[i] > 0 && Button_Times[i] < 50)
-			Button_Times[i]++;
-}
 
 void TM_KEYPAD_Update(void) {
 	static uint16_t millis = 0;
@@ -187,7 +171,7 @@ void TM_KEYPAD_Update(void) {
 	if (++millis >= KEYPAD_READ_INTERVAL && KeypadStatus == TM_KEYPAD_Button_NOPRESSED) {
 		/* Reset */
 		millis = 0;
-		
+		//pressed = 0;
 		/* Read keyboard */
 		KeypadStatus = (TM_KEYPAD_Button_t) TM_KEYPAD_INT_Read();
 	}

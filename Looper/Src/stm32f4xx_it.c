@@ -42,6 +42,7 @@
 #include "tm_stm32f4_keypad.h"
 #include "audio.h"
 
+extern TM_KEYPAD_Button_t Keypad_Button;
 extern ADC_HandleTypeDef hadc1;
 extern __IO uint8_t DmaTransferReady;
 extern __IO uint32_t midiDrumClock;
@@ -49,12 +50,11 @@ extern __IO uint32_t midiMetronomeClock;
 extern __IO uint8_t Playback;
 extern __IO uint8_t StartApp;
 extern uint16_t readADC[];
-extern DAC_HandleTypeDef hdac;
 extern struct tracks trcs;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
-extern DMA_HandleTypeDef hdma_adc3;
+extern ADC_HandleTypeDef hadc1;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim8;
@@ -140,6 +140,20 @@ void EXTI2_IRQHandler(void)
 }
 
 /**
+* @brief This function handles ADC1, ADC2 and ADC3 global interrupts.
+*/
+void ADC_IRQHandler(void)
+{
+  /* USER CODE BEGIN ADC_IRQn 0 */
+
+  /* USER CODE END ADC_IRQn 0 */
+  HAL_ADC_IRQHandler(&hadc1);
+  /* USER CODE BEGIN ADC_IRQn 1 */
+
+  /* USER CODE END ADC_IRQn 1 */
+}
+
+/**
 * @brief This function handles EXTI line[9:5] interrupts.
 */
 void EXTI9_5_IRQHandler(void)
@@ -165,7 +179,6 @@ void TIM2_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
   TM_KEYPAD_Update();
-  buttonTimesUpdate();
   midiDrumClock++;
   midiMetronomeClock++;
   /* USER CODE END TIM2_IRQn 1 */
@@ -202,20 +215,6 @@ void TIM8_UP_TIM13_IRQHandler(void)
  // if(Playback == 1)
   		//playMultiFromTimer(TRACK1,readADC[0],readADC[1],&trcs);
   /* USER CODE END TIM8_UP_TIM13_IRQn 1 */
-}
-
-/**
-* @brief This function handles DMA2 stream1 global interrupt.
-*/
-void DMA2_Stream1_IRQHandler(void)
-{
-  /* USER CODE BEGIN DMA2_Stream1_IRQn 0 */
-
-  /* USER CODE END DMA2_Stream1_IRQn 0 */
-  HAL_DMA_IRQHandler(&hdma_adc3);
-  /* USER CODE BEGIN DMA2_Stream1_IRQn 1 */
-
-  /* USER CODE END DMA2_Stream1_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

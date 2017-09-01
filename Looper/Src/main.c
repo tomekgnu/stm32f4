@@ -34,8 +34,6 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "adc.h"
-#include "dac.h"
-#include "dma.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -110,6 +108,8 @@ __IO uint32_t PauseResumeStatus = IDLE_STATUS;
    Defined as external in waveplayer.c file */
 
 extern char SD_Path[];
+TM_KEYPAD_Button_t Keypad_Button;
+
 /* USER CODE END 0 */
 
 int main(void)
@@ -119,7 +119,7 @@ int main(void)
 	uint32_t data = 'dupa';
 	uint8_t sf3_ID[20];
 	HAL_StatusTypeDef status;
-	TM_KEYPAD_Button_t Keypad_Button;
+
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
@@ -141,17 +141,15 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_DMA_Init();
   MX_TIM3_Init();
   MX_TIM2_Init();
   MX_FMC_Init();
   MX_TIM4_Init();
-  MX_DAC_Init();
   MX_SPI2_Init();
-  MX_ADC3_Init();
   MX_TIM8_Init();
   MX_SPI3_Init();
   MX_USART1_UART_Init();
+  MX_ADC1_Init();
 
   /* USER CODE BEGIN 2 */
   HAL_NVIC_DisableIRQ(EXTI2_IRQn);
@@ -169,7 +167,7 @@ int main(void)
   status = HAL_TIM_Base_Start_IT(&htim4);
   //status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   //status = HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
-  //status = HAL_ADC_Start_IT(&hadc3);
+  status = HAL_ADC_Start_IT(&hadc1);
 
   //status = HAL_ADC_Start_DMA(&hadc3,(uint32_t *)readADC,2);
   //ReadDrumSamples();
@@ -193,10 +191,8 @@ int main(void)
   while (1)
   {
 	  Keypad_Button = TM_KEYPAD_Read();
-
 	          /* Keypad was pressed */
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
-	        	  //setActiveButton(Keypad_Button);
 	        	  switch (Keypad_Button) {
 	                  case TM_KEYPAD_Button_0:        /* Button 0 pressed */
 	                  case TM_KEYPAD_Button_1:        /* Button 1 pressed */
@@ -208,7 +204,8 @@ int main(void)
 	                  case TM_KEYPAD_Button_7:        /* Button 7 pressed */
 	                  case TM_KEYPAD_Button_8:        /* Button 8 pressed */
 	                  case TM_KEYPAD_Button_9:        /* Button 9 pressed */
-	                	   if(midiRecording == 0){
+
+	                	 if(midiRecording == 0){
 	                		  midiDrumPointer = 0;
 	                		  midiDrumClock = 0;
 	                		  midiRecording = 1;
@@ -223,7 +220,7 @@ int main(void)
 	                		  midiDrumClock = 0;
 	                		  midiDrumPointer = 0;
 	                	  }
-	                      break;
+	                	  break;
 	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
 	                	  if(midiRecording == 1){
 	                		  midiEvents[midiDrumPointer] = No_Event;
@@ -245,7 +242,7 @@ int main(void)
 	                      break;
 	                  case TM_KEYPAD_Button_A:        /* Button A pressed, only on large keyboard */
 	                      /* Do your stuff here */
-	                      break;
+	                	 break;
 	                  case TM_KEYPAD_Button_B:        /* Button B pressed, only on large keyboard */
 	                      /* Do your stuff here */
 	                      break;
@@ -260,6 +257,7 @@ int main(void)
 	              } // end of switch
 
 	        	  }// end of key pressed
+
 	          if(midiMetronome == 1 && midiMetronomeClock >= 10000){
 	        	  midiMetronomeClock = 0;
 	        	  playPercussion(NOTEON,Metronome_Bell);

@@ -58,16 +58,8 @@
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/audio.c</location>
 		</link>
-		<link>
-			<name>Application/User/dac.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/dac.c</location>
-		</link>
-		<link>
-			<name>Application/User/dma.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Src/dma.c</location>
-		</link>
+		
+		
 		<link>
 			<name>Application/User/fmc.c</name>
 			<type>1</type>
@@ -154,16 +146,8 @@
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c</location>
 		</link>
-		<link>
-			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dac.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dac.c</location>
-		</link>
-		<link>
-			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dac_ex.c</name>
-			<type>1</type>
-			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dac_ex.c</location>
-		</link>
+		
+		
 		<link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dma.c</name>
 			<type>1</type>
