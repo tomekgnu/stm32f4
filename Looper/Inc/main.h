@@ -111,8 +111,14 @@ void Error_Handler(void);
 #define PH1_OSC_OUT_GPIO_Port GPIOH
 #define SDNWE_Pin GPIO_PIN_0
 #define SDNWE_GPIO_Port GPIOC
+#define SPI2_MISO_Pin GPIO_PIN_2
+#define SPI2_MISO_GPIO_Port GPIOC
+#define SPI2_MOSI_Pin GPIO_PIN_3
+#define SPI2_MOSI_GPIO_Port GPIOC
 #define B5_Pin GPIO_PIN_3
 #define B5_GPIO_Port GPIOA
+#define AD_KBD_Pin GPIO_PIN_4
+#define AD_KBD_GPIO_Port GPIOA
 #define G2_Pin GPIO_PIN_6
 #define G2_GPIO_Port GPIOA
 #define ACP_RST_Pin GPIO_PIN_7
@@ -159,6 +165,8 @@ void Error_Handler(void);
 #define D11_GPIO_Port GPIOE
 #define D12_Pin GPIO_PIN_15
 #define D12_GPIO_Port GPIOE
+#define SPI2_SCK_Pin GPIO_PIN_10
+#define SPI2_SCK_GPIO_Port GPIOB
 #define G5_Pin GPIO_PIN_11
 #define G5_GPIO_Port GPIOB
 #define OTG_FS_ID_Pin GPIO_PIN_12
@@ -191,12 +199,20 @@ void Error_Handler(void);
 #define BA1_GPIO_Port GPIOG
 #define R7_Pin GPIO_PIN_6
 #define R7_GPIO_Port GPIOG
-#define HiHat_Button_Pin GPIO_PIN_7
-#define HiHat_Button_GPIO_Port GPIOG
+#define HD44780_D7_Pin GPIO_PIN_7
+#define HD44780_D7_GPIO_Port GPIOG
 #define SDCLK_Pin GPIO_PIN_8
 #define SDCLK_GPIO_Port GPIOG
-#define TomHi_Button_Pin GPIO_PIN_6
-#define TomHi_Button_GPIO_Port GPIOC
+#define HD44780_D6_Pin GPIO_PIN_6
+#define HD44780_D6_GPIO_Port GPIOC
+#define HD44780_D5_Pin GPIO_PIN_7
+#define HD44780_D5_GPIO_Port GPIOC
+#define HD44780_D4_Pin GPIO_PIN_8
+#define HD44780_D4_GPIO_Port GPIOC
+#define HD44780_E_Pin GPIO_PIN_9
+#define HD44780_E_GPIO_Port GPIOC
+#define HD44780_RS_Pin GPIO_PIN_8
+#define HD44780_RS_GPIO_Port GPIOA
 #define STLINK_RX_Pin GPIO_PIN_9
 #define STLINK_RX_GPIO_Port GPIOA
 #define STLINK_TX_Pin GPIO_PIN_10
@@ -231,6 +247,8 @@ void Error_Handler(void);
 #define Dubbing_GPIO_Port GPIOD
 #define Playback_Pin GPIO_PIN_9
 #define Playback_GPIO_Port GPIOG
+#define AD_KBD_INT_Pin GPIO_PIN_11
+#define AD_KBD_INT_GPIO_Port GPIOG
 #define LD3_Pin GPIO_PIN_13
 #define LD3_GPIO_Port GPIOG
 #define LD4_Pin GPIO_PIN_14
@@ -257,8 +275,8 @@ void Error_Handler(void);
 #define SDRAM_SIZE			((uint32_t)0x800000)
 typedef enum
 {
-  GREEN = 0,
-  RED = 1
+  LED_GREEN = 0,
+  LED_RED = 1
 }Led_Colors;
 
 typedef enum ButtonStates { UP, DOWN, PRESS, RELEASE } ButtonStates;

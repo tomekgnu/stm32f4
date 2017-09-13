@@ -118,7 +118,14 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOD, RDX_Pin|WRX_DCX_Pin|DAC8552_CS_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(ADS1256_CS_GPIO_Port, ADS1256_CS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(HD44780_D7_GPIO_Port, HD44780_D7_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOC, HD44780_D6_Pin|HD44780_D5_Pin|HD44780_D4_Pin|HD44780_E_Pin 
+                          |ADS1256_CS_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(HD44780_RS_GPIO_Port, HD44780_RS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, ADS1256_SYNC_Pin|ADS1256_RESET_Pin, GPIO_PIN_SET);
@@ -251,16 +258,25 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(R7_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = HiHat_Button_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(HiHat_Button_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Pin = HD44780_D7_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  HAL_GPIO_Init(HD44780_D7_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PCPin PCPin PCPin PCPin */
+  GPIO_InitStruct.Pin = HD44780_D6_Pin|HD44780_D5_Pin|HD44780_D4_Pin|HD44780_E_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = TomHi_Button_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(TomHi_Button_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Pin = HD44780_RS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  HAL_GPIO_Init(HD44780_RS_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = TP_INT1_Pin;
@@ -302,11 +318,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(Playback_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PG11 */
-  GPIO_InitStruct.Pin = GPIO_PIN_11;
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = AD_KBD_INT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+  HAL_GPIO_Init(AD_KBD_INT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PGPin PGPin */
   GPIO_InitStruct.Pin = LD3_Pin|LD4_Pin;
@@ -325,7 +341,7 @@ void MX_GPIO_Init(void)
   HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 1);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 3);
+  HAL_NVIC_SetPriority(EXTI9_5_IRQn, 2, 3);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
 }
@@ -384,8 +400,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			DataReady = 1;
 			SamplesRead = 0;
 			SamplesWritten = 0;
-			BSP_LED_Off(RED);
-			BSP_LED_Off(GREEN);
+			BSP_LED_Off(LED_RED);
+			BSP_LED_Off(LED_GREEN);
 		}
 
 		break;
@@ -413,8 +429,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			return;
 		//RecordingButton = PRESS;
 		StartApp = 0;
-		BSP_LED_On(RED);
-		BSP_LED_Off(GREEN);
+		BSP_LED_On(LED_RED);
+		BSP_LED_Off(LED_GREEN);
 		trcs.sum = 0;
 		trcs.samples[0] = trcs.samples[1] = trcs.samples[2] = trcs.samples[3] = 0;
 		currentLoop = 1;
@@ -435,8 +451,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			return;
 		//PlaybackButton = PRESS;
 		//StartApp = 0;
-		BSP_LED_On(GREEN);
-		BSP_LED_Off(RED);
+		BSP_LED_On(LED_GREEN);
+		BSP_LED_Off(LED_RED);
 		SamplesRead = 0;
 		dub_pointer = 0;
 		read_pointer = 0;

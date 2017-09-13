@@ -41,6 +41,7 @@
 #include "fmc.h"
 
 /* USER CODE BEGIN Includes */
+#include "tm_stm32_hd44780.h"
 #include "ads1256_test.h"
 #include "tm_stm32f4_keypad.h"
 #include "stm32f429i_discovery_sdram.h"
@@ -152,12 +153,25 @@ int main(void)
   MX_ADC1_Init();
 
   /* USER CODE BEGIN 2 */
+  //SF3_CS1();
+
+  //ST7735_init();
+  //ST7735_pushColor(&color,1);
+ // hspi2.Init.DataSize = SPI_DATASIZE_16BIT;
+//  while(1){
+//	  LCD_CS_LOW();
+//	  HAL_SPI_Transmit(&hspi2,(uint8_t *)&dat,2,100);
+//	  LCD_CS_HIGH();
+//	  HAL_Delay(100);
+//
+//  }
+
   HAL_NVIC_DisableIRQ(EXTI2_IRQn);
   BSP_SDRAM_Init();
   status = HAL_TIM_Base_Start_IT(&htim2);
 
-  BSP_LED_Init(GREEN);
-  BSP_LED_Init(RED);
+  BSP_LED_Init(LED_GREEN);
+  BSP_LED_Init(LED_RED);
 
 
   BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
@@ -184,6 +198,9 @@ int main(void)
   TM_KEYPAD_Init();
   setupMidi();
   talkMIDI(0xB0, 0, 0x01); //Default bank GM1
+
+  TM_HD44780_Init(20, 4);
+  TM_HD44780_Puts(1,1,"Baba");
   /* USER CODE END 2 */
 
   /* Infinite loop */
