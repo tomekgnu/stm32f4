@@ -201,6 +201,7 @@ int main(void)
 
   TM_HD44780_Init(20, 4);
   TM_HD44780_Puts(1,1,"Baba");
+  getDeviceID(sf3_ID);
   /* USER CODE END 2 */
 
   /* Infinite loop */

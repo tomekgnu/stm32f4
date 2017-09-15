@@ -38,11 +38,14 @@
 #include "gpio.h"
 
 /* USER CODE BEGIN 0 */
+#include "stdlib.h"
 #include "main.h"
 #include "audio.h"
 #include "stm32f429i_discovery.h"
 #include "stm32f429i_discovery_sdram.h"
 #include "math.h"
+#include "tm_stm32_hd44780.h"
+
 #define pi 3.14159
 extern __IO ButtonStates ToggleDubbing;
 extern uint32_t read_pointer;
@@ -66,70 +69,21 @@ uint8_t tracksPlaying;
 __IO uint8_t conversions = 0;
 
 uint32_t adcval;
+char strval[5];
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 
 	if(StartApp == 0){
 		adcval = HAL_ADC_GetValue(hadc);
-		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,readADC[0]);
+		utoa(adcval,strval,10);
+		TM_HD44780_Clear();
+		TM_HD44780_Puts(0,0,strval);
 		return;
 	}
 
-	if(Recording == 1)
-		recordMulti(TRACK1,readADC[0],readADC[1],&trcs);
-	if(Playback == 1){
-		Dubbing = ToggleDubbing;
-		if(Dubbing == 1){
-			trcs.samples[currentLoop] = readADC[0];
-			trcs.sum = trcs.samples[TRACK1] + trcs.samples[TRACK2] + trcs.samples[TRACK3] + trcs.samples[TRACK4];
-			BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &trcs, 3);
-		}
-		SamplesRead++;
-		if(SamplesRead == SamplesWritten){
-			if(Dubbing == 1){
-				tracksPlaying++;
-				currentLoop++;
-			}
-			if(tracksPlaying == 5)
-				tracksPlaying = 4;
-			if(currentLoop == 4)
-				currentLoop = 0;
-				SamplesRead = 0;
-				read_pointer = 0;
-				return;
-			}
-
-			read_pointer += 12;
-			if(read_pointer == SDRAM_SIZE)
-				read_pointer = 0;
-
-	}
-
 }
-//
-//	//if(StartApp == 0)
-//		//return;
-//	if(hadc->Instance == ADC1){
-//
-//		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,readADC);
-////		if(Recording == 1)
-////			record((uint16_t)readADC);
-////		if(Playback == 1)
-////			play((uint16_t)readADC);
-//		//readADC = HAL_ADC_GetValue(hadc);
-//		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,readADC);
-//		//BSP_LED_On(RED);
-//		//BSP_LED_Off(RED);
-//	}
-//	if(hadc->Instance == ADC2){
-//
-//		//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,readADC);
-//		//BSP_LED_On(GREEN);
-//		//BSP_LED_Off(GREEN);
-//	}
-//	//BSP_LED_Off(RED);
-//}
+
 /* USER CODE END 0 */
 
 ADC_HandleTypeDef hadc1;
