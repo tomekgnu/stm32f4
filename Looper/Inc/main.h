@@ -99,6 +99,7 @@ void Error_Handler(void);
 #define A5_GPIO_Port GPIOF
 #define Recording_Pin GPIO_PIN_6
 #define Recording_GPIO_Port GPIOF
+#define Recording_EXTI_IRQn EXTI9_5_IRQn
 #define KEYPAD_ROW_1_Pin GPIO_PIN_7
 #define KEYPAD_ROW_1_GPIO_Port GPIOF
 #define KEYPAD_ROW_2_Pin GPIO_PIN_8
@@ -127,6 +128,7 @@ void Error_Handler(void);
 #define OTG_FS_PSO_GPIO_Port GPIOC
 #define OTG_FS_OC_Pin GPIO_PIN_5
 #define OTG_FS_OC_GPIO_Port GPIOC
+#define OTG_FS_OC_EXTI_IRQn EXTI9_5_IRQn
 #define R3_Pin GPIO_PIN_0
 #define R3_GPIO_Port GPIOB
 #define R6_Pin GPIO_PIN_1
@@ -235,6 +237,7 @@ void Error_Handler(void);
 #define ADS1256_MOSI_GPIO_Port GPIOC
 #define ADS1256_DRDY_Pin GPIO_PIN_2
 #define ADS1256_DRDY_GPIO_Port GPIOD
+#define ADS1256_DRDY_EXTI_IRQn EXTI2_IRQn
 #define ADS1256_SYNC_Pin GPIO_PIN_3
 #define ADS1256_SYNC_GPIO_Port GPIOD
 #define ADS1256_RESET_Pin GPIO_PIN_4
@@ -247,6 +250,7 @@ void Error_Handler(void);
 #define Dubbing_GPIO_Port GPIOD
 #define Playback_Pin GPIO_PIN_9
 #define Playback_GPIO_Port GPIOG
+#define Playback_EXTI_IRQn EXTI9_5_IRQn
 #define AD_KBD_INT_Pin GPIO_PIN_11
 #define AD_KBD_INT_GPIO_Port GPIOG
 #define LD3_Pin GPIO_PIN_13
