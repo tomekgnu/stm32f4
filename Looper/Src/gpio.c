@@ -57,6 +57,8 @@ extern uint32_t DataReady;
 extern uint32_t dub_pointer;
 extern uint32_t read_pointer;
 extern uint32_t write_pointer;
+extern uint32_t key_ticks_button_up;
+extern uint32_t key_ticks_button_down;
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
@@ -389,7 +391,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	int32_t sample;
 	switch (GPIO_Pin) {
 	case AD_KBD_BUT_DOWN_Pin:
-			BSP_LED_Off(LED_GREEN);
+			key_ticks_button_up = HAL_GetTick();
 			break;
 	case GPIO_PIN_0:	// user button
 			midiRecording = 0;

@@ -51,6 +51,7 @@ extern __IO uint8_t Playback;
 extern __IO uint8_t StartApp;
 extern uint16_t readADC[];
 extern struct tracks trcs;
+
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/

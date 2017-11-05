@@ -1,6 +1,6 @@
 #MicroXplorer Configuration settings - do not modify
 ADC1.Channel-0\#ChannelRegularConversion=ADC_CHANNEL_4
-ADC1.ClockPrescaler=ADC_CLOCK_SYNC_PCLK_DIV8
+ADC1.ClockPrescaler=ADC_CLOCK_SYNC_PCLK_DIV4
 ADC1.ContinuousConvMode=DISABLE
 ADC1.DMAContinuousRequests=DISABLE
 ADC1.DataAlign=ADC_DATAALIGN_RIGHT
@@ -14,8 +14,8 @@ ADC1.InjNumberOfConversion=0
 ADC1.NbrOfConversion=1
 ADC1.NbrOfConversionFlag=1
 ADC1.Rank-0\#ChannelRegularConversion=1
-ADC1.Resolution=ADC_RESOLUTION_12B
-ADC1.SamplingTime-0\#ChannelRegularConversion=ADC_SAMPLETIME_112CYCLES
+ADC1.Resolution=ADC_RESOLUTION_6B
+ADC1.SamplingTime-0\#ChannelRegularConversion=ADC_SAMPLETIME_480CYCLES
 ADC1.ScanConvMode=DISABLE
 ADC1.master=1
 File.Version=6
@@ -792,7 +792,7 @@ PH1/OSC_OUT.Locked=true
 PH1/OSC_OUT.Mode=HSE-External-Oscillator
 PH1/OSC_OUT.Signal=RCC_OSC_OUT
 PinOutPanel.RotationAngle=0
-ProjectManager.AskForMigrate=false
+ProjectManager.AskForMigrate=true
 ProjectManager.BackupPrevious=false
 ProjectManager.CompilerOptimize=2
 ProjectManager.ComputerToolchain=false

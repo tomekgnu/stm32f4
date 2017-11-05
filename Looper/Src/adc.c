@@ -71,17 +71,61 @@ __IO uint8_t conversions = 0;
 uint32_t adcval;
 char strval[5];
 
+uint32_t key_ticks_button_up = 0;
+uint32_t key_ticks_button_down = 0;
+
+void HAL_ADC_ErrorCallback(ADC_HandleTypeDef * hadc){
+	utoa(hadc->ErrorCode,strval,10);
+	TM_HD44780_Puts(0,1,strval);
+}
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
-
-		if(HAL_GPIO_ReadPin(LED3_GPIO_PORT,LED3_PIN) == GPIO_PIN_SET)
-			return;
-		//if(StartApp == 0){
+		key_ticks_button_down = HAL_GetTick();
 		adcval = HAL_ADC_GetValue(hadc);
+		if(key_ticks_button_down - key_ticks_button_up < 250){
+			return;
+		}
+		//if(StartApp == 0){
+		//
+		switch(adcval){
+		case 0:	adcval = 1;
+				break;
+		case 10: adcval = 2;
+				break;
+		case 19: adcval = 3;
+				break;
+		case 26: adcval = 4;
+				break;
+		case 32: adcval = 5;
+				break;
+		case 37: adcval = 6;
+				break;
+		case 41: adcval = 7;
+				break;
+		case 45: adcval = 8;
+				break;
+		case 48: adcval = 9;
+				break;
+		case 51: adcval = 10;
+				break;
+		case 53: adcval = 11;
+				break;
+		case 55: adcval = 12;
+				break;
+		case 57: adcval = 13;
+				break;
+		case 59: adcval = 14;
+				break;
+		case 61: adcval = 15;
+				break;
+		case 62: adcval = 16;
+				break;
+		default: return;
+
+		}
 		utoa(adcval,strval,10);
 		TM_HD44780_Clear();
 		TM_HD44780_Puts(0,0,strval);
-		BSP_LED_On(LED_GREEN);
 
 }
 
@@ -97,8 +141,8 @@ void MX_ADC1_Init(void)
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
-  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
+  hadc1.Init.Resolution = ADC_RESOLUTION_6B;
   hadc1.Init.ScanConvMode = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
@@ -117,7 +161,7 @@ void MX_ADC1_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_4;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_112CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
