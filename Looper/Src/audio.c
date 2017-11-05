@@ -34,8 +34,8 @@ __IO uint8_t ToggleChannel = 0;
 __IO uint8_t DrumsPlaying = 0;
 extern struct drumStruct drumset;
 __IO ButtonStates ToggleDubbing = UP;
-__IO ButtonStates PlaybackButton = UP;
-__IO ButtonStates RecordingButton = UP;
+
+
 __IO uint32_t BufferCount = 0;
 __IO uint32_t TapToneBufferCount = 1500;
 __IO uint8_t BufferSwitch = 0;

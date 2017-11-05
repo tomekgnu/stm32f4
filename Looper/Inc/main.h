@@ -106,6 +106,9 @@ void Error_Handler(void);
 #define KEYPAD_ROW_2_GPIO_Port GPIOF
 #define KEYPAD_ROW_3_Pin GPIO_PIN_9
 #define KEYPAD_ROW_3_GPIO_Port GPIOF
+#define AD_KBD_BUT_DOWN_Pin GPIO_PIN_10
+#define AD_KBD_BUT_DOWN_GPIO_Port GPIOF
+#define AD_KBD_BUT_DOWN_EXTI_IRQn EXTI15_10_IRQn
 #define PH0_OSC_IN_Pin GPIO_PIN_0
 #define PH0_OSC_IN_GPIO_Port GPIOH
 #define PH1_OSC_OUT_Pin GPIO_PIN_1
@@ -229,6 +232,7 @@ void Error_Handler(void);
 #define SWCLK_GPIO_Port GPIOA
 #define TP_INT1_Pin GPIO_PIN_15
 #define TP_INT1_GPIO_Port GPIOA
+#define TP_INT1_EXTI_IRQn EXTI15_10_IRQn
 #define ADS1256_CS_Pin GPIO_PIN_10
 #define ADS1256_CS_GPIO_Port GPIOC
 #define ADS1256_MISO_Pin GPIO_PIN_11
@@ -253,6 +257,7 @@ void Error_Handler(void);
 #define Playback_EXTI_IRQn EXTI9_5_IRQn
 #define AD_KBD_INT_Pin GPIO_PIN_11
 #define AD_KBD_INT_GPIO_Port GPIOG
+#define AD_KBD_INT_EXTI_IRQn EXTI15_10_IRQn
 #define LD3_Pin GPIO_PIN_13
 #define LD3_GPIO_Port GPIOG
 #define LD4_Pin GPIO_PIN_14

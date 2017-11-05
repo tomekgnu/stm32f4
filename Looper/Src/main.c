@@ -75,8 +75,6 @@ extern __IO uint32_t CommandKey;
 extern __IO uint8_t StartApp;
 extern __IO ButtonStates ToggleDubbing;
 extern __IO uint8_t ToggleChannel;
-extern __IO ButtonStates RecordingButton;
-extern __IO ButtonStates PlaybackButton;
 extern uint8_t key_to_drum[];
 extern uint8_t midiEvents[];
 extern uint32_t midiTimes[];
@@ -117,7 +115,8 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	uint32_t data = 'dupa';
+	uint32_t data;
+	char keystr[4];
 	uint8_t sf3_ID[20];
 	HAL_StatusTypeDef status;
 
@@ -187,21 +186,26 @@ int main(void)
   //ReadDrumSamples();
 
   data = sizeof(struct tracks);
+  ADS1256_WriteCmd(CMD_RESET);
   ADS1256_WriteCmd(CMD_SDATAC);
   ADS1256_WriteCmd(CMD_SELFCAL);
   data = ADS1256_ReadChipID();
   ADS1256_CfgADC(ADS1256_GAIN_1, ADS1256_15000SPS);
   ADS1256_SetChannel(0);
-  ADS1256_WriteCmd(CMD_RDATAC);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+  ADS1256_WriteCmd(CMD_RDATAC);
   //FATFS_UnLinkDriver(SD_Path);
   TM_KEYPAD_Init();
   setupMidi();
   talkMIDI(0xB0, 0, 0x01); //Default bank GM1
 
   TM_HD44780_Init(20, 4);
-  TM_HD44780_Puts(1,1,"Baba");
-  getDeviceID(sf3_ID);
+  TM_HD44780_Clear();
+  TM_HD44780_Puts(0,0,"Looper");
+  utoa(data,keystr,10);
+  TM_HD44780_Puts(0,1,keystr);
+
+  //getDeviceID(sf3_ID);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -222,36 +226,38 @@ int main(void)
 	                  case TM_KEYPAD_Button_7:        /* Button 7 pressed */
 	                  case TM_KEYPAD_Button_8:        /* Button 8 pressed */
 	                  case TM_KEYPAD_Button_9:        /* Button 9 pressed */
-
-	                	 if(midiRecording == 0){
-	                		  midiDrumPointer = 0;
-	                		  midiDrumClock = 0;
-	                		  midiRecording = 1;
-	                		  midiPlayback = 0;
-	                	  }
-	                	  recordPercussionEvent(Keypad_Button);
+	                	  	  	utoa(Keypad_Button,keystr,10);
+	                	  		TM_HD44780_Clear();
+	                	  		TM_HD44780_Puts(0,0,keystr);
+//	                	 if(midiRecording == 0){
+//	                		  midiDrumPointer = 0;
+//	                		  midiDrumClock = 0;
+//	                		  midiRecording = 1;
+//	                		  midiPlayback = 0;
+//	                	  }
+	                	  //recordPercussionEvent(Keypad_Button);
 	                	  playPercussion(NOTEON,key_to_drum[Keypad_Button]);
-	                	  midiDrumPointer++;
-	                	  if(midiDrumPointer == MIDI_QUEUE){
-	                		  midiEvents[MIDI_QUEUE - 1] = No_Event;
-	                		  midiTimes[MIDI_QUEUE - 1] = midiDrumClock;
-	                		  midiDrumClock = 0;
-	                		  midiDrumPointer = 0;
-	                	  }
+//	                	  midiDrumPointer++;
+//	                	  if(midiDrumPointer == MIDI_QUEUE){
+//	                		  midiEvents[MIDI_QUEUE - 1] = No_Event;
+//	                		  midiTimes[MIDI_QUEUE - 1] = midiDrumClock;
+//	                		  midiDrumClock = 0;
+//	                		  midiDrumPointer = 0;
+//	                	  }
 	                	  break;
 	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
-	                	  if(midiRecording == 1){
-	                		  midiEvents[midiDrumPointer] = No_Event;
-	                		  midiTimes[midiDrumPointer] = midiDrumClock;
-	                		  midiRecording = 0;
-	                		  midiPlayback = 1;
-	                		  midiDrumClock = 0;
-	                		  midiDrumPointer = 0;
-	                	  }
+//	                	  if(midiRecording == 1){
+//	                		  midiEvents[midiDrumPointer] = No_Event;
+//	                		  midiTimes[midiDrumPointer] = midiDrumClock;
+//	                		  midiRecording = 0;
+//	                		  midiPlayback = 1;
+//	                		  midiDrumClock = 0;
+//	                		  midiDrumPointer = 0;
+//	                	  }
 	                      break;
 	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
 	                	  if(midiMetronome == 0){
-	                		  playPercussion(NOTEON,Metronome_Bell);
+	                		  //playPercussion(NOTEON,Metronome_Bell);
 	                		  midiMetronome = 1;
 	                	  }
 	                	  else
@@ -276,38 +282,23 @@ int main(void)
 
 	        	  }// end of key pressed
 
-	          if(midiMetronome == 1 && midiMetronomeClock >= 10000){
-	        	  midiMetronomeClock = 0;
-	        	  playPercussion(NOTEON,Metronome_Bell);
-	          }
+//	          if(midiMetronome == 1 && midiMetronomeClock >= 10000){
+//	        	  midiMetronomeClock = 0;
+//	        	  playPercussion(NOTEON,Metronome_Bell);
+//	          }
+//
+//	          if(midiPlayback == 1 && midiDrumClock >= midiTimes[midiDrumPointer]){
+//	          	playPercussionEvent();
+//	          	if(midiEvents[midiDrumPointer] == No_Event){
+//	          		midiDrumPointer = 0;
+//	          		midiDrumClock = 0;
+//	          	}
+//	          	else
+//	          		midiDrumPointer++;
 
-	          if(midiPlayback == 1 && midiDrumClock >= midiTimes[midiDrumPointer]){
-	          	playPercussionEvent();
-	          	if(midiEvents[midiDrumPointer] == No_Event){
-	          		midiDrumPointer = 0;
-	          		midiDrumClock = 0;
-	          	}
-	          	else
-	          		midiDrumPointer++;
+//	          }
 
-	          }
 
-	  //uint32_t instrument = 0;
-	  //talkMIDI(0xB0, 0, 0x01); //Default bank GM1
-
-	    //Change to different instrument
-	    //for(instrument = 34 ; instrument < 80 ; instrument++) {
-//	      playPercussion(NOTEON,Low_Floor_Tom);
-//	      playPercussion(NOTEON,Closed_Hi_Hat);
-//	      playPercussion(NOTEON,Open_Hi_Hat);
-//	      HAL_Delay(50);
-//	      playPercussion(NOTEOFF,Low_Floor_Tom);
-//	      playPercussion(NOTEOFF,Closed_Hi_Hat);
-//	      playPercussion(NOTEOFF,Open_Hi_Hat);
-	      //}
-
-	  //    HAL_Delay(1000); //Delay between instruments
-	 //   }
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -398,13 +389,6 @@ void initTapTone() {
 
 
 void buttonHandler() {
-	if(HAL_GPIO_ReadPin(Recording_GPIO_Port,Recording_Pin) == GPIO_PIN_SET) {
-		RecordingButton = RELEASE;
-
-	}
-	if(HAL_GPIO_ReadPin(Playback_GPIO_Port,Playback_Pin) == GPIO_PIN_SET) {
-		PlaybackButton = RELEASE;
-	}
 	if(HAL_GPIO_ReadPin(Toggle_channel_GPIO_Port,Toggle_channel_Pin) == GPIO_PIN_SET){
 		//ADS1256_SetChannel(0);
 		ToggleChannel = 0;

@@ -38,8 +38,6 @@
 #define KEYPAD_ROW_4_CHECK			(!HAL_GPIO_ReadPin(KEYPAD_ROW_4_GPIO_Port, KEYPAD_ROW_4_Pin))
 
 
-extern uint32_t pressed;
-
 uint8_t KEYPAD_INT_Buttons[4][4] = {
 	{0x01, 0x02, 0x03, 0x0C},
 	{0x04, 0x05, 0x06, 0x0D},

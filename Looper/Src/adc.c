@@ -74,13 +74,14 @@ char strval[5];
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 
-	if(StartApp == 0){
+		if(HAL_GPIO_ReadPin(LED3_GPIO_PORT,LED3_PIN) == GPIO_PIN_SET)
+			return;
+		//if(StartApp == 0){
 		adcval = HAL_ADC_GetValue(hadc);
 		utoa(adcval,strval,10);
 		TM_HD44780_Clear();
 		TM_HD44780_Puts(0,0,strval);
-		return;
-	}
+		BSP_LED_On(LED_GREEN);
 
 }
 
