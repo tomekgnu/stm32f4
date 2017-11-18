@@ -266,8 +266,8 @@ void Error_Handler(void);
 #define SDNCAS_GPIO_Port GPIOG
 #define ADS1256_SCK_Pin GPIO_PIN_3
 #define ADS1256_SCK_GPIO_Port GPIOB
-#define Toggle_channel_Pin GPIO_PIN_4
-#define Toggle_channel_GPIO_Port GPIOB
+#define Switch_channel_Pin GPIO_PIN_4
+#define Switch_channel_GPIO_Port GPIOB
 #define SDCKE1_Pin GPIO_PIN_5
 #define SDCKE1_GPIO_Port GPIOB
 #define SDNE1_Pin GPIO_PIN_6

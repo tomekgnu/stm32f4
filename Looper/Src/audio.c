@@ -5,6 +5,7 @@
 #include "string.h"
 #include "limits.h"
 #include "waveplayer.h"
+#include "math.h"
 #define USHORT_TO_DOUBLE(x)					((double)(x) / (double)(USHRT_MAX + 1))
 #define DOUBLE_TO_USHORT(x)					(uint16_t)(x * ((double)(USHRT_MAX + 1)))
 
@@ -157,11 +158,11 @@ void playMultiFromTimer(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct 
 void playMulti(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct tracks * tr){
 	uint16_t mix;
 	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
-	Write_DAC8552(channel_B,tr->samples[TRACK1]);
+	Write_DAC8552(channel_A,tr->samples[TRACK1]);
 
 	Dubbing = ToggleDubbing;
 	if(Dubbing == 1){
-			tr->samples[TRACK1] = (tr->samples[TRACK1] + sampleA) / 2; //mixGuitar(sampleA,tr->samples[TRACK1]);
+			tr->samples[TRACK1] = (tr->samples[TRACK1] * 1.1 + sampleA) * 0.5; //mixGuitar(sampleA,tr->samples[TRACK1]);
 			tr->sum = tr->samples[TRACK1] + tr->samples[TRACK2] + tr->samples[TRACK3] + tr->samples[TRACK4];
 			BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
 		}

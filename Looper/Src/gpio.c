@@ -211,7 +211,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PBPin PBPin */
-  GPIO_InitStruct.Pin = BOOT1_Pin|Toggle_channel_Pin;
+  GPIO_InitStruct.Pin = BOOT1_Pin|Switch_channel_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -420,7 +420,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		else
 			sample |= 0x8000;
 		if(StartApp == 0)
-			Write_DAC8552(channel_B,(uint16_t)sample);
+			Write_DAC8552(channel_A,(uint16_t)sample);
 		//if(ToggleChannel == 1)
 			//break;
 		if(Playback == 1)

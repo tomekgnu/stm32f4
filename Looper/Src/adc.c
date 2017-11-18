@@ -45,6 +45,7 @@
 #include "stm32f429i_discovery_sdram.h"
 #include "math.h"
 #include "tm_stm32_hd44780.h"
+#include "midi.h"
 
 #define pi 3.14159
 extern __IO ButtonStates ToggleDubbing;
@@ -62,7 +63,7 @@ extern __IO uint32_t CurrentSize;
 extern __IO uint8_t ToggleRecording;
 extern uint16_t readADC[];
 extern __IO uint8_t StartApp;
-
+extern uint8_t key_to_drum[];
 struct tracks trcs;
 uint8_t currentLoop;
 uint8_t tracksPlaying;
@@ -82,39 +83,70 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 		key_ticks_button_down = HAL_GetTick();
 		adcval = HAL_ADC_GetValue(hadc);
-		if(key_ticks_button_down - key_ticks_button_up < 250){
-			return;
-		}
+//		if(key_ticks_button_down - key_ticks_button_up < 250){
+//			return;
+//		}
 		//if(StartApp == 0){
 		//
+
 		switch(adcval){
-		case 0:	adcval = 1;
+		case 0:
+		case 1:
+		case 2:
+		case 3:adcval = 1;
 				break;
-		case 10: adcval = 2;
+		case 9:
+		case 10:
+		case 11:
+		case 12:adcval = 2;
 				break;
-		case 19: adcval = 3;
+		case 18:
+		case 19:
+		case 20:
+		case 21:adcval = 3;
 				break;
-		case 26: adcval = 4;
+		case 25:
+		case 26:
+		case 27:
+		case 28:adcval = 4;
 				break;
-		case 32: adcval = 5;
+		case 31:
+		case 32:
+		case 33:
+		case 34:adcval = 5;
 				break;
-		case 37: adcval = 6;
+		case 35:
+		case 36:
+		case 37:
+		case 38:adcval = 6;
 				break;
-		case 41: adcval = 7;
+		case 40:
+		case 41:
+		case 42:adcval = 7;
 				break;
-		case 45: adcval = 8;
+		case 44:
+		case 45:
+		case 46:adcval = 8;
 				break;
-		case 48: adcval = 9;
+		case 47:
+		case 48:
+		case 49:adcval = 9;
 				break;
-		case 51: adcval = 10;
+		case 50:
+		case 51:
+		case 52:adcval = 10;
 				break;
-		case 53: adcval = 11;
+		case 53:
+		case 54:adcval = 11;
 				break;
-		case 55: adcval = 12;
+		case 55:
+		case 56:adcval = 12;
 				break;
-		case 57: adcval = 13;
+		case 57:
+		case 58:adcval = 13;
 				break;
-		case 59: adcval = 14;
+		case 59:
+		case 60:adcval = 14;
 				break;
 		case 61: adcval = 15;
 				break;
@@ -123,10 +155,10 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		default: return;
 
 		}
-		utoa(adcval,strval,10);
 		TM_HD44780_Clear();
+		utoa(adcval,strval,10);
 		TM_HD44780_Puts(0,0,strval);
-
+		playPercussion(NOTEON,key_to_drum[adcval - 1]);
 }
 
 /* USER CODE END 0 */

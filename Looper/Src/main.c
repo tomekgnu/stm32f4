@@ -389,7 +389,7 @@ void initTapTone() {
 
 
 void buttonHandler() {
-	if(HAL_GPIO_ReadPin(Toggle_channel_GPIO_Port,Toggle_channel_Pin) == GPIO_PIN_SET){
+	if(HAL_GPIO_ReadPin(Switch_channel_GPIO_Port,Switch_channel_Pin) == GPIO_PIN_SET){
 		//ADS1256_SetChannel(0);
 		ToggleChannel = 0;
 	}
