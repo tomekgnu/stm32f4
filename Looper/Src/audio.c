@@ -146,12 +146,17 @@ void record16u(uint16_t sample){
 		write_pointer = 0;
 }
 
+float gain = 1.0;
+uint32_t clipcnt = 0;
+int32_t mix32Max = 32767;
+
 void record32s(int32_t sample){
 
 	if(StartApp == 0 ){
 		return;
 	}
-
+	gain = 1.0;
+	mix32Max = 32767;
 	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) &sample, 1);
 	SamplesWritten++;
 	write_pointer += 4;
@@ -160,28 +165,36 @@ void record32s(int32_t sample){
 }
 
 
-void play32s(int32_t newsample){
-	int32_t mix32s;
-	static float gain = 1.0;
-	static int32_t mix32Max = 32767;
 
-	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &mix32s, 1);
-	Dubbing = ToggleDubbing;
-	Write_DAC8552(channel_A,((uint16_t) (((float)mix32s * gain) + 32767)));
+void play32s(int32_t newsample){
+	int32_t mix32s,mix32tmp,read32s;
+
+	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &read32s, 1);
+	Write_DAC8552(channel_A,((uint16_t) (((float)read32s * gain) + 32767)));
+
+	mix32tmp = (int32_t)(newsample + read32s);
+	if(mix32tmp > mix32Max){
+		mix32Max = mix32tmp;
+		clipcnt++;
+	}
 
 	if(Dubbing == 1){
-		mix32s = (int32_t)((float)newsample * gain + (float)mix32s * gain);
-		if(mix32s > mix32Max)
-			mix32Max = mix32s;
+		//mix32s = (int32_t)((float)mix32tmp * gain);
+		BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &mix32tmp, 1);
 	}
 	else
-		mix32s = (int32_t)((float)mix32s * gain);
+		BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &read32s, 1);
 
-	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &mix32s, 1);
 	SamplesRead++;
 	if(SamplesRead == SamplesWritten){
-		gain = 32767.00 / (float)mix32Max;
-		mix32Max = 32767;
+		Dubbing = ToggleDubbing;
+		if(clipcnt > 0)
+			gain = 32767.00 / (float)mix32Max;
+		else{
+			gain = 1.0;
+			clipcnt = 0;
+			mix32Max = 32767;
+		}
 		dub_pointer = 0;
 		SamplesRead = 0;
 		read_pointer = 0;
