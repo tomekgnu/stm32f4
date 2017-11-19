@@ -388,7 +388,11 @@ void KeyboardConfig(void){
 
 }
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	int32_t sample;
+	int32_t sample32s;
+	float sampleFloat;
+	uint16_t sample16u;
+	int16_t sample16s;
+
 	switch (GPIO_Pin) {
 	case AD_KBD_BUT_DOWN_Pin:
 			key_ticks_button_up = HAL_GetTick();
@@ -414,19 +418,19 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		break;
 	case ADS1256_DRDY_Pin:
-		sample = ADS1256_ReadData() >> 8;
-		if(sample < 0)
-			sample &= 0x00007FFF;
+		sample32s = ADS1256_ReadData() >> 8;
+		if(sample32s < 0)
+			sample16u = sample32s & 0x00007FFF;
 		else
-			sample |= 0x8000;
+			sample16u = sample32s | 0x8000;
 		if(StartApp == 0)
-			Write_DAC8552(channel_A,(uint16_t)sample);
+			Write_DAC8552(channel_A,sample16u);
 		//if(ToggleChannel == 1)
 			//break;
 		if(Playback == 1)
-		  	playMulti(TRACK1,sample,0,&trcs);
+		  	play32s(sample32s);
 		if(Recording == 1)
-			recordMulti(TRACK1,sample,0,&trcs);
+			record32s(sample32s);
 		//play_record();
 		break;
 

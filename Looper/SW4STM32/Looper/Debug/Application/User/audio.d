@@ -38,7 +38,8 @@ Application/User/audio.o: \
  C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ads1256_test.h \
- C:/Users/Tomek/workspace/tom32f4/Looper/Inc/waveplayer.h
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/waveplayer.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32_hd44780.h
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/main.h:
 
@@ -117,3 +118,5 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ads1256_test.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/waveplayer.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32_hd44780.h:

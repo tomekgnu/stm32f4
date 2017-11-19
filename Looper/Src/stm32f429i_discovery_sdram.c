@@ -212,6 +212,11 @@ void BSP_SDRAM_ReadData(uint32_t uwStartAddress, uint32_t *pData, uint32_t uwDat
   HAL_SDRAM_Read_32b(&SdramHandle, (uint32_t *)uwStartAddress, pData, uwDataSize); 
 }
 
+void BSP_SDRAM_ReadData16b(uint32_t uwStartAddress, uint16_t *pData, uint32_t uwDataSize)
+{
+  HAL_SDRAM_Read_16b(&SdramHandle, (uint32_t *)uwStartAddress, pData, uwDataSize);
+}
+
 /**
   * @brief  Reads an mount of data from the SDRAM memory in DMA mode. 
   * @param  uwStartAddress : Read start address

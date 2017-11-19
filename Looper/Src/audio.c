@@ -6,6 +6,9 @@
 #include "limits.h"
 #include "waveplayer.h"
 #include "math.h"
+#include "tm_stm32_hd44780.h"
+#include "stdlib.h"
+
 #define USHORT_TO_DOUBLE(x)					((double)(x) / (double)(USHRT_MAX + 1))
 #define DOUBLE_TO_USHORT(x)					(uint16_t)(x * ((double)(USHRT_MAX + 1)))
 
@@ -33,7 +36,6 @@ __IO uint8_t Dubbing = 0;
 __IO uint8_t DubbingStarted = 0;
 __IO uint8_t ToggleChannel = 0;
 __IO uint8_t DrumsPlaying = 0;
-extern struct drumStruct drumset;
 __IO ButtonStates ToggleDubbing = UP;
 
 
@@ -95,22 +97,22 @@ uint16_t upper;
 uint16_t lower;
 uint16_t mixed;
 uint32_t upperlower;
-uint8_t *pDrumset = (uint8_t *)&drumset;
 
-void play(uint16_t newsample){
+
+void play16u(uint16_t newsample){
 	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
 	upper = (upperlower >> 16);
 	lower = (upperlower & 0x0000FFFF);
 	//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,upper);
 	//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,lower);
 	Dubbing = ToggleDubbing;
-	//Write_DAC8552(channel_A,upper);
-	//if(*pDrumset > 0)
-		//upper = mixGuitar(upper,drumsample,1);
-	mixed = mixGuitar(newsample,lower);
+	Write_DAC8552(channel_A,upper);
+	if(Dubbing == 1){
+		lower = newsample;
+	}
 	upperlower = upper;
 	upperlower <<= 16;
-	upperlower |= (uint32_t)mixed;
+	upperlower |= (uint32_t)lower;
 	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &upperlower, 1);
 
 	SamplesRead++;
@@ -129,20 +131,116 @@ void play(uint16_t newsample){
 
 }
 
-void record(uint16_t sample){
-	drumsample = drumHandler();
+void record16u(uint16_t sample){
+
 	if(StartApp == 0 ){
 		return;
 	}
 
-	upperlower = (((uint32_t)sample) << 16) | ((uint32_t)(sample / 2));
+	upperlower = ((uint32_t)sample) << 16;
 
 	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) &upperlower, 1);
 	SamplesWritten++;
 	write_pointer += 4;
 	if(write_pointer == SDRAM_SIZE)
 		write_pointer = 0;
+}
 
+void record32s(int32_t sample){
+
+	if(StartApp == 0 ){
+		return;
+	}
+
+	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) &sample, 1);
+	SamplesWritten++;
+	write_pointer += 4;
+	if(write_pointer == SDRAM_SIZE)
+		write_pointer = 0;
+}
+
+
+void play32s(int32_t newsample){
+	int32_t mix32s;
+	static float gain = 1.0;
+	static int32_t mix32Max = 32767;
+
+	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &mix32s, 1);
+	Dubbing = ToggleDubbing;
+	Write_DAC8552(channel_A,((uint16_t) (((float)mix32s * gain) + 32767)));
+
+	if(Dubbing == 1){
+		mix32s = (int32_t)((float)newsample * gain + (float)mix32s * gain);
+		if(mix32s > mix32Max)
+			mix32Max = mix32s;
+	}
+	else
+		mix32s = (int32_t)((float)mix32s * gain);
+
+	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &mix32s, 1);
+	SamplesRead++;
+	if(SamplesRead == SamplesWritten){
+		gain = 32767.00 / (float)mix32Max;
+		mix32Max = 32767;
+		dub_pointer = 0;
+		SamplesRead = 0;
+		read_pointer = 0;
+		return;
+	}
+		dub_pointer += 4;
+		read_pointer += 4;
+		if(read_pointer == SDRAM_SIZE)
+			read_pointer = 0;
+		if(dub_pointer == SDRAM_SIZE)
+			dub_pointer = 0;
+
+}
+
+void recordFloat(float sample){
+
+	if(StartApp == 0 ){
+		return;
+	}
+
+	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) &sample, 1);
+	SamplesWritten++;
+	write_pointer += 4;
+	if(write_pointer == SDRAM_SIZE)
+		write_pointer = 0;
+}
+
+
+void playFloat(float newsample){
+	float mix32f;
+	static float gain = 1.0;
+	static float mixFloatMax = 1.00;
+
+	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &mix32f, 1);
+	Dubbing = ToggleDubbing;
+	Write_DAC8552(channel_A,(uint16_t) ((mix32f  * 32768) + 32767));
+
+	if(Dubbing == 1){
+		mix32f = (newsample  + mix32f) * gain;
+		if(mix32f > mixFloatMax)
+			mixFloatMax = mix32f;
+	}
+
+	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &mix32f, 1);
+	SamplesRead++;
+	if(SamplesRead == SamplesWritten){
+		gain = 1.00 / mixFloatMax;
+		mixFloatMax = 1.00;
+		dub_pointer = 0;
+		SamplesRead = 0;
+		read_pointer = 0;
+		return;
+	}
+		dub_pointer += 4;
+		read_pointer += 4;
+		if(read_pointer == SDRAM_SIZE)
+			read_pointer = 0;
+		if(dub_pointer == SDRAM_SIZE)
+			dub_pointer = 0;
 
 }
 
