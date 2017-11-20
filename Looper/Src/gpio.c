@@ -39,6 +39,8 @@
 #include "audio.h"
 #include "main.h"
 #include "ads1256_test.h"
+#include "tm_stm32_hd44780.h"
+
 extern struct tracks trcs;
 extern uint8_t currentLoop;
 extern uint8_t tracksPlaying;
@@ -389,9 +391,7 @@ void KeyboardConfig(void){
 }
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	int32_t sample32s;
-	float sampleFloat;
 	uint16_t sample16u;
-	int16_t sample16s;
 
 	switch (GPIO_Pin) {
 	case AD_KBD_BUT_DOWN_Pin:
@@ -459,8 +459,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	case Playback_Pin:
 		//if(PlaybackButton == PRESS)
 			//return;
-		if(Playback == 1)
+		if(Playback == 1){
 			return;
+		}
+
 		//PlaybackButton = PRESS;
 		//StartApp = 0;
 		BSP_LED_On(LED_GREEN);

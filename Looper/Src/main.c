@@ -71,6 +71,7 @@ extern __IO uint8_t midiPlayback;
 extern __IO uint32_t midiDrumClock;
 extern __IO uint32_t midiDrumPointer;
 extern __IO uint32_t midiMetronomeClock;
+extern __IO uint8_t Playback;
 extern __IO uint32_t CommandKey;
 extern __IO uint8_t StartApp;
 extern __IO ButtonStates ToggleDubbing;
@@ -397,10 +398,15 @@ void buttonHandler() {
 		//ADS1256_SetChannel(1);
 		ToggleChannel = 1;
 	}
-	if(HAL_GPIO_ReadPin(Dubbing_GPIO_Port,Dubbing_Pin) == GPIO_PIN_RESET)
-		ToggleDubbing = 1;
-	else
-		ToggleDubbing = 0;
+	if(HAL_GPIO_ReadPin(Dubbing_GPIO_Port,Dubbing_Pin) == GPIO_PIN_RESET){
+		if(ToggleDubbing == 0)
+			ToggleDubbing = 1;
+	}
+	else{
+		if(ToggleDubbing == 1)
+			ToggleDubbing = 0;
+
+	}
 
 
 }

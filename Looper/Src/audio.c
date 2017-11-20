@@ -172,29 +172,17 @@ void play32s(int32_t newsample){
 	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &read32s, 1);
 	Write_DAC8552(channel_A,((uint16_t) (((float)read32s * gain) + 32767)));
 
-	mix32tmp = (int32_t)(newsample + read32s);
-	if(mix32tmp > mix32Max){
-		mix32Max = mix32tmp;
-		clipcnt++;
-	}
-
+	mix32s = (int32_t)((float)newsample * 0.5 + (float)read32s * 0.6);
+	Dubbing = ToggleDubbing;
 	if(Dubbing == 1){
 		//mix32s = (int32_t)((float)mix32tmp * gain);
-		BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &mix32tmp, 1);
+		BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &mix32s, 1);
 	}
 	else
 		BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &read32s, 1);
 
 	SamplesRead++;
 	if(SamplesRead == SamplesWritten){
-		Dubbing = ToggleDubbing;
-		if(clipcnt > 0)
-			gain = 32767.00 / (float)mix32Max;
-		else{
-			gain = 1.0;
-			clipcnt = 0;
-			mix32Max = 32767;
-		}
 		dub_pointer = 0;
 		SamplesRead = 0;
 		read_pointer = 0;
