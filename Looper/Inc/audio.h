@@ -10,7 +10,7 @@ struct tracks{
 };
 
 enum{TRACK1=0,TRACK2,TRACK3,TRACK4};
-
+void showMinMaxSamples(int32_t min,int32_t max);
 void play16u(uint16_t newsample);
 void record16u(uint16_t sample);
 void play32s(int32_t newsample);

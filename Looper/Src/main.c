@@ -62,9 +62,12 @@
 /* Private variables ---------------------------------------------------------*/
 
 uint16_t s_index = 0;
-
-
+extern BOOL clipping;
+extern uint32_t dacSample;
 __IO uint32_t CommandKey = 0;
+extern int16_t sample16Max;
+extern int16_t sample16Min;
+extern int32_t mix32Max;
 extern __IO uint8_t midiMetronome;
 extern __IO uint8_t midiRecording;
 extern __IO uint8_t midiPlayback;
@@ -75,6 +78,9 @@ extern __IO uint8_t Playback;
 extern __IO uint32_t CommandKey;
 extern __IO uint8_t StartApp;
 extern __IO ButtonStates ToggleDubbing;
+extern float gain;
+extern __IO uint8_t Dubbing;
+extern int32_t mix32s;
 extern __IO uint8_t ToggleChannel;
 extern uint8_t key_to_drum[];
 extern uint8_t midiEvents[];
@@ -189,9 +195,10 @@ int main(void)
   data = sizeof(struct tracks);
   ADS1256_WriteCmd(CMD_RESET);
   ADS1256_WriteCmd(CMD_SDATAC);
-  ADS1256_WriteCmd(CMD_SELFCAL);
+
   data = ADS1256_ReadChipID();
-  ADS1256_CfgADC(ADS1256_GAIN_1, ADS1256_15000SPS);
+  ADS1256_CfgADC(ADS1256_GAIN_16, ADS1256_15000SPS);
+  ADS1256_WriteCmd(CMD_SELFCAL);
   ADS1256_SetChannel(0);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
   ADS1256_WriteCmd(CMD_RDATAC);
@@ -211,6 +218,14 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  while(1){
+	  if(Dubbing == 1){
+		 if(clipping == TRUE)
+			 BSP_LED_On(LED_RED);
+		 else
+			 BSP_LED_Off(LED_RED);
+	  }
+  }
   while (1)
   {
 	  Keypad_Button = TM_KEYPAD_Read();

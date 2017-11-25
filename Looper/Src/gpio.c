@@ -41,6 +41,8 @@
 #include "ads1256_test.h"
 #include "tm_stm32_hd44780.h"
 
+extern BOOL clipping;
+extern int32_t mix32Max;
 extern struct tracks trcs;
 extern uint8_t currentLoop;
 extern uint8_t tracksPlaying;
@@ -60,7 +62,8 @@ extern uint32_t dub_pointer;
 extern uint32_t read_pointer;
 extern uint32_t write_pointer;
 extern uint32_t key_ticks_button_up;
-extern uint32_t key_ticks_button_down;
+extern int16_t sample16Max;
+extern int16_t sample16Min;
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
@@ -389,8 +392,11 @@ void KeyboardConfig(void){
 
 
 }
+int32_t sample32s;
+int16_t sample16s;
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-	int32_t sample32s;
+
 	uint16_t sample16u;
 
 	switch (GPIO_Pin) {
@@ -402,6 +408,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			midiPlayback = 0;
 			midiDrumPointer = 0;
 			midiDrumClock = 0;
+			clipping = FALSE;
 
 		if(Recording == 1 || Playback == 1){
 			Recording = 0;
@@ -418,19 +425,21 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		break;
 	case ADS1256_DRDY_Pin:
-		sample32s = ADS1256_ReadData() >> 8;
-		if(sample32s < 0)
-			sample16u = sample32s & 0x00007FFF;
-		else
-			sample16u = sample32s | 0x8000;
+		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
+		if(sample16s > 0 && sample16s > sample16Max)
+			sample16Max = sample16s;
+		if(sample16s <= 0 && sample16s < sample16Min)
+			sample16Min = sample16s;
+
+		sample16u = (uint16_t)(sample16s + 32767);
 		if(StartApp == 0)
 			Write_DAC8552(channel_A,sample16u);
 		//if(ToggleChannel == 1)
 			//break;
 		if(Playback == 1)
-		  	play32s(sample32s);
+		  	play32s(sample16s);
 		if(Recording == 1)
-			record32s(sample32s);
+			record32s(sample16s);
 		//play_record();
 		break;
 
@@ -440,6 +449,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(Recording == 1)
 			return;
 		//RecordingButton = PRESS;
+		clipping = FALSE;
+		sample16Max = 0;
+		sample16Min = 0;
+		mix32Max = 16383;
 		StartApp = 0;
 		BSP_LED_On(LED_RED);
 		BSP_LED_Off(LED_GREEN);
@@ -459,10 +472,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	case Playback_Pin:
 		//if(PlaybackButton == PRESS)
 			//return;
-		if(Playback == 1){
+		if(Playback == 1 || SamplesWritten == 0){
 			return;
 		}
-
+		showMinMaxSamples(sample16Min,sample16Max);
 		//PlaybackButton = PRESS;
 		//StartApp = 0;
 		BSP_LED_On(LED_GREEN);
@@ -470,6 +483,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		SamplesRead = 0;
 		dub_pointer = 0;
 		read_pointer = 0;
+		clipping = FALSE;
 		midiDrumPointer = 0;
 		midiDrumClock = 0;
 		Recording = 0;

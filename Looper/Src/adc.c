@@ -151,6 +151,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		case 61: adcval = 15;
 				break;
 		case 62: adcval = 16;
+				Dubbing = !Dubbing;
 				break;
 		default: return;
 
