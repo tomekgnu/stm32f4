@@ -48,21 +48,7 @@
 #include "midi.h"
 
 #define pi 3.14159
-extern __IO ButtonStates ToggleDubbing;
-extern uint32_t read_pointer;
-extern uint32_t DataReady;
-extern __IO uint32_t BufferCount;
-extern uint16_t * rdptr;
-extern uint16_t * wrptr;
-extern __IO uint8_t Playback;
-extern __IO uint8_t Recording;
 extern __IO uint8_t Dubbing;
-extern uint32_t SamplesRead;
-extern uint32_t SamplesWritten;
-extern __IO uint32_t CurrentSize;
-extern __IO uint8_t ToggleRecording;
-extern uint16_t readADC[];
-extern __IO uint8_t StartApp;
 extern uint8_t key_to_drum[];
 struct tracks trcs;
 uint8_t currentLoop;

@@ -218,17 +218,13 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  while(1){
-	  if(Dubbing == 1){
-		 if(clipping == TRUE)
-			 BSP_LED_On(LED_RED);
-		 else
-			 BSP_LED_Off(LED_RED);
-	  }
-  }
+
   while (1)
   {
-	  Keypad_Button = TM_KEYPAD_Read();
+	if(Dubbing == 1 && clipping == TRUE)
+		BSP_LED_On(LED_RED);
+
+	 Keypad_Button = TM_KEYPAD_Read();
 	          /* Keypad was pressed */
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
 	        	  switch (Keypad_Button) {

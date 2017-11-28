@@ -16,10 +16,10 @@ uint32_t read_buffer_1[SAMPLE_ARRAY];
 uint32_t read_buffer_2[SAMPLE_ARRAY];
 uint32_t write_buffer_1[SAMPLE_ARRAY];
 uint32_t write_buffer_2[SAMPLE_ARRAY];
-uint32_t highest_sample_sum;
+int32_t sample32s;
+int16_t sample16s;
 extern uint8_t tracksPlaying;
 extern uint8_t currentLoop;
-extern FMC_SDRAM_CommandTypeDef SDRAMCommandStructure;
 uint32_t * rdptr;
 uint32_t * wrptr;	// pointer for writinguint32_t SamplesRead = 0;
 uint32_t dub_pointer = 0;
@@ -155,16 +155,16 @@ void record16u(uint16_t sample){
 }
 
 
-void record32s(int32_t sample){
+void record32s(int16_t sample){
 
 	if(StartApp == 0 ){
 		return;
 	}
 
 
-	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + write_pointer,(uint32_t *) &sample, 1);
+	BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + write_pointer,(uint16_t *) &sample, 1);
 	SamplesWritten++;
-	write_pointer += 4;
+	write_pointer += 2;
 	if(write_pointer == SDRAM_SIZE)
 		write_pointer = 0;
 }
@@ -173,38 +173,39 @@ int32_t mix32s;
 uint32_t dacSample;
 BOOL clipping;
 
-void play32s(int32_t newsample){
-	int32_t read32s;
-	int32_t mix32tmp;
+void play32s(int16_t newsample){
+	int16_t read16s;
+	int16_t mix32tmp;
 
-	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &read32s, 1);
-	mix32tmp = (int32_t)read32s  + newsample;
+	BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &read16s, 1);
+	mix32tmp = read16s  + newsample;
 	if(clipping == TRUE){
-		mix32tmp = (int32_t)(gain * (float)read32s  + gain * (float)newsample);
+		mix32tmp = (int32_t)(gain * (float)read16s  + gain * (float)newsample);
 	}
 	if(newsample > sample32Max)
 		sample32Max = newsample;
 	if(mix32tmp > mix32Max)
 		mix32Max = mix32tmp;
-	Write_DAC8552(channel_A,(uint16_t)((float)read32s + 16383.00));
+	Write_DAC8552(channel_A,(uint16_t)((float)read16s + 16383.00));
 
 
 	if(Dubbing == 1){
-		BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &mix32tmp, 1);
+		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &mix32tmp, 1);
 	}
 	else
-		BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &read32s, 1);
+		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &read16s, 1);
 
 	SamplesRead++;
 	if(SamplesRead == SamplesWritten){
-		if(mix32Max > 16383){
+		if(Dubbing == TRUE && mix32Max > 16383){
 			clipping = TRUE;
 			gain = 16383.00 / mix32Max;
-
+			BSP_LED_On(LED_RED);
 		}
 		else{
 			clipping = FALSE;
 			gain = 1.0;
+			BSP_LED_Off(LED_RED);
 		}
 
 		mix32Max = 16383;
@@ -214,8 +215,8 @@ void play32s(int32_t newsample){
 		read_pointer = 0;
 		return;
 	}
-		dub_pointer += 4;
-		read_pointer += 4;
+		dub_pointer += 2;
+		read_pointer += 2;
 		if(read_pointer == SDRAM_SIZE)
 			read_pointer = 0;
 		if(dub_pointer == SDRAM_SIZE)

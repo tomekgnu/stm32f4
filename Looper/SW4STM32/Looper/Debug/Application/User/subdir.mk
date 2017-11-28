@@ -10,7 +10,6 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Src/ads1256_test.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/audio.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/fmc.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/gpio.c \
-C:/Users/Tomek/workspace/tom32f4/Looper/Src/keyboard.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/main.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/midi.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/spi.c \
@@ -30,7 +29,6 @@ OBJS += \
 ./Application/User/audio.o \
 ./Application/User/fmc.o \
 ./Application/User/gpio.o \
-./Application/User/keyboard.o \
 ./Application/User/main.o \
 ./Application/User/midi.o \
 ./Application/User/spi.o \
@@ -50,7 +48,6 @@ C_DEPS += \
 ./Application/User/audio.d \
 ./Application/User/fmc.d \
 ./Application/User/gpio.d \
-./Application/User/keyboard.d \
 ./Application/User/main.d \
 ./Application/User/midi.d \
 ./Application/User/spi.d \
@@ -106,14 +103,6 @@ Application/User/fmc.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/fmc.c
 	@echo ' '
 
 Application/User/gpio.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/gpio.c
-	@echo 'Building file: $<'
-	@echo 'Invoking: MCU GCC Compiler'
-	@echo $(PWD)
-	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed="__attribute__((__packed__))"' -DUSE_HAL_DRIVER -DSTM32F429xx '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -I"C:/Users/Tomek/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Include" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Inc"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
-	@echo 'Finished building: $<'
-	@echo ' '
-
-Application/User/keyboard.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/keyboard.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo $(PWD)

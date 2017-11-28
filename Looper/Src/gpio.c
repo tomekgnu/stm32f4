@@ -46,6 +46,7 @@ extern int32_t mix32Max;
 extern struct tracks trcs;
 extern uint8_t currentLoop;
 extern uint8_t tracksPlaying;
+extern __IO uint8_t ToggleChannel;
 extern __IO uint8_t Recording;
 extern __IO uint8_t Playback;
 extern __IO uint8_t midiRecording;
@@ -64,6 +65,8 @@ extern uint32_t write_pointer;
 extern uint32_t key_ticks_button_up;
 extern int16_t sample16Max;
 extern int16_t sample16Min;
+extern int32_t sample32s;
+extern int16_t sample16s;
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
@@ -392,8 +395,7 @@ void KeyboardConfig(void){
 
 
 }
-int32_t sample32s;
-int16_t sample16s;
+
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
@@ -432,8 +434,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			sample16Min = sample16s;
 
 		sample16u = (uint16_t)(sample16s + 32767);
-		if(StartApp == 0)
-			Write_DAC8552(channel_A,sample16u);
+		if(StartApp == 0){
+			if(ToggleChannel == 0)
+				Write_DAC8552(channel_A,sample16u);
+			else
+				Write_DAC8552(channel_B,sample16u);
+		}
 		//if(ToggleChannel == 1)
 			//break;
 		if(Playback == 1)
@@ -450,6 +456,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			return;
 		//RecordingButton = PRESS;
 		clipping = FALSE;
+		Dubbing = FALSE;
 		sample16Max = 0;
 		sample16Min = 0;
 		mix32Max = 16383;
@@ -483,6 +490,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		SamplesRead = 0;
 		dub_pointer = 0;
 		read_pointer = 0;
+		Dubbing = FALSE;
 		clipping = FALSE;
 		midiDrumPointer = 0;
 		midiDrumClock = 0;

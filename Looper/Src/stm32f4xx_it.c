@@ -42,15 +42,10 @@
 #include "tm_stm32f4_keypad.h"
 #include "audio.h"
 
-extern TM_KEYPAD_Button_t Keypad_Button;
 extern ADC_HandleTypeDef hadc1;
 extern __IO uint8_t DmaTransferReady;
 extern __IO uint32_t midiDrumClock;
 extern __IO uint32_t midiMetronomeClock;
-extern __IO uint8_t Playback;
-extern __IO uint8_t StartApp;
-extern uint16_t readADC[];
-extern struct tracks trcs;
 
 /* USER CODE END 0 */
 

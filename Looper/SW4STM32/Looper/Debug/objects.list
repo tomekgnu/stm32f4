@@ -5,7 +5,6 @@
 "Application/User/audio.o"
 "Application/User/fmc.o"
 "Application/User/gpio.o"
-"Application/User/keyboard.o"
 "Application/User/main.o"
 "Application/User/midi.o"
 "Application/User/spi.o"
