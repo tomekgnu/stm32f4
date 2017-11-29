@@ -40,6 +40,7 @@
 #include "main.h"
 #include "ads1256_test.h"
 #include "tm_stm32_hd44780.h"
+#include "adc.h"
 
 extern BOOL clipping;
 extern int32_t mix32Max;
@@ -63,6 +64,7 @@ extern uint32_t dub_pointer;
 extern uint32_t read_pointer;
 extern uint32_t write_pointer;
 extern uint32_t key_ticks_button_up;
+extern uint32_t sampleADC;
 extern int16_t sample16Max;
 extern int16_t sample16Min;
 extern int32_t sample32s;
@@ -427,6 +429,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		break;
 	case ADS1256_DRDY_Pin:
+		if(ToggleChannel == 0){
+			BSP_LED_On(LED_RED);
+			BSP_LED_Off(LED_RED);
+		}
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
 		if(sample16s > 0 && sample16s > sample16Max)
 			sample16Max = sample16s;
@@ -434,6 +440,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			sample16Min = sample16s;
 
 		sample16u = (uint16_t)(sample16s + 32767);
+
 		if(StartApp == 0){
 			if(ToggleChannel == 0)
 				Write_DAC8552(channel_A,sample16u);
@@ -447,6 +454,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(Recording == 1)
 			record32s(sample16s);
 		//play_record();
+
 		break;
 
 	case Recording_Pin:

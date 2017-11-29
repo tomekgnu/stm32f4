@@ -46,6 +46,7 @@
 #include "math.h"
 #include "tm_stm32_hd44780.h"
 #include "midi.h"
+#include "ads1256_test.h"
 
 #define pi 3.14159
 extern __IO uint8_t Dubbing;
@@ -55,7 +56,7 @@ uint8_t currentLoop;
 uint8_t tracksPlaying;
 __IO uint8_t conversions = 0;
 
-uint32_t adcval;
+uint32_t adc1val,adc3val;
 char strval[5];
 
 uint32_t key_ticks_button_up = 0;
@@ -68,89 +69,97 @@ void HAL_ADC_ErrorCallback(ADC_HandleTypeDef * hadc){
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 		key_ticks_button_down = HAL_GetTick();
-		adcval = HAL_ADC_GetValue(hadc);
+
+		if(hadc->Instance == ADC3){
+			adc3val = HAL_ADC_GetValue(hadc);
+			Write_DAC8552(channel_B,adc3val);
+			return;
+		}
 //		if(key_ticks_button_down - key_ticks_button_up < 250){
 //			return;
 //		}
 		//if(StartApp == 0){
 		//
-
-		switch(adcval){
+		if(hadc->Instance == ADC1){
+			adc1val = HAL_ADC_GetValue(hadc);
+		switch(adc1val){
 		case 0:
 		case 1:
 		case 2:
-		case 3:adcval = 1;
+		case 3:adc1val = 1;
 				break;
 		case 9:
 		case 10:
 		case 11:
-		case 12:adcval = 2;
+		case 12:adc1val = 2;
 				break;
 		case 18:
 		case 19:
 		case 20:
-		case 21:adcval = 3;
+		case 21:adc1val = 3;
 				break;
 		case 25:
 		case 26:
 		case 27:
-		case 28:adcval = 4;
+		case 28:adc1val = 4;
 				break;
 		case 31:
 		case 32:
 		case 33:
-		case 34:adcval = 5;
+		case 34:adc1val = 5;
 				break;
 		case 35:
 		case 36:
 		case 37:
-		case 38:adcval = 6;
+		case 38:adc1val = 6;
 				break;
 		case 40:
 		case 41:
-		case 42:adcval = 7;
+		case 42:adc1val = 7;
 				break;
 		case 44:
 		case 45:
-		case 46:adcval = 8;
+		case 46:adc1val = 8;
 				break;
 		case 47:
 		case 48:
-		case 49:adcval = 9;
+		case 49:adc1val = 9;
 				break;
 		case 50:
 		case 51:
-		case 52:adcval = 10;
+		case 52:adc1val = 10;
 				break;
 		case 53:
-		case 54:adcval = 11;
+		case 54:adc1val = 11;
 				break;
 		case 55:
-		case 56:adcval = 12;
+		case 56:adc1val = 12;
 				break;
 		case 57:
-		case 58:adcval = 13;
+		case 58:adc1val = 13;
 				break;
 		case 59:
-		case 60:adcval = 14;
+		case 60:adc1val = 14;
 				break;
-		case 61: adcval = 15;
+		case 61: adc1val = 15;
 				break;
-		case 62: adcval = 16;
+		case 62: adc1val = 16;
 				Dubbing = !Dubbing;
 				break;
 		default: return;
 
 		}
 		TM_HD44780_Clear();
-		utoa(adcval,strval,10);
+		utoa(adc1val,strval,10);
 		TM_HD44780_Puts(0,0,strval);
-		playPercussion(NOTEON,key_to_drum[adcval - 1]);
+		playPercussion(NOTEON,key_to_drum[adc1val - 1]);
+		}
 }
 
 /* USER CODE END 0 */
 
 ADC_HandleTypeDef hadc1;
+ADC_HandleTypeDef hadc3;
 
 /* ADC1 init function */
 void MX_ADC1_Init(void)
@@ -187,6 +196,41 @@ void MX_ADC1_Init(void)
   }
 
 }
+/* ADC3 init function */
+void MX_ADC3_Init(void)
+{
+  ADC_ChannelConfTypeDef sConfig;
+
+    /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
+    */
+  hadc3.Instance = ADC3;
+  hadc3.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
+  hadc3.Init.Resolution = ADC_RESOLUTION_12B;
+  hadc3.Init.ScanConvMode = DISABLE;
+  hadc3.Init.ContinuousConvMode = DISABLE;
+  hadc3.Init.DiscontinuousConvMode = DISABLE;
+  hadc3.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
+  hadc3.Init.ExternalTrigConv = ADC_EXTERNALTRIGCONV_Ext_IT11;
+  hadc3.Init.DataAlign = ADC_DATAALIGN_RIGHT;
+  hadc3.Init.NbrOfConversion = 1;
+  hadc3.Init.DMAContinuousRequests = DISABLE;
+  hadc3.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  if (HAL_ADC_Init(&hadc3) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
+    */
+  sConfig.Channel = ADC_CHANNEL_11;
+  sConfig.Rank = 1;
+  sConfig.SamplingTime = ADC_SAMPLETIME_144CYCLES;
+  if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+
+}
 
 void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
 {
@@ -215,6 +259,29 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     HAL_GPIO_WritePin(AD_KBD_GPIO_Port,AD_KBD_Pin,GPIO_PIN_RESET);
   /* USER CODE END ADC1_MspInit 1 */
   }
+  else if(adcHandle->Instance==ADC3)
+  {
+  /* USER CODE BEGIN ADC3_MspInit 0 */
+
+  /* USER CODE END ADC3_MspInit 0 */
+    /* Peripheral clock enable */
+    __HAL_RCC_ADC3_CLK_ENABLE();
+  
+    /**ADC3 GPIO Configuration    
+    PC1     ------> ADC3_IN11 
+    */
+    GPIO_InitStruct.Pin = GPIO_PIN_1;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /* Peripheral interrupt init */
+    HAL_NVIC_SetPriority(ADC_IRQn, 0, 0);
+    HAL_NVIC_EnableIRQ(ADC_IRQn);
+  /* USER CODE BEGIN ADC3_MspInit 1 */
+
+  /* USER CODE END ADC3_MspInit 1 */
+  }
 }
 
 void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
@@ -234,12 +301,44 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     HAL_GPIO_DeInit(AD_KBD_GPIO_Port, AD_KBD_Pin);
 
     /* Peripheral interrupt Deinit*/
-    HAL_NVIC_DisableIRQ(ADC_IRQn);
+  /* USER CODE BEGIN ADC1:ADC_IRQn disable */
+    /**
+    * Uncomment the line below to disable the "ADC_IRQn" interrupt
+    * Be aware, disabling shared interrupt may affect other IPs
+    */
+    /* HAL_NVIC_DisableIRQ(ADC_IRQn); */
+  /* USER CODE END ADC1:ADC_IRQn disable */
 
-  }
   /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
   /* USER CODE END ADC1_MspDeInit 1 */
+  }
+  else if(adcHandle->Instance==ADC3)
+  {
+  /* USER CODE BEGIN ADC3_MspDeInit 0 */
+
+  /* USER CODE END ADC3_MspDeInit 0 */
+    /* Peripheral clock disable */
+    __HAL_RCC_ADC3_CLK_DISABLE();
+  
+    /**ADC3 GPIO Configuration    
+    PC1     ------> ADC3_IN11 
+    */
+    HAL_GPIO_DeInit(GPIOC, GPIO_PIN_1);
+
+    /* Peripheral interrupt Deinit*/
+  /* USER CODE BEGIN ADC3:ADC_IRQn disable */
+    /**
+    * Uncomment the line below to disable the "ADC_IRQn" interrupt
+    * Be aware, disabling shared interrupt may affect other IPs
+    */
+    /* HAL_NVIC_DisableIRQ(ADC_IRQn); */
+  /* USER CODE END ADC3:ADC_IRQn disable */
+
+  /* USER CODE BEGIN ADC3_MspDeInit 1 */
+
+  /* USER CODE END ADC3_MspDeInit 1 */
+  }
 } 
 
 /* USER CODE BEGIN 1 */

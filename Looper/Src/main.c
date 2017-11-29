@@ -157,6 +157,7 @@ int main(void)
   MX_SPI3_Init();
   MX_USART1_UART_Init();
   MX_ADC1_Init();
+  MX_ADC3_Init();
 
   /* USER CODE BEGIN 2 */
   //SF3_CS1();
@@ -188,7 +189,7 @@ int main(void)
   //status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
   //status = HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
   status = HAL_ADC_Start_IT(&hadc1);
-
+  status = HAL_ADC_Start_IT(&hadc3);
   //status = HAL_ADC_Start_DMA(&hadc3,(uint32_t *)readADC,2);
   //ReadDrumSamples();
 

@@ -16,6 +16,7 @@ uint32_t read_buffer_1[SAMPLE_ARRAY];
 uint32_t read_buffer_2[SAMPLE_ARRAY];
 uint32_t write_buffer_1[SAMPLE_ARRAY];
 uint32_t write_buffer_2[SAMPLE_ARRAY];
+uint32_t sampleADC;
 int32_t sample32s;
 int16_t sample16s;
 extern uint8_t tracksPlaying;
