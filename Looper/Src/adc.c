@@ -4,6 +4,11 @@
   * Description        : This file provides code for the configuration
   *                      of the ADC instances.
   ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * COPYRIGHT(c) 2017 STMicroelectronics
   *
@@ -49,14 +54,17 @@
 #include "ads1256_test.h"
 
 #define pi 3.14159
-extern __IO uint8_t Dubbing;
+extern __IO uint8_t Overdubbing;
+extern __IO uint8_t Recording;
+extern __IO uint8_t Playback;
 extern uint8_t key_to_drum[];
 struct tracks trcs;
 uint8_t currentLoop;
 uint8_t tracksPlaying;
 __IO uint8_t conversions = 0;
 
-uint32_t adc1val,adc3val;
+uint32_t adc1val;
+int16_t adc3val;
 char strval[5];
 
 uint32_t key_ticks_button_up = 0;
@@ -71,8 +79,12 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		key_ticks_button_down = HAL_GetTick();
 
 		if(hadc->Instance == ADC3){
-			adc3val = HAL_ADC_GetValue(hadc);
-			Write_DAC8552(channel_B,adc3val);
+			adc3val = HAL_ADC_GetValue(hadc) - 2048;
+			if(Playback == 1)
+				play32s(adc3val * 4);
+			if(Recording == 1)
+				record32s(adc3val * 4);
+			//Write_DAC8552(channel_B,adc3val);
 			return;
 		}
 //		if(key_ticks_button_down - key_ticks_button_up < 250){
@@ -144,7 +156,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		case 61: adc1val = 15;
 				break;
 		case 62: adc1val = 16;
-				Dubbing = !Dubbing;
+				Overdubbing = !Overdubbing;
 				break;
 		default: return;
 
@@ -169,7 +181,7 @@ void MX_ADC1_Init(void)
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
   hadc1.Init.Resolution = ADC_RESOLUTION_6B;
   hadc1.Init.ScanConvMode = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
@@ -182,7 +194,7 @@ void MX_ADC1_Init(void)
   hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
@@ -192,7 +204,7 @@ void MX_ADC1_Init(void)
   sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
 }
@@ -204,7 +216,7 @@ void MX_ADC3_Init(void)
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
   hadc3.Instance = ADC3;
-  hadc3.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
+  hadc3.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
   hadc3.Init.Resolution = ADC_RESOLUTION_12B;
   hadc3.Init.ScanConvMode = DISABLE;
   hadc3.Init.ContinuousConvMode = DISABLE;
@@ -217,7 +229,7 @@ void MX_ADC3_Init(void)
   hadc3.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   if (HAL_ADC_Init(&hadc3) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
     /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
@@ -227,7 +239,7 @@ void MX_ADC3_Init(void)
   sConfig.SamplingTime = ADC_SAMPLETIME_144CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
 }
@@ -241,7 +253,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
   /* USER CODE BEGIN ADC1_MspInit 0 */
 
   /* USER CODE END ADC1_MspInit 0 */
-    /* Peripheral clock enable */
+    /* ADC1 clock enable */
     __HAL_RCC_ADC1_CLK_ENABLE();
   
     /**ADC1 GPIO Configuration    
@@ -252,7 +264,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(AD_KBD_GPIO_Port, &GPIO_InitStruct);
 
-    /* Peripheral interrupt init */
+    /* ADC1 interrupt Init */
     HAL_NVIC_SetPriority(ADC_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(ADC_IRQn);
   /* USER CODE BEGIN ADC1_MspInit 1 */
@@ -264,7 +276,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
   /* USER CODE BEGIN ADC3_MspInit 0 */
 
   /* USER CODE END ADC3_MspInit 0 */
-    /* Peripheral clock enable */
+    /* ADC3 clock enable */
     __HAL_RCC_ADC3_CLK_ENABLE();
   
     /**ADC3 GPIO Configuration    
@@ -275,7 +287,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /* Peripheral interrupt init */
+    /* ADC3 interrupt Init */
     HAL_NVIC_SetPriority(ADC_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(ADC_IRQn);
   /* USER CODE BEGIN ADC3_MspInit 1 */
@@ -300,7 +312,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     */
     HAL_GPIO_DeInit(AD_KBD_GPIO_Port, AD_KBD_Pin);
 
-    /* Peripheral interrupt Deinit*/
+    /* ADC1 interrupt Deinit */
   /* USER CODE BEGIN ADC1:ADC_IRQn disable */
     /**
     * Uncomment the line below to disable the "ADC_IRQn" interrupt
@@ -326,7 +338,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     */
     HAL_GPIO_DeInit(GPIOC, GPIO_PIN_1);
 
-    /* Peripheral interrupt Deinit*/
+    /* ADC3 interrupt Deinit */
   /* USER CODE BEGIN ADC3:ADC_IRQn disable */
     /**
     * Uncomment the line below to disable the "ADC_IRQn" interrupt

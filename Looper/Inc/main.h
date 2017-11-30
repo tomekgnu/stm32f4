@@ -3,6 +3,11 @@
   * File Name          : main.h
   * Description        : This file contains the common defines of the application
   ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * COPYRIGHT(c) 2017 STMicroelectronics
   *
@@ -250,14 +255,17 @@ void Error_Handler(void);
 #define DAC8552_CS_GPIO_Port GPIOD
 #define B2_Pin GPIO_PIN_6
 #define B2_GPIO_Port GPIOD
-#define Dubbing_Pin GPIO_PIN_7
-#define Dubbing_GPIO_Port GPIOD
+#define Overdubbing_Pin GPIO_PIN_7
+#define Overdubbing_GPIO_Port GPIOD
+#define Overdubbing_EXTI_IRQn EXTI9_5_IRQn
 #define Playback_Pin GPIO_PIN_9
 #define Playback_GPIO_Port GPIOG
 #define Playback_EXTI_IRQn EXTI9_5_IRQn
 #define AD_KBD_INT_Pin GPIO_PIN_11
 #define AD_KBD_INT_GPIO_Port GPIOG
 #define AD_KBD_INT_EXTI_IRQn EXTI15_10_IRQn
+#define ADC3_Trigger_Pin GPIO_PIN_12
+#define ADC3_Trigger_GPIO_Port GPIOG
 #define LD3_Pin GPIO_PIN_13
 #define LD3_GPIO_Port GPIOG
 #define LD4_Pin GPIO_PIN_14
@@ -266,8 +274,9 @@ void Error_Handler(void);
 #define SDNCAS_GPIO_Port GPIOG
 #define ADS1256_SCK_Pin GPIO_PIN_3
 #define ADS1256_SCK_GPIO_Port GPIOB
-#define Switch_channel_Pin GPIO_PIN_4
-#define Switch_channel_GPIO_Port GPIOB
+#define ToggleFunction_Pin GPIO_PIN_4
+#define ToggleFunction_GPIO_Port GPIOB
+#define ToggleFunction_EXTI_IRQn EXTI4_IRQn
 #define SDCKE1_Pin GPIO_PIN_5
 #define SDCKE1_GPIO_Port GPIOB
 #define SDNE1_Pin GPIO_PIN_6
@@ -278,6 +287,7 @@ void Error_Handler(void);
 #define NBL0_GPIO_Port GPIOE
 #define NBL1_Pin GPIO_PIN_1
 #define NBL1_GPIO_Port GPIOE
+
 /* USER CODE BEGIN Private defines */
 #define BUFFER_SIZE         ((uint32_t)0x0100)
 #define WRITE_READ_ADDR     ((uint32_t)0x0800)
@@ -319,6 +329,10 @@ MSC_ApplicationTypeDef;
 
 
 /* USER CODE END Private defines */
+
+void _Error_Handler(char *, int);
+
+#define Error_Handler() _Error_Handler(__FILE__, __LINE__)
 
 /**
   * @}

@@ -4,6 +4,11 @@
   * Description        : This file provides code for the configuration
   *                      of all used GPIO pins.
   ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * COPYRIGHT(c) 2017 STMicroelectronics
   *
@@ -47,12 +52,12 @@ extern int32_t mix32Max;
 extern struct tracks trcs;
 extern uint8_t currentLoop;
 extern uint8_t tracksPlaying;
-extern __IO uint8_t ToggleChannel;
+extern __IO uint8_t ToggleFunction;
 extern __IO uint8_t Recording;
 extern __IO uint8_t Playback;
 extern __IO uint8_t midiRecording;
 extern __IO uint8_t midiPlayback;
-extern __IO uint8_t Dubbing;
+extern __IO uint8_t Overdubbing;
 extern __IO uint8_t DubbingStarted;
 extern __IO uint8_t StartApp;
 extern __IO uint32_t midiDrumClock;
@@ -143,7 +148,7 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOD, ADS1256_SYNC_Pin|ADS1256_RESET_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOG, LD3_Pin|LD4_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOG, ADC3_Trigger_Pin|LD3_Pin|LD4_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = SF3_CS_Pin;
@@ -220,11 +225,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF9_LTDC;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PBPin PBPin */
-  GPIO_InitStruct.Pin = BOOT1_Pin|Switch_channel_Pin;
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = BOOT1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(BOOT1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = G5_Pin;
@@ -248,11 +253,11 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(VBUS_FS_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PDPin PDPin */
-  GPIO_InitStruct.Pin = TE_Pin|Dubbing_Pin;
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = TE_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+  HAL_GPIO_Init(TE_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PDPin PDPin PDPin */
   GPIO_InitStruct.Pin = RDX_Pin|WRX_DCX_Pin|DAC8552_CS_Pin;
@@ -325,6 +330,12 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(B2_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = Overdubbing_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(Overdubbing_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = Playback_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -336,12 +347,18 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(AD_KBD_INT_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PGPin PGPin */
-  GPIO_InitStruct.Pin = LD3_Pin|LD4_Pin;
+  /*Configure GPIO pins : PGPin PGPin PGPin */
+  GPIO_InitStruct.Pin = ADC3_Trigger_Pin|LD3_Pin|LD4_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PtPin */
+  GPIO_InitStruct.Pin = ToggleFunction_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(ToggleFunction_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = KEYPAD_ROW_4_Pin;
@@ -352,6 +369,9 @@ void MX_GPIO_Init(void)
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 1);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
+
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 0, 1);
+  HAL_NVIC_EnableIRQ(EXTI4_IRQn);
 
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 2, 3);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
@@ -404,9 +424,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	uint16_t sample16u;
 
 	switch (GPIO_Pin) {
-	case AD_KBD_BUT_DOWN_Pin:
-			key_ticks_button_up = HAL_GetTick();
-			break;
+
 	case GPIO_PIN_0:	// user button
 			midiRecording = 0;
 			midiPlayback = 0;
@@ -418,7 +436,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			Recording = 0;
 			Playback = 0;
 			StartApp = 0;
-			Dubbing = 0;
+			Overdubbing = 0;
 			DubbingStarted = 0;
 			DataReady = 1;
 			SamplesRead = 0;
@@ -429,9 +447,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		break;
 	case ADS1256_DRDY_Pin:
-		if(ToggleChannel == 0){
-			BSP_LED_On(LED_RED);
-			BSP_LED_Off(LED_RED);
+		if(ToggleFunction == 0){
+			//BSP_LED_On(LED_RED);
+			//BSP_LED_Off(LED_RED);
 		}
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
 		if(sample16s > 0 && sample16s > sample16Max)
@@ -442,13 +460,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		sample16u = (uint16_t)(sample16s + 32767);
 
 		if(StartApp == 0){
-			if(ToggleChannel == 0)
-				Write_DAC8552(channel_A,sample16u);
-			else
+			//if(ToggleChannel == 0)
+				//Write_DAC8552(channel_A,sample16u);
+			//else
 				Write_DAC8552(channel_B,sample16u);
 		}
-		//if(ToggleChannel == 1)
-			//break;
+		if(ToggleFunction == 1){
+			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_SET);
+			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_RESET);
+		}
 		if(Playback == 1)
 		  	play32s(sample16s);
 		if(Recording == 1)
@@ -464,7 +484,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			return;
 		//RecordingButton = PRESS;
 		clipping = FALSE;
-		Dubbing = FALSE;
+		Overdubbing = FALSE;
 		sample16Max = 0;
 		sample16Min = 0;
 		mix32Max = 16383;
@@ -498,7 +518,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		SamplesRead = 0;
 		dub_pointer = 0;
 		read_pointer = 0;
-		Dubbing = FALSE;
+		Overdubbing = FALSE;
 		clipping = FALSE;
 		midiDrumPointer = 0;
 		midiDrumClock = 0;
@@ -506,7 +526,27 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		Playback = 1;
 		StartApp = 1;
 		break;
-
+	case Overdubbing_Pin:
+		if(Overdubbing == 1){
+			Overdubbing = 0;
+			TM_HD44780_Puts(0,0,"Overdub stop  ");
+		}
+		else
+		{
+			Overdubbing = 1;
+			TM_HD44780_Puts(0,0,"Overdub start ");
+		}
+		break;
+	case ToggleFunction_Pin:
+		if(ToggleFunction == 1){
+			ToggleFunction = 0;
+			TM_HD44780_Puts(0,1,"Channel 0  ");
+		}
+		else{
+			ToggleFunction = 1;
+			TM_HD44780_Puts(0,1,"Channel 1  ");
+		}
+		break;
 	default: break;
 
 	}

@@ -4,6 +4,11 @@
   * Description        : This file provides code for the configuration
   *                      of the TIM instances.
   ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * COPYRIGHT(c) 2017 STMicroelectronics
   *
@@ -57,20 +62,20 @@ void MX_TIM2_Init(void)
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
   if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
 }
@@ -87,20 +92,20 @@ void MX_TIM3_Init(void)
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
   if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
 }
@@ -117,20 +122,20 @@ void MX_TIM4_Init(void)
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
   if (HAL_TIM_ConfigClockSource(&htim4, &sClockSourceConfig) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
 }
@@ -148,20 +153,20 @@ void MX_TIM8_Init(void)
   htim8.Init.RepetitionCounter = 0;
   if (HAL_TIM_Base_Init(&htim8) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
   sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
   if (HAL_TIM_ConfigClockSource(&htim8, &sClockSourceConfig) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim8, &sMasterConfig) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
 }
@@ -174,10 +179,10 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
   /* USER CODE BEGIN TIM2_MspInit 0 */
 
   /* USER CODE END TIM2_MspInit 0 */
-    /* Peripheral clock enable */
+    /* TIM2 clock enable */
     __HAL_RCC_TIM2_CLK_ENABLE();
 
-    /* Peripheral interrupt init */
+    /* TIM2 interrupt Init */
     HAL_NVIC_SetPriority(TIM2_IRQn, 1, 0);
     HAL_NVIC_EnableIRQ(TIM2_IRQn);
   /* USER CODE BEGIN TIM2_MspInit 1 */
@@ -189,7 +194,7 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
   /* USER CODE BEGIN TIM3_MspInit 0 */
 
   /* USER CODE END TIM3_MspInit 0 */
-    /* Peripheral clock enable */
+    /* TIM3 clock enable */
     __HAL_RCC_TIM3_CLK_ENABLE();
   /* USER CODE BEGIN TIM3_MspInit 1 */
 
@@ -200,10 +205,10 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
   /* USER CODE BEGIN TIM4_MspInit 0 */
 
   /* USER CODE END TIM4_MspInit 0 */
-    /* Peripheral clock enable */
+    /* TIM4 clock enable */
     __HAL_RCC_TIM4_CLK_ENABLE();
 
-    /* Peripheral interrupt init */
+    /* TIM4 interrupt Init */
     HAL_NVIC_SetPriority(TIM4_IRQn, 3, 3);
     HAL_NVIC_EnableIRQ(TIM4_IRQn);
   /* USER CODE BEGIN TIM4_MspInit 1 */
@@ -215,10 +220,10 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
   /* USER CODE BEGIN TIM8_MspInit 0 */
 
   /* USER CODE END TIM8_MspInit 0 */
-    /* Peripheral clock enable */
+    /* TIM8 clock enable */
     __HAL_RCC_TIM8_CLK_ENABLE();
 
-    /* Peripheral interrupt init */
+    /* TIM8 interrupt Init */
     HAL_NVIC_SetPriority(TIM8_UP_TIM13_IRQn, 0, 0);
     HAL_NVIC_EnableIRQ(TIM8_UP_TIM13_IRQn);
   /* USER CODE BEGIN TIM8_MspInit 1 */
@@ -238,9 +243,8 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
     /* Peripheral clock disable */
     __HAL_RCC_TIM2_CLK_DISABLE();
 
-    /* Peripheral interrupt Deinit*/
+    /* TIM2 interrupt Deinit */
     HAL_NVIC_DisableIRQ(TIM2_IRQn);
-
   /* USER CODE BEGIN TIM2_MspDeInit 1 */
 
   /* USER CODE END TIM2_MspDeInit 1 */
@@ -264,9 +268,8 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
     /* Peripheral clock disable */
     __HAL_RCC_TIM4_CLK_DISABLE();
 
-    /* Peripheral interrupt Deinit*/
+    /* TIM4 interrupt Deinit */
     HAL_NVIC_DisableIRQ(TIM4_IRQn);
-
   /* USER CODE BEGIN TIM4_MspDeInit 1 */
 
   /* USER CODE END TIM4_MspDeInit 1 */
@@ -279,9 +282,8 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* tim_baseHandle)
     /* Peripheral clock disable */
     __HAL_RCC_TIM8_CLK_DISABLE();
 
-    /* Peripheral interrupt Deinit*/
+    /* TIM8 interrupt Deinit */
     HAL_NVIC_DisableIRQ(TIM8_UP_TIM13_IRQn);
-
   /* USER CODE BEGIN TIM8_MspDeInit 1 */
 
   /* USER CODE END TIM8_MspDeInit 1 */

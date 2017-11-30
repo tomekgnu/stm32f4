@@ -3,6 +3,11 @@
   * File Name          : main.c
   * Description        : Main program body
   ******************************************************************************
+  ** This notice applies to any and all portions of this file
+  * that are not between comment pairs USER CODE BEGIN and
+  * USER CODE END. Other portions of this file, whether 
+  * inserted by the user or by software development tools
+  * are owned by their respective copyright owners.
   *
   * COPYRIGHT(c) 2017 STMicroelectronics
   *
@@ -79,9 +84,9 @@ extern __IO uint32_t CommandKey;
 extern __IO uint8_t StartApp;
 extern __IO ButtonStates ToggleDubbing;
 extern float gain;
-extern __IO uint8_t Dubbing;
+extern __IO uint8_t Overdubbing;
 extern int32_t mix32s;
-extern __IO uint8_t ToggleChannel;
+extern __IO uint8_t ToggleFunction;
 extern uint8_t key_to_drum[];
 extern uint8_t midiEvents[];
 extern uint32_t midiTimes[];
@@ -91,7 +96,6 @@ uint16_t taptone_buffer[100];
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
-void Error_Handler(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -143,8 +147,16 @@ int main(void)
   /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
   HAL_Init();
 
+  /* USER CODE BEGIN Init */
+
+  /* USER CODE END Init */
+
   /* Configure the system clock */
   SystemClock_Config();
+
+  /* USER CODE BEGIN SysInit */
+
+  /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
@@ -222,7 +234,7 @@ int main(void)
 
   while (1)
   {
-	if(Dubbing == 1 && clipping == TRUE)
+	if(Overdubbing == 1 && clipping == TRUE)
 		BSP_LED_On(LED_RED);
 
 	 Keypad_Button = TM_KEYPAD_Read();
@@ -348,14 +360,14 @@ void SystemClock_Config(void)
   RCC_OscInitStruct.PLL.PLLQ = 8;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
     /**Activate the Over-Drive mode 
     */
   if (HAL_PWREx_EnableOverDrive() != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
     /**Initializes the CPU, AHB and APB busses clocks 
@@ -369,7 +381,7 @@ void SystemClock_Config(void)
 
   if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_5) != HAL_OK)
   {
-    Error_Handler();
+    _Error_Handler(__FILE__, __LINE__);
   }
 
     /**Configure the Systick interrupt time 
@@ -402,23 +414,23 @@ void initTapTone() {
 
 
 void buttonHandler() {
-	if(HAL_GPIO_ReadPin(Switch_channel_GPIO_Port,Switch_channel_Pin) == GPIO_PIN_SET){
-		//ADS1256_SetChannel(0);
-		ToggleChannel = 0;
-	}
-	else{
-		//ADS1256_SetChannel(1);
-		ToggleChannel = 1;
-	}
-	if(HAL_GPIO_ReadPin(Dubbing_GPIO_Port,Dubbing_Pin) == GPIO_PIN_RESET){
-		if(ToggleDubbing == 0)
-			ToggleDubbing = 1;
-	}
-	else{
-		if(ToggleDubbing == 1)
-			ToggleDubbing = 0;
-
-	}
+//	if(HAL_GPIO_ReadPin(Switch_channel_GPIO_Port,Switch_channel_Pin) == GPIO_PIN_SET){
+//		//ADS1256_SetChannel(0);
+//		ToggleChannel = 0;
+//	}
+//	else{
+//		//ADS1256_SetChannel(1);
+//		ToggleChannel = 1;
+//	}
+//	if(HAL_GPIO_ReadPin(Dubbing_GPIO_Port,Dubbing_Pin) == GPIO_PIN_RESET){
+//		if(ToggleDubbing == 0)
+//			ToggleDubbing = 1;
+//	}
+//	else{
+//		if(ToggleDubbing == 1)
+//			ToggleDubbing = 0;
+//
+//	}
 
 
 }
@@ -441,13 +453,14 @@ void buttonHandler() {
   * @param  None
   * @retval None
   */
-void Error_Handler(void)
+void _Error_Handler(char * file, int line)
 {
-  /* USER CODE BEGIN Error_Handler */
-			/* User can add his own implementation to report the HAL error return state */
-			while (1) {
-			}
-  /* USER CODE END Error_Handler */ 
+  /* USER CODE BEGIN Error_Handler_Debug */
+  /* User can add his own implementation to report the HAL error return state */
+  while(1) 
+  {
+  }
+  /* USER CODE END Error_Handler_Debug */ 
 }
 
 #ifdef USE_FULL_ASSERT

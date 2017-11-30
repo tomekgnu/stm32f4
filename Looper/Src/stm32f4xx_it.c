@@ -137,6 +137,20 @@ void EXTI2_IRQHandler(void)
 }
 
 /**
+* @brief This function handles EXTI line4 interrupt.
+*/
+void EXTI4_IRQHandler(void)
+{
+  /* USER CODE BEGIN EXTI4_IRQn 0 */
+
+  /* USER CODE END EXTI4_IRQn 0 */
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_4);
+  /* USER CODE BEGIN EXTI4_IRQn 1 */
+
+  /* USER CODE END EXTI4_IRQn 1 */
+}
+
+/**
 * @brief This function handles ADC1, ADC2 and ADC3 global interrupts.
 */
 void ADC_IRQHandler(void)
@@ -160,6 +174,7 @@ void EXTI9_5_IRQHandler(void)
 
   /* USER CODE END EXTI9_5_IRQn 0 */
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_6);
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_7);
   HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_9);
   /* USER CODE BEGIN EXTI9_5_IRQn 1 */
 

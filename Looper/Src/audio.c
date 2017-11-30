@@ -33,9 +33,9 @@ uint32_t SamplesRead = 0;
 uint32_t DataReady = 0;
 __IO uint8_t Recording = 0;
 __IO uint8_t Playback = 0;
-__IO uint8_t Dubbing = 0;
+__IO uint8_t Overdubbing = 0;
 __IO uint8_t DubbingStarted = 0;
-__IO uint8_t ToggleChannel = 0;
+__IO uint8_t ToggleFunction = 0;
 __IO uint8_t DrumsPlaying = 0;
 __IO ButtonStates ToggleDubbing = UP;
 
@@ -111,9 +111,9 @@ void play16u(uint16_t newsample){
 	lower = (upperlower & 0x0000FFFF);
 	//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_1,DAC_ALIGN_12B_R,upper);
 	//HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,lower);
-	Dubbing = ToggleDubbing;
+	Overdubbing = ToggleDubbing;
 	Write_DAC8552(channel_A,upper);
-	if(Dubbing == 1){
+	if(Overdubbing == 1){
 		upper = ((upper + newsample) *0.5)*0.8 - 32767;
 	}
 	upperlower = upper;
@@ -190,7 +190,7 @@ void play32s(int16_t newsample){
 	Write_DAC8552(channel_A,(uint16_t)((float)read16s + 16383.00));
 
 
-	if(Dubbing == 1){
+	if(Overdubbing == 1){
 		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &mix32tmp, 1);
 	}
 	else
@@ -198,7 +198,7 @@ void play32s(int16_t newsample){
 
 	SamplesRead++;
 	if(SamplesRead == SamplesWritten){
-		if(Dubbing == TRUE && mix32Max > 16383){
+		if(Overdubbing == TRUE && mix32Max > 16383){
 			clipping = TRUE;
 			gain = 16383.00 / mix32Max;
 			BSP_LED_On(LED_RED);
@@ -245,10 +245,10 @@ void playFloat(float newsample){
 	static float mixFloatMax = 1.00;
 
 	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) &mix32f, 1);
-	Dubbing = ToggleDubbing;
+	Overdubbing = ToggleDubbing;
 	Write_DAC8552(channel_A,(uint16_t) ((mix32f  * 32768) + 32767));
 
-	if(Dubbing == 1){
+	if(Overdubbing == 1){
 		mix32f = (newsample  + mix32f) * gain;
 		if(mix32f > mixFloatMax)
 			mixFloatMax = mix32f;
@@ -287,8 +287,8 @@ void playMulti(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct tracks * 
 	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
 	Write_DAC8552(channel_A,tr->samples[TRACK1]);
 
-	Dubbing = ToggleDubbing;
-	if(Dubbing == 1){
+	Overdubbing = ToggleDubbing;
+	if(Overdubbing == 1){
 			tr->samples[TRACK1] = (tr->samples[TRACK1] * 1.1 + sampleA) * 0.5; //mixGuitar(sampleA,tr->samples[TRACK1]);
 			tr->sum = tr->samples[TRACK1] + tr->samples[TRACK2] + tr->samples[TRACK3] + tr->samples[TRACK4];
 			BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + read_pointer,(uint32_t *) tr, 3);
@@ -297,7 +297,7 @@ void playMulti(uint8_t number,uint16_t sampleA,uint16_t sampleB,struct tracks * 
 	if(SamplesRead == SamplesWritten){
 		midiDrumPointer = 0;
 		midiDrumClock = 0;
-		if(Dubbing == 1){
+		if(Overdubbing == 1){
 			tracksPlaying++;
 			currentLoop++;
 		}

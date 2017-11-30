@@ -40,6 +40,8 @@
 #endif 
 
 /* Includes ------------------------------------------------------------------*/
+#include "stm32f4xx_hal.h"
+#include "main.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
@@ -50,6 +52,7 @@ void PendSV_Handler(void);
 void SysTick_Handler(void);
 void PVD_IRQHandler(void);
 void EXTI2_IRQHandler(void);
+void EXTI4_IRQHandler(void);
 void ADC_IRQHandler(void);
 void EXTI9_5_IRQHandler(void);
 void TIM2_IRQHandler(void);
