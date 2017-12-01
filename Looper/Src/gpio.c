@@ -49,9 +49,6 @@
 
 extern BOOL clipping;
 extern int32_t mix32Max;
-extern struct tracks trcs;
-extern uint8_t currentLoop;
-extern uint8_t tracksPlaying;
 extern __IO uint8_t ToggleFunction;
 extern __IO uint8_t Recording;
 extern __IO uint8_t Playback;
@@ -68,8 +65,6 @@ extern uint32_t DataReady;
 extern uint32_t dub_pointer;
 extern uint32_t read_pointer;
 extern uint32_t write_pointer;
-extern uint32_t key_ticks_button_up;
-extern uint32_t sampleADC;
 extern int16_t sample16Max;
 extern int16_t sample16Min;
 extern int32_t sample32s;
@@ -468,10 +463,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(ToggleFunction == 1){
 			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_SET);
 			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_RESET);
+			return;
 		}
-		if(Playback == 1)
+		if(Playback == 1 && ToggleFunction == 0)
 		  	play32s(sample16s);
-		if(Recording == 1)
+		if(Recording == 1 && ToggleFunction == 0)
 			record32s(sample16s);
 		//play_record();
 
@@ -491,10 +487,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		StartApp = 0;
 		BSP_LED_On(LED_RED);
 		BSP_LED_Off(LED_GREEN);
-		trcs.sum = 0;
-		trcs.samples[0] = trcs.samples[1] = trcs.samples[2] = trcs.samples[3] = 0;
-		currentLoop = 1;
-		tracksPlaying = 1;
 		SamplesWritten = 0;
 		dub_pointer = 0;
 		write_pointer = 0;
@@ -540,10 +532,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	case ToggleFunction_Pin:
 		if(ToggleFunction == 1){
 			ToggleFunction = 0;
+			HAL_ADC_Stop_IT(&hadc3);
+			HAL_ADC_Start_IT(&hadc1);
 			TM_HD44780_Puts(0,1,"Channel 0  ");
 		}
 		else{
 			ToggleFunction = 1;
+			HAL_ADC_Stop_IT(&hadc1);
+			HAL_ADC_Start_IT(&hadc3);
 			TM_HD44780_Puts(0,1,"Channel 1  ");
 		}
 		break;

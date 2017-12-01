@@ -54,17 +54,15 @@
 #include "ads1256_test.h"
 
 #define pi 3.14159
+extern __IO uint8_t ToggleFunction;
 extern __IO uint8_t Overdubbing;
 extern __IO uint8_t Recording;
 extern __IO uint8_t Playback;
 extern uint8_t key_to_drum[];
-struct tracks trcs;
-uint8_t currentLoop;
-uint8_t tracksPlaying;
-__IO uint8_t conversions = 0;
+
 
 uint32_t adc1val;
-int16_t adc3val;
+uint32_t adc3val;
 char strval[5];
 
 uint32_t key_ticks_button_up = 0;
@@ -79,11 +77,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		key_ticks_button_down = HAL_GetTick();
 
 		if(hadc->Instance == ADC3){
-			adc3val = HAL_ADC_GetValue(hadc) - 2048;
-			if(Playback == 1)
-				play32s(adc3val * 4);
-			if(Recording == 1)
-				record32s(adc3val * 4);
+			adc3val = HAL_ADC_GetValue(hadc);
+			if(Playback == 1 && ToggleFunction == 1)
+				play32s((adc3val << 4) - 32768);
+			if(Recording == 1 && ToggleFunction == 1)
+				record32s((adc3val << 4) - 32768);
 			//Write_DAC8552(channel_B,adc3val);
 			return;
 		}
