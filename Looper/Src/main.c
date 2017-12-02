@@ -66,32 +66,26 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
-uint16_t s_index = 0;
-extern BOOL clipping;
-extern uint32_t dacSample;
-__IO uint32_t CommandKey = 0;
-extern int16_t sample16Max;
-extern int16_t sample16Min;
-extern int32_t mix32Max;
+__IO BOOL Recording = FALSE;
+__IO BOOL Playback = FALSE;
+__IO BOOL Overdubbing = FALSE;
+__IO BOOL ToggleFunction = FALSE;
+__IO BOOL StartApp = FALSE;
+__IO BOOL clipping = FALSE;
+uint8_t footswitch = 0;
+
+
 extern __IO uint8_t midiMetronome;
 extern __IO uint8_t midiRecording;
 extern __IO uint8_t midiPlayback;
 extern __IO uint32_t midiDrumClock;
 extern __IO uint32_t midiDrumPointer;
 extern __IO uint32_t midiMetronomeClock;
-extern __IO uint8_t Playback;
-extern __IO uint32_t CommandKey;
-extern __IO uint8_t StartApp;
-extern __IO ButtonStates ToggleDubbing;
-extern float gain;
-extern __IO uint8_t Overdubbing;
-extern int32_t mix32s;
-extern __IO uint8_t ToggleFunction;
+
 extern uint8_t key_to_drum[];
 extern uint8_t midiEvents[];
 extern uint32_t midiTimes[];
-FMC_SDRAM_CommandTypeDef SDRAMCommandStructure;
-uint16_t taptone_buffer[100];
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -100,22 +94,11 @@ void SystemClock_Config(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
-uint32_t selectRow(int rowNum);
+
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-MSC_ApplicationTypeDef AppliState = APPLICATION_IDLE;
-__IO uint32_t CmdIndex = CMD_PLAY;
-__IO uint32_t PbPressCheck = 0;
-__IO uint32_t RepeatState = REPEAT_ON;
-/* Counter for User button presses. Defined as external in waveplayer.c file */
-__IO uint32_t PressCount = 1;
 
-/* Wave Player Pause/Resume Status. Defined as external in waveplayer.c file */
-__IO uint32_t PauseResumeStatus = IDLE_STATUS;
-
-/* Re-play Wave file status on/off.
-   Defined as external in waveplayer.c file */
 
 extern char SD_Path[];
 TM_KEYPAD_Button_t Keypad_Button;
@@ -135,11 +118,7 @@ int main(void)
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 
-	/*##-3- Issue self-refresh command to SDRAM device #########################*/
-	  SDRAMCommandStructure.CommandMode            = FMC_SDRAM_CMD_SELFREFRESH_MODE;
-	  SDRAMCommandStructure.CommandTarget          = FMC_SDRAM_CMD_TARGET_BANK2;
-	  SDRAMCommandStructure.AutoRefreshNumber      = 1;
-	  SDRAMCommandStructure.ModeRegisterDefinition = 0;
+
   /* USER CODE END 1 */
 
   /* MCU Configuration----------------------------------------------------------*/
@@ -403,47 +382,21 @@ void SystemClock_Config(void)
  * @param  Command: Pointer to SDRAM command structure
  * @retval None
  */
-void initTapTone() {
-	int i;
-	for (i = 0; i < 100; i++) {
-		taptone_buffer[i] = i;
-	}
-}
-
 
 
 void buttonHandler() {
-//	if(HAL_GPIO_ReadPin(Switch_channel_GPIO_Port,Switch_channel_Pin) == GPIO_PIN_SET){
-//		//ADS1256_SetChannel(0);
-//		ToggleChannel = 0;
-//	}
-//	else{
-//		//ADS1256_SetChannel(1);
-//		ToggleChannel = 1;
-//	}
-//	if(HAL_GPIO_ReadPin(Dubbing_GPIO_Port,Dubbing_Pin) == GPIO_PIN_RESET){
-//		if(ToggleDubbing == 0)
-//			ToggleDubbing = 1;
-//	}
-//	else{
-//		if(ToggleDubbing == 1)
-//			ToggleDubbing = 0;
-//
-//	}
+	if(IS_BUT_DOWN(BUT_REC) && HAL_GPIO_ReadPin(Recording_GPIO_Port,Recording_Pin) == GPIO_PIN_SET )
+		BUT_UP(BUT_REC);
 
+	if(IS_BUT_DOWN(BUT_PLAY) && HAL_GPIO_ReadPin(Playback_GPIO_Port,Playback_Pin) == GPIO_PIN_SET )
+		BUT_UP(BUT_PLAY);
 
+	if(IS_BUT_DOWN(BUT_OVERDUB) && HAL_GPIO_ReadPin(Overdubbing_GPIO_Port,Overdubbing_Pin) == GPIO_PIN_SET )
+		BUT_UP(BUT_OVERDUB);
+
+	if(IS_BUT_DOWN(BUT_TOGFUN) && HAL_GPIO_ReadPin(ToggleFunction_GPIO_Port,ToggleFunction_Pin) == GPIO_PIN_SET )
+		BUT_UP(BUT_TOGFUN);
 }
-//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim) {
-		//TapToneBufferCount--;
-
-		//if(TapToneBufferCount == 0)
-		//HAL_GPIO_WritePin(GPIOC,GPIO_PIN_8,GPIO_PIN_RESET);
-
-		//if(htim->Instance == TIM3){
-
-//	}
-
-//}
 
 /* USER CODE END 4 */
 

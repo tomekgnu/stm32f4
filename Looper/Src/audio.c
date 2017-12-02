@@ -25,13 +25,9 @@ uint32_t write_pointer = 0;
 uint32_t SamplesWritten = 0;
 uint32_t SamplesRead = 0;
 uint32_t DataReady = 0;
-__IO uint8_t Recording = 0;
-__IO uint8_t Playback = 0;
-__IO uint8_t Overdubbing = 0;
-__IO uint8_t DubbingStarted = 0;
-__IO uint8_t ToggleFunction = 0;
 
-__IO uint8_t StartApp = 0;
+
+
 __IO uint32_t CurrentSize;
 __IO uint32_t CurrentBytes;
 __IO uint8_t DmaTransferReady = 0;
@@ -68,7 +64,7 @@ void record32s(int16_t sample){
 
 int32_t mix32s;
 uint32_t dacSample;
-BOOL clipping;
+
 
 void play32s(int16_t newsample){
 	int16_t read16s;

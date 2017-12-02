@@ -54,10 +54,7 @@
 #include "ads1256_test.h"
 
 #define pi 3.14159
-extern __IO uint8_t ToggleFunction;
-extern __IO uint8_t Overdubbing;
-extern __IO uint8_t Recording;
-extern __IO uint8_t Playback;
+
 extern uint8_t key_to_drum[];
 
 

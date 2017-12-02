@@ -47,16 +47,9 @@
 #include "tm_stm32_hd44780.h"
 #include "adc.h"
 
-extern BOOL clipping;
 extern int32_t mix32Max;
-extern __IO uint8_t ToggleFunction;
-extern __IO uint8_t Recording;
-extern __IO uint8_t Playback;
 extern __IO uint8_t midiRecording;
 extern __IO uint8_t midiPlayback;
-extern __IO uint8_t Overdubbing;
-extern __IO uint8_t DubbingStarted;
-extern __IO uint8_t StartApp;
 extern __IO uint32_t midiDrumClock;
 extern __IO uint32_t midiDrumPointer;
 extern uint32_t SamplesRead;
@@ -421,19 +414,17 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	switch (GPIO_Pin) {
 
 	case GPIO_PIN_0:	// user button
-			midiRecording = 0;
-			midiPlayback = 0;
-			midiDrumPointer = 0;
-			midiDrumClock = 0;
+			midiRecording = FALSE;
+			midiPlayback = FALSE;
+			midiDrumPointer = FALSE;
+			midiDrumClock = FALSE;
 			clipping = FALSE;
 
 		if(Recording == 1 || Playback == 1){
-			Recording = 0;
-			Playback = 0;
-			StartApp = 0;
-			Overdubbing = 0;
-			DubbingStarted = 0;
-			DataReady = 1;
+			Recording = FALSE;
+			Playback = FALSE;
+			StartApp = FALSE;
+			Overdubbing = FALSE;
 			SamplesRead = 0;
 			SamplesWritten = 0;
 			BSP_LED_Off(LED_RED);
@@ -442,10 +433,6 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		break;
 	case ADS1256_DRDY_Pin:
-		if(ToggleFunction == 0){
-			//BSP_LED_On(LED_RED);
-			//BSP_LED_Off(LED_RED);
-		}
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
 		if(sample16s > 0 && sample16s > sample16Max)
 			sample16Max = sample16s;
@@ -474,11 +461,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		break;
 
 	case Recording_Pin:
-		//if(RecordingButton == PRESS)
-			//return;
-		if(Recording == 1)
+		if(Recording == TRUE)
 			return;
-		//RecordingButton = PRESS;
+		if(IS_BUT_DOWN(BUT_REC) == TRUE)
+			return;
+		BUT_DOWN(BUT_REC);
+
+
 		clipping = FALSE;
 		Overdubbing = FALSE;
 		sample16Max = 0;
@@ -497,14 +486,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		StartApp = 1;
 		break;
 	case Playback_Pin:
-		//if(PlaybackButton == PRESS)
-			//return;
 		if(Playback == 1 || SamplesWritten == 0){
 			return;
 		}
+		if(IS_BUT_DOWN(BUT_REC) == TRUE)
+			return;
+		BUT_DOWN(BUT_REC);
+
 		showMinMaxSamples(sample16Min,sample16Max);
-		//PlaybackButton = PRESS;
-		//StartApp = 0;
 		BSP_LED_On(LED_GREEN);
 		BSP_LED_Off(LED_RED);
 		SamplesRead = 0;
@@ -519,17 +508,23 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		StartApp = 1;
 		break;
 	case Overdubbing_Pin:
-		if(Overdubbing == 1){
-			Overdubbing = 0;
+		if(IS_BUT_DOWN(BUT_OVERDUB) == TRUE)
+			return;
+		BUT_DOWN(BUT_OVERDUB);
+		if(Overdubbing == TRUE){
+			Overdubbing = FALSE;
 			TM_HD44780_Puts(0,0,"Overdub stop  ");
 		}
 		else
 		{
-			Overdubbing = 1;
+			Overdubbing = TRUE;
 			TM_HD44780_Puts(0,0,"Overdub start ");
 		}
 		break;
 	case ToggleFunction_Pin:
+		if(IS_BUT_DOWN(BUT_TOGFUN) == TRUE)
+			return;
+		BUT_DOWN(BUT_TOGFUN);
 		if(ToggleFunction == 1){
 			ToggleFunction = 0;
 			HAL_ADC_Stop_IT(&hadc3);

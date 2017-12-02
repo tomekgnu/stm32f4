@@ -41,6 +41,7 @@
   /* Includes ------------------------------------------------------------------*/
 
 /* USER CODE BEGIN Includes */
+#include "stm32f4xx.h"
 #include "stdint.h"
 
 #define SAMPLE_SIZE			4
@@ -50,8 +51,8 @@
 #define WRITE_SIZE			((SAMPLE_BYTES) / 4)
 #define MEM_BLOCK			READ_SIZE
 
-typedef enum {FALSE,TRUE}BOOL;
-enum{LOW,HIGH};
+typedef enum {FALSE,TRUE} BOOL;
+typedef enum{BUT_UP,BUT_DOWN} BUTTON ;
 typedef uint8_t byte;
 
 void play_record();
@@ -61,6 +62,13 @@ uint16_t drumHandler();
 void SystemClock_Config(void);
 void Error_Handler(void);
 
+extern __IO BOOL Recording;
+extern __IO BOOL Playback;
+extern __IO BOOL Overdubbing;
+extern __IO BOOL ToggleFunction;
+extern __IO BOOL StartApp;
+extern __IO BOOL clipping;
+extern uint8_t footswitch;
 
 #define delayUS_ASM(us) do {\
 	asm volatile (	"MOV R0,%[loops]\n\t"\
@@ -289,45 +297,21 @@ void Error_Handler(void);
 #define NBL1_GPIO_Port GPIOE
 
 /* USER CODE BEGIN Private defines */
-#define BUFFER_SIZE         ((uint32_t)0x0100)
-#define WRITE_READ_ADDR     ((uint32_t)0x0800)
 #define SDRAM_SIZE			((uint32_t)0x800000)
+
 typedef enum
 {
   LED_GREEN = 0,
   LED_RED = 1
 }Led_Colors;
 
-typedef enum ButtonStates { UP, DOWN, PRESS, RELEASE } ButtonStates;
-typedef enum
-{
-  APPLICATION_IDLE = 0,
-  APPLICATION_START,
-  APPLICATION_RUNNING,
-}
-MSC_ApplicationTypeDef;
-#define WAVE_NAME	"rhythm.wav"
-/* Defines for the Audio used commands */
-#define CMD_PLAY           ((uint32_t)0x00)
-#define CMD_RECORD         ((uint32_t)0x01)
-#define CMD_STOP           ((uint32_t)0x02)
-
-/* Defines for LEDs lighting */
-#define LED3_TOGGLE      0x03  /* Toggle LED3 */
-#define LED4_TOGGLE      0x04  /* Toggle LED4 */
-#define LED6_TOGGLE      0x06  /* Toggle LED6 */
-#define LEDS_OFF         0x07  /* Turn OFF all LEDs */
-#define STOP_TOGGLE      0x00  /* Stop LED Toggling */
-
-/* Defines for the Audio playing process */
-#define PAUSE_STATUS     ((uint32_t)0x00) /* Audio Player in Pause Status */
-#define RESUME_STATUS    ((uint32_t)0x01) /* Audio Player in Resume Status */
-#define IDLE_STATUS      ((uint32_t)0x02) /* Audio Player in Idle Status */
-
-#define REPEAT_ON        ((uint32_t)0x00) /* Replay Status in ON */
-#define REPEAT_OFF       ((uint32_t)0x01) /* Replay Status in OFF */
-
-
+#define BUT_REC				1
+#define BUT_PLAY			2
+#define BUT_OVERDUB			4
+#define BUT_TOGFUN			8
+#define BUT_DOWN(BUT)		footswitch |= BUT
+#define BUT_UP(BUT)			footswitch ^= BUT
+#define IS_BUT_DOWN(BUT)	((footswitch & BUT) > 0)
 /* USER CODE END Private defines */
 
 void _Error_Handler(char *, int);
