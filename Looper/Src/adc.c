@@ -70,24 +70,17 @@ void HAL_ADC_ErrorCallback(ADC_HandleTypeDef * hadc){
 	TM_HD44780_Puts(0,1,strval);
 }
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-
-		key_ticks_button_down = HAL_GetTick();
-
-		if(hadc->Instance == ADC3){
+		if(ToggleFunction == CH2 || ToggleFunction == CH12){
 			adc3val = HAL_ADC_GetValue(hadc);
-			if(Playback == 1 && ToggleFunction == 1)
-				play32s((adc3val << 4) - 32768);
-			if(Recording == 1 && ToggleFunction == 1)
-				record32s((adc3val << 4) - 32768);
-			//Write_DAC8552(channel_B,adc3val);
+			if(Playback == TRUE)
+				play32s((adc3val << 4) - 32768,CH2);
+			if(Recording == TRUE)
+				record32s((adc3val << 4) - 32768,CH2);
 			return;
 		}
-//		if(key_ticks_button_down - key_ticks_button_up < 250){
-//			return;
-//		}
-		//if(StartApp == 0){
-		//
-		if(hadc->Instance == ADC1){
+
+
+		if(ToggleFunction == PERC){
 			adc1val = HAL_ADC_GetValue(hadc);
 		switch(adc1val){
 		case 0:

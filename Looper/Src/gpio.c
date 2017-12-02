@@ -434,29 +434,22 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		break;
 	case ADS1256_DRDY_Pin:
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
-		if(sample16s > 0 && sample16s > sample16Max)
-			sample16Max = sample16s;
-		if(sample16s <= 0 && sample16s < sample16Min)
-			sample16Min = sample16s;
-
-		sample16u = (uint16_t)(sample16s + 32767);
-
-		if(StartApp == 0){
-			//if(ToggleChannel == 0)
-				//Write_DAC8552(channel_A,sample16u);
-			//else
-				Write_DAC8552(channel_B,sample16u);
-		}
-		if(ToggleFunction == 1){
+		if(ToggleFunction == CH2 || ToggleFunction == CH12){
 			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_SET);
 			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_RESET);
-			return;
 		}
-		if(Playback == 1 && ToggleFunction == 0)
-		  	play32s(sample16s);
-		if(Recording == 1 && ToggleFunction == 0)
-			record32s(sample16s);
-		//play_record();
+
+		if(ToggleFunction == CH1 || ToggleFunction == CH12){
+//			if(sample16s > 0 && sample16s > sample16Max)
+//				sample16Max = sample16s;
+//			if(sample16s <= 0 && sample16s < sample16Min)
+//				sample16Min = sample16s;
+			if(Playback == 1)
+				play32s(sample16s,CH1);
+			if(Recording == 1)
+				record32s(sample16s,CH1);
+		}
+
 
 		break;
 
@@ -489,9 +482,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(Playback == 1 || SamplesWritten == 0){
 			return;
 		}
-		if(IS_BUT_DOWN(BUT_REC) == TRUE)
+		if(IS_BUT_DOWN(BUT_PLAY) == TRUE)
 			return;
-		BUT_DOWN(BUT_REC);
+		BUT_DOWN(BUT_PLAY);
 
 		showMinMaxSamples(sample16Min,sample16Max);
 		BSP_LED_On(LED_GREEN);
@@ -525,17 +518,38 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(IS_BUT_DOWN(BUT_TOGFUN) == TRUE)
 			return;
 		BUT_DOWN(BUT_TOGFUN);
-		if(ToggleFunction == 1){
-			ToggleFunction = 0;
+		if(ToggleFunction == NONE){
+			ToggleFunction = CH1;
+			HAL_ADC_Stop_IT(&hadc3);
+			HAL_ADC_Stop_IT(&hadc1);
+			TM_HD44780_Puts(0,1,"Channel 1     ");
+			return;
+		}
+		if(ToggleFunction == CH1){
+			ToggleFunction = CH2;
+			HAL_ADC_Start_IT(&hadc3);
+			HAL_ADC_Stop_IT(&hadc1);
+			TM_HD44780_Puts(0,1,"Channel 2     ");
+			return;
+		}
+		if(ToggleFunction == CH2){
+			ToggleFunction = CH12;
+			TM_HD44780_Puts(0,1,"Both channels ");
+			return;
+		}
+		if(ToggleFunction == CH12){
+			ToggleFunction = PERC;
 			HAL_ADC_Stop_IT(&hadc3);
 			HAL_ADC_Start_IT(&hadc1);
-			TM_HD44780_Puts(0,1,"Channel 0  ");
+			TM_HD44780_Puts(0,1,"Percussion    ");
+			return;
 		}
-		else{
-			ToggleFunction = 1;
+		if(ToggleFunction == PERC){
+			ToggleFunction = NONE;
+			HAL_ADC_Stop_IT(&hadc3);
 			HAL_ADC_Stop_IT(&hadc1);
-			HAL_ADC_Start_IT(&hadc3);
-			TM_HD44780_Puts(0,1,"Channel 1  ");
+			TM_HD44780_Puts(0,1,"Select channel");
+			return;
 		}
 		break;
 	default: break;

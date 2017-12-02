@@ -53,6 +53,7 @@
 
 typedef enum {FALSE,TRUE} BOOL;
 typedef enum{BUT_UP,BUT_DOWN} BUTTON ;
+typedef enum{NONE,CH1,CH2,CH12,PERC} FUNCTION;
 typedef uint8_t byte;
 
 void play_record();
@@ -65,7 +66,7 @@ void Error_Handler(void);
 extern __IO BOOL Recording;
 extern __IO BOOL Playback;
 extern __IO BOOL Overdubbing;
-extern __IO BOOL ToggleFunction;
+extern __IO FUNCTION ToggleFunction;
 extern __IO BOOL StartApp;
 extern __IO BOOL clipping;
 extern uint8_t footswitch;

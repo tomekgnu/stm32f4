@@ -69,7 +69,7 @@
 __IO BOOL Recording = FALSE;
 __IO BOOL Playback = FALSE;
 __IO BOOL Overdubbing = FALSE;
-__IO BOOL ToggleFunction = FALSE;
+__IO FUNCTION ToggleFunction = NONE;
 __IO BOOL StartApp = FALSE;
 __IO BOOL clipping = FALSE;
 uint8_t footswitch = 0;
