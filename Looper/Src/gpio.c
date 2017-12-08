@@ -434,7 +434,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		break;
 	case ADS1256_DRDY_Pin:
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
-		if(ToggleFunction == CH2 || ToggleFunction == CH12){
+		if(ToggleFunction == NONE || ToggleFunction == CH2 || ToggleFunction == CH12){
 			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_SET);
 			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_RESET);
 		}
@@ -546,7 +546,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		}
 		if(ToggleFunction == PERC){
 			ToggleFunction = NONE;
-			HAL_ADC_Stop_IT(&hadc3);
+			HAL_ADC_Start_IT(&hadc3);
 			HAL_ADC_Stop_IT(&hadc1);
 			TM_HD44780_Puts(0,1,"Select channel");
 			return;

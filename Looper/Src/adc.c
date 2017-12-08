@@ -59,7 +59,7 @@ extern uint8_t key_to_drum[];
 
 
 uint32_t adc1val;
-uint32_t adc3val;
+int32_t adc3val;
 char strval[5];
 
 uint32_t key_ticks_button_up = 0;
@@ -70,12 +70,17 @@ void HAL_ADC_ErrorCallback(ADC_HandleTypeDef * hadc){
 	TM_HD44780_Puts(0,1,strval);
 }
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
-		if(ToggleFunction == CH2 || ToggleFunction == CH12){
-			adc3val = HAL_ADC_GetValue(hadc);
+
+		if(ToggleFunction == NONE || ToggleFunction == CH2 || ToggleFunction == CH12){
+			adc3val = (uint32_t)HAL_ADC_GetValue(hadc);
+			adc3val = ((adc3val - 2048) << 2);
 			if(Playback == TRUE)
-				play32s((adc3val << 4) - 32768,CH2);
+				play32s(adc3val,CH2);
 			if(Recording == TRUE)
-				record32s((adc3val << 4) - 32768,CH2);
+				record32s(adc3val,CH2);
+			if(ToggleFunction == NONE){
+				Write_DAC8552(channel_B,(uint16_t)(adc3val + 16384));
+			}
 			return;
 		}
 
@@ -153,7 +158,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		utoa(adc1val,strval,10);
 		TM_HD44780_Puts(0,0,strval);
 		playPercussion(NOTEON,key_to_drum[adc1val - 1]);
-		}
+	}
 }
 
 /* USER CODE END 0 */
@@ -169,7 +174,7 @@ void MX_ADC1_Init(void)
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc1.Init.Resolution = ADC_RESOLUTION_6B;
   hadc1.Init.ScanConvMode = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
@@ -204,7 +209,7 @@ void MX_ADC3_Init(void)
     /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
     */
   hadc3.Instance = ADC3;
-  hadc3.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV8;
+  hadc3.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc3.Init.Resolution = ADC_RESOLUTION_12B;
   hadc3.Init.ScanConvMode = DISABLE;
   hadc3.Init.ContinuousConvMode = DISABLE;
@@ -224,7 +229,7 @@ void MX_ADC3_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_11;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_144CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_112CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
