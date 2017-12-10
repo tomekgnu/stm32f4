@@ -35,6 +35,7 @@ Application/User/main.o: \
  C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/adc.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/dma.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spi.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tim.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/usart.h \
@@ -43,6 +44,8 @@ Application/User/main.o: \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32_hd44780.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ads1256_test.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_keypad.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_ili9341.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_fonts.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/stm32f429i_discovery_sdram.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/midi.h \
@@ -122,6 +125,8 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/adc.h:
 
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/dma.h:
+
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spi.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tim.h:
@@ -137,6 +142,10 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32_hd44780.h:
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ads1256_test.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_keypad.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_ili9341.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_fonts.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/stm32f429i_discovery_sdram.h:
 

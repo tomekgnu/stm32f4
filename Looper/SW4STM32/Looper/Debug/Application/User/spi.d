@@ -33,7 +33,8 @@ Application/User/spi.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/spi.c \
  C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h \
- C:/Users/Tomek/workspace/tom32f4/Looper/Inc/gpio.h
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/gpio.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/dma.h
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spi.h:
 
@@ -104,3 +105,5 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4
 C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_uart.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/gpio.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/dma.h:

@@ -39,6 +39,7 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "adc.h"
+#include "dma.h"
 #include "spi.h"
 #include "tim.h"
 #include "usart.h"
@@ -49,6 +50,7 @@
 #include "tm_stm32_hd44780.h"
 #include "ads1256_test.h"
 #include "tm_stm32f4_keypad.h"
+#include "tm_stm32f4_ili9341.h"
 #include "stm32f429i_discovery_sdram.h"
 #include "main.h"
 #include "midi.h"
@@ -139,18 +141,44 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_TIM3_Init();
   MX_TIM2_Init();
   MX_FMC_Init();
   MX_TIM4_Init();
-  MX_SPI2_Init();
   MX_TIM8_Init();
   MX_SPI3_Init();
   MX_USART1_UART_Init();
   MX_ADC1_Init();
   MX_ADC3_Init();
+  MX_SPI5_Init();
 
   /* USER CODE BEGIN 2 */
+
+  TM_ILI9341_Init();
+     //Rotate LCD for 90 degrees
+     TM_ILI9341_Rotate(TM_ILI9341_Orientation_Landscape_1);
+     //FIll lcd with color
+     TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
+     //Draw white circle
+     TM_ILI9341_DrawCircle(60, 60, 40, ILI9341_COLOR_GREEN);
+     //Draw red filled circle
+     TM_ILI9341_DrawFilledCircle(60, 60, 35, ILI9341_COLOR_RED);
+     //Draw blue rectangle
+     TM_ILI9341_DrawRectangle(120, 20, 220, 100, ILI9341_COLOR_BLUE);
+     //Draw black filled rectangle
+     TM_ILI9341_DrawFilledRectangle(130, 30, 210, 90, ILI9341_COLOR_BLACK);
+     //Draw line with custom color 0x0005
+     TM_ILI9341_DrawLine(10, 120, 310, 120, 0x0005);
+
+     //Put string with black foreground color and blue background with 11x18px font
+     TM_ILI9341_Puts(65, 130, "STM32F4 Discovery", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+     //Put string with black foreground color and blue background with 11x18px font
+     TM_ILI9341_Puts(60, 150, "ILI9341 LCD Module", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+     //Put string with black foreground color and red background with 11x18px font
+     TM_ILI9341_Puts(245, 225, "majerle.eu", &TM_Font_7x10, ILI9341_COLOR_BLACK, ILI9341_COLOR_ORANGE);
+
+
   //SF3_CS1();
 
   //ST7735_init();

@@ -8,6 +8,7 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Src/SF3.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/adc.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/ads1256_test.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/audio.c \
+C:/Users/Tomek/workspace/tom32f4/Looper/Src/dma.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/fmc.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/gpio.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/main.c \
@@ -19,6 +20,8 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Src/stm32f4xx_hal_msp.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/stm32f4xx_it.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/tim.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/tm_stm32_hd44780.c \
+C:/Users/Tomek/workspace/tom32f4/Looper/Src/tm_stm32f4_fonts.c \
+C:/Users/Tomek/workspace/tom32f4/Looper/Src/tm_stm32f4_ili9341.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/tm_stm32f4_keypad.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/usart.c 
 
@@ -27,6 +30,7 @@ OBJS += \
 ./Application/User/adc.o \
 ./Application/User/ads1256_test.o \
 ./Application/User/audio.o \
+./Application/User/dma.o \
 ./Application/User/fmc.o \
 ./Application/User/gpio.o \
 ./Application/User/main.o \
@@ -38,6 +42,8 @@ OBJS += \
 ./Application/User/stm32f4xx_it.o \
 ./Application/User/tim.o \
 ./Application/User/tm_stm32_hd44780.o \
+./Application/User/tm_stm32f4_fonts.o \
+./Application/User/tm_stm32f4_ili9341.o \
 ./Application/User/tm_stm32f4_keypad.o \
 ./Application/User/usart.o 
 
@@ -46,6 +52,7 @@ C_DEPS += \
 ./Application/User/adc.d \
 ./Application/User/ads1256_test.d \
 ./Application/User/audio.d \
+./Application/User/dma.d \
 ./Application/User/fmc.d \
 ./Application/User/gpio.d \
 ./Application/User/main.d \
@@ -57,6 +64,8 @@ C_DEPS += \
 ./Application/User/stm32f4xx_it.d \
 ./Application/User/tim.d \
 ./Application/User/tm_stm32_hd44780.d \
+./Application/User/tm_stm32f4_fonts.d \
+./Application/User/tm_stm32f4_ili9341.d \
 ./Application/User/tm_stm32f4_keypad.d \
 ./Application/User/usart.d 
 
@@ -87,6 +96,14 @@ Application/User/ads1256_test.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/ads
 	@echo ' '
 
 Application/User/audio.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/audio.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU GCC Compiler'
+	@echo $(PWD)
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed="__attribute__((__packed__))"' -DUSE_HAL_DRIVER -DSTM32F429xx '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -I"C:/Users/Tomek/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Include" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Inc"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+Application/User/dma.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/dma.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo $(PWD)
@@ -175,6 +192,22 @@ Application/User/tim.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/tim.c
 	@echo ' '
 
 Application/User/tm_stm32_hd44780.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/tm_stm32_hd44780.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU GCC Compiler'
+	@echo $(PWD)
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed="__attribute__((__packed__))"' -DUSE_HAL_DRIVER -DSTM32F429xx '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -I"C:/Users/Tomek/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Include" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Inc"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+Application/User/tm_stm32f4_fonts.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/tm_stm32f4_fonts.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU GCC Compiler'
+	@echo $(PWD)
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' '-D__packed="__attribute__((__packed__))"' -DUSE_HAL_DRIVER -DSTM32F429xx '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -I"C:/Users/Tomek/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Include" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Inc"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+Application/User/tm_stm32f4_ili9341.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/tm_stm32f4_ili9341.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo $(PWD)

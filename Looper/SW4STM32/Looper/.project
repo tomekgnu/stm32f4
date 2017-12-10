@@ -25,6 +25,10 @@
 		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
 	</natures>
 	<linkedResources><link>
+			<name>Application/User/dma.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/dma.c</location>
+		</link><link>
 			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_uart.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c</location>
@@ -108,6 +112,16 @@
 			<name>Application/User/tm_stm32_hd44780.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/tm_stm32_hd44780.c</location>
+		</link>
+		<link>
+			<name>Application/User/tm_stm32f4_fonts.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/tm_stm32f4_fonts.c</location>
+		</link>
+		<link>
+			<name>Application/User/tm_stm32f4_ili9341.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/tm_stm32f4_ili9341.c</location>
 		</link>
 		<link>
 			<name>Application/User/tm_stm32f4_keypad.c</name>
