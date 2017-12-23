@@ -53,7 +53,7 @@
 
 typedef enum {FALSE,TRUE} BOOL;
 typedef enum{BUT_UP,BUT_DOWN} BUTTON ;
-typedef enum{NONE,CH1,CH2,CH12,PERC} FUNCTION;
+typedef enum{CLB,NONE,CH1,CH2,CH12,PERC} FUNCTION;
 typedef uint8_t byte;
 
 void play_record();
@@ -182,8 +182,6 @@ extern uint8_t footswitch;
 #define OTG_FS_ID_GPIO_Port GPIOB
 #define VBUS_FS_Pin GPIO_PIN_13
 #define VBUS_FS_GPIO_Port GPIOB
-#define OTG_FS_DM_Pin GPIO_PIN_14
-#define OTG_FS_DM_GPIO_Port GPIOB
 #define OTG_FS_DP_Pin GPIO_PIN_15
 #define OTG_FS_DP_GPIO_Port GPIOB
 #define D13_Pin GPIO_PIN_8
@@ -309,6 +307,16 @@ typedef enum
 #define BUT_DOWN(BUT)		footswitch |= BUT
 #define BUT_UP(BUT)			footswitch ^= BUT
 #define IS_BUT_DOWN(BUT)	((footswitch & BUT) > 0)
+
+typedef struct {
+	uint8_t manufacturer;
+	uint8_t memory;
+	uint8_t capacity;
+	uint8_t length;
+	uint8_t extID[2];
+	uint8_t optional[14];
+
+} SF3ID;
 /* USER CODE END Private defines */
 
 void _Error_Handler(char *, int);

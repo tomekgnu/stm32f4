@@ -15,6 +15,8 @@
 
 uint32_t sampleADC;
 int32_t sample32s;
+int32_t sample32Min;
+int32_t sample32Max;
 int16_t sample16s;
 
 uint32_t dub_pointer = 0;
@@ -43,6 +45,7 @@ uint32_t upperlower;
 float gain = 1.0;
 uint32_t clipcnt = 0;
 int32_t mix32Max = 32767;
+int32_t sample32Min = 0;
 int32_t sample32Max = 0;
 int16_t sample16Max = 0;
 int16_t sample16Min = 0;
@@ -82,8 +85,7 @@ void play32s(int16_t newsample,FUNCTION ch){
 	if(clipping == TRUE){
 		mix32tmp = (int32_t)(gain * (float)read16s  + gain * (float)newsample);
 	}
-	if(newsample > sample32Max)
-		sample32Max = newsample;
+
 	if(mix32tmp > mix32Max)
 		mix32Max = mix32tmp;
 	if(ch == CH1)
@@ -120,7 +122,6 @@ void play32s(int16_t newsample,FUNCTION ch){
 		}
 
 		mix32Max = 16383;
-		sample32Max = 0;
 		dub_pointer = 0;
 		SamplesRead = 0;
 		read_pointer = 0;

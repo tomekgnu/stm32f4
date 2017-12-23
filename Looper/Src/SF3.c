@@ -69,19 +69,18 @@
  **    queries and recieves the DeviceID of the SF3 (0x19)
  */
 
-extern SPI_HandleTypeDef hspi2;
+extern SPI_HandleTypeDef hspi5;
 
 int getDeviceID(uint8_t * rcvBytes) {
 	uint8_t cmd = COMMAND_READ_ID;
-	uint8_t empty = 0;
 
 	waitForWrite();
 	writeEnable();
 
 	SF3_CS0();
 
-	HAL_SPI_Transmit(&hspi2,&cmd,1,100);
-	HAL_SPI_TransmitReceive(&hspi2,&empty,rcvBytes,20,100);
+	HAL_SPI_Transmit(&hspi5,&cmd,1,100);
+	HAL_SPI_Receive(&hspi5,rcvBytes,20,100);
 
 	SF3_CS1();
 
@@ -118,11 +117,11 @@ uint8_t normalRead(int address) {
 
 	SF3_CS0();
 
-	HAL_SPI_Transmit(&hspi2,&sndByte[0],1,100);
-	HAL_SPI_Transmit(&hspi2,&sndByte[1],1,100);
-	HAL_SPI_Transmit(&hspi2,&sndByte[2],1,100);
-	HAL_SPI_Transmit(&hspi2,&sndByte[3],1,100);
-	HAL_SPI_TransmitReceive(&hspi2,&empty,&rcvByte,1,100);
+	HAL_SPI_Transmit(&hspi5,&sndByte[0],1,100);
+	HAL_SPI_Transmit(&hspi5,&sndByte[1],1,100);
+	HAL_SPI_Transmit(&hspi5,&sndByte[2],1,100);
+	HAL_SPI_Transmit(&hspi5,&sndByte[3],1,100);
+	HAL_SPI_TransmitReceive(&hspi5,&empty,&rcvByte,1,100);
 
 	SF3_CS1();
 
@@ -159,13 +158,13 @@ void writePage(uint8_t* writeData, int address) {
 
 	SF3_CS0();
 
-	HAL_SPI_Transmit(&hspi2,&sndBytes[0],1,100);
-	HAL_SPI_Transmit(&hspi2,&sndBytes[1],1,100);
-	HAL_SPI_Transmit(&hspi2,&sndBytes[2],1,100);
-	HAL_SPI_Transmit(&hspi2,&sndBytes[3],1,100);
+	HAL_SPI_Transmit(&hspi5,&sndBytes[0],1,100);
+	HAL_SPI_Transmit(&hspi5,&sndBytes[1],1,100);
+	HAL_SPI_Transmit(&hspi5,&sndBytes[2],1,100);
+	HAL_SPI_Transmit(&hspi5,&sndBytes[3],1,100);
 
 
-	HAL_SPI_Transmit(&hspi2,writeData,256,100);
+	HAL_SPI_Transmit(&hspi5,writeData,256,100);
 
 	SF3_CS1();
 }
@@ -197,10 +196,10 @@ void subSectorErase(int address) {
 	writeEnable();
 
 	SF3_CS0();
-	HAL_SPI_Transmit(&hspi2,&sndBytes[0],1,100);
-	HAL_SPI_Transmit(&hspi2,&sndBytes[1],1,100);
-	HAL_SPI_Transmit(&hspi2,&sndBytes[2],1,100);
-	HAL_SPI_Transmit(&hspi2,&sndBytes[3],1,100);
+	HAL_SPI_Transmit(&hspi5,&sndBytes[0],1,100);
+	HAL_SPI_Transmit(&hspi5,&sndBytes[1],1,100);
+	HAL_SPI_Transmit(&hspi5,&sndBytes[2],1,100);
+	HAL_SPI_Transmit(&hspi5,&sndBytes[3],1,100);
 
 	SF3_CS1();
 
@@ -231,7 +230,7 @@ void bulkErase() {
 
 	SF3_CS0();
 
-	HAL_SPI_Transmit(&hspi2,&cmd,1,100);
+	HAL_SPI_Transmit(&hspi5,&cmd,1,100);
 
 	SF3_CS1();
 }
@@ -258,8 +257,8 @@ void writeSR(uint8_t setReg) {
 
 	SF3_CS0();
 
-	HAL_SPI_Transmit(&hspi2,&cmd,1,100);
-	HAL_SPI_Transmit(&hspi2,&setReg,1,100);
+	HAL_SPI_Transmit(&hspi5,&cmd,1,100);
+	HAL_SPI_Transmit(&hspi5,&setReg,1,100);
 
 	SF3_CS1();
 }
@@ -283,7 +282,7 @@ void writeEnable() {
 	uint8_t cmd = COMMAND_WRITE_ENABLE;
 	SF3_CS0();
 
-	HAL_SPI_Transmit(&hspi2,&cmd,1,100);
+	HAL_SPI_Transmit(&hspi5,&cmd,1,100);
 
 	SF3_CS1();
 }
@@ -309,8 +308,8 @@ uint8_t readSR(void) {
 	uint8_t cmd = COMMAND_READ_STATUSREG;
 	SF3_CS0();
 
-	HAL_SPI_Transmit(&hspi2,&cmd,1,100); // command read status register
-	HAL_SPI_TransmitReceive(&hspi2,&empty,&SR,1,100);
+	HAL_SPI_Transmit(&hspi5,&cmd,1,100); // command read status register
+	HAL_SPI_TransmitReceive(&hspi5,&empty,&SR,1,100);
 	SF3_CS1();
 
 	return SR;

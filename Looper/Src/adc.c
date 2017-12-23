@@ -71,16 +71,16 @@ void HAL_ADC_ErrorCallback(ADC_HandleTypeDef * hadc){
 }
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
-		if(ToggleFunction == NONE || ToggleFunction == CH2 || ToggleFunction == CH12){
+		if(hadc->Instance == ADC3){
 			adc3val = (uint32_t)HAL_ADC_GetValue(hadc);
-			adc3val = ((adc3val - 2048) << 2);
+			adc3val = ((adc3val - 2048) << 4);
 			if(Playback == TRUE)
 				play32s(adc3val,CH2);
 			if(Recording == TRUE)
 				record32s(adc3val,CH2);
-			if(ToggleFunction == NONE){
+			//if(ToggleFunction == NONE){
 				Write_DAC8552(channel_B,(uint16_t)(adc3val + 16384));
-			}
+			//}
 			return;
 		}
 

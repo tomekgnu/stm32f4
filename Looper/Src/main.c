@@ -83,7 +83,11 @@ extern __IO uint8_t midiPlayback;
 extern __IO uint32_t midiDrumClock;
 extern __IO uint32_t midiDrumPointer;
 extern __IO uint32_t midiMetronomeClock;
-
+extern uint32_t SamplesRead;
+extern int32_t sample32s;
+extern int16_t sample16s;
+extern int16_t sample16Max;
+extern int16_t sample16Min;
 extern uint8_t key_to_drum[];
 extern uint8_t midiEvents[];
 extern uint32_t midiTimes[];
@@ -112,8 +116,9 @@ int main(void)
 
   /* USER CODE BEGIN 1 */
 	uint32_t data;
-	char keystr[4];
-	uint8_t sf3_ID[20];
+	char lcdline[30];
+	SF3ID sf3id;
+	uint8_t sf3_hexID[40];
 	HAL_StatusTypeDef status;
 
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
@@ -154,71 +159,54 @@ int main(void)
   MX_SPI5_Init();
 
   /* USER CODE BEGIN 2 */
-
-  TM_ILI9341_Init();
-     //Rotate LCD for 90 degrees
-     TM_ILI9341_Rotate(TM_ILI9341_Orientation_Landscape_1);
-     //FIll lcd with color
-     TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
-     //Draw white circle
-     TM_ILI9341_DrawCircle(60, 60, 40, ILI9341_COLOR_GREEN);
-     //Draw red filled circle
-     TM_ILI9341_DrawFilledCircle(60, 60, 35, ILI9341_COLOR_RED);
-     //Draw blue rectangle
-     TM_ILI9341_DrawRectangle(120, 20, 220, 100, ILI9341_COLOR_BLUE);
-     //Draw black filled rectangle
-     TM_ILI9341_DrawFilledRectangle(130, 30, 210, 90, ILI9341_COLOR_BLACK);
-     //Draw line with custom color 0x0005
-     TM_ILI9341_DrawLine(10, 120, 310, 120, 0x0005);
-
-     //Put string with black foreground color and blue background with 11x18px font
-     TM_ILI9341_Puts(65, 130, "STM32F4 Discovery", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-     //Put string with black foreground color and blue background with 11x18px font
-     TM_ILI9341_Puts(60, 150, "ILI9341 LCD Module", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-     //Put string with black foreground color and red background with 11x18px font
-     TM_ILI9341_Puts(245, 225, "majerle.eu", &TM_Font_7x10, ILI9341_COLOR_BLACK, ILI9341_COLOR_ORANGE);
-
-
-  //SF3_CS1();
-
-  //ST7735_init();
-  //ST7735_pushColor(&color,1);
- // hspi2.Init.DataSize = SPI_DATASIZE_16BIT;
-//  while(1){
-//	  LCD_CS_LOW();
-//	  HAL_SPI_Transmit(&hspi2,(uint8_t *)&dat,2,100);
-//	  LCD_CS_HIGH();
-//	  HAL_Delay(100);
-//
-//  }
-
-  HAL_NVIC_DisableIRQ(EXTI2_IRQn);
   BSP_SDRAM_Init();
+  HAL_NVIC_DisableIRQ(EXTI2_IRQn);
+  TM_ILI9341_Init();
+  //Rotate LCD for 90 degrees
+  TM_ILI9341_Rotate(TM_ILI9341_Orientation_Landscape_1);
+  //FIll lcd with color
+  TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
+
+//     //Draw white circle
+//     TM_ILI9341_DrawCircle(60, 60, 40, ILI9341_COLOR_GREEN);
+//     //Draw red filled circle
+//     TM_ILI9341_DrawFilledCircle(60, 60, 35, ILI9341_COLOR_RED);
+//     //Draw blue rectangle
+//     TM_ILI9341_DrawRectangle(120, 20, 220, 100, ILI9341_COLOR_BLUE);
+//     //Draw black filled rectangle
+//     TM_ILI9341_DrawFilledRectangle(130, 30, 210, 90, ILI9341_COLOR_BLACK);
+//     //Draw line with custom color 0x0005
+//     TM_ILI9341_DrawLine(10, 120, 310, 120, 0x0005);
+//
+//     //Put string with black foreground color and blue background with 11x18px font
+//     TM_ILI9341_Puts(65, 130, "STM32F4 Discovery", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+//     //Put string with black foreground color and blue background with 11x18px font
+//     TM_ILI9341_Puts(60, 150, "ILI9341 LCD Module", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+//     //Put string with black foreground color and red background with 11x18px font
+//     TM_ILI9341_Puts(245, 225, "majerle.eu", &TM_Font_7x10, ILI9341_COLOR_BLACK, ILI9341_COLOR_ORANGE);
+
+
+
   status = HAL_TIM_Base_Start_IT(&htim2);
 
   BSP_LED_Init(LED_GREEN);
   BSP_LED_Init(LED_RED);
-
-
   BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
 
-  //status = HAL_ADC_Start_DMA(&hadc3,(uint32_t *)readADC,2);
-  //status = HAL_TIM_Base_Start_IT(&htim8);
   status = HAL_TIM_Base_Start_IT(&htim4);
-  //status = HAL_DAC_Start(&hdac,DAC_CHANNEL_1);
-  //status = HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
-  //status = HAL_ADC_Start_IT(&hadc1);
- // status = HAL_ADC_Start_IT(&hadc3);
-  //status = HAL_ADC_Start_DMA(&hadc3,(uint32_t *)readADC,2);
-  //ReadDrumSamples();
+  status = HAL_ADC_Start_IT(&hadc1);
+  status = HAL_ADC_Start_IT(&hadc3);
 
   ADS1256_WriteCmd(CMD_RESET);
   ADS1256_WriteCmd(CMD_SDATAC);
-
   data = ADS1256_ReadChipID();
-  ADS1256_CfgADC(ADS1256_GAIN_16, ADS1256_15000SPS);
+
+
+  ADS1256_CfgADC(ADS1256_GAIN_2, ADS1256_15000SPS);
+  ADS1256_SetDiffChannel(0);
   ADS1256_WriteCmd(CMD_SELFCAL);
-  ADS1256_SetChannel(0);
+
+
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
   ADS1256_WriteCmd(CMD_RDATAC);
   //FATFS_UnLinkDriver(SD_Path);
@@ -229,10 +217,10 @@ int main(void)
   TM_HD44780_Init(20, 4);
   TM_HD44780_Clear();
   TM_HD44780_Puts(0,0,"Looper");
-  utoa(data,keystr,10);
-  TM_HD44780_Puts(0,1,keystr);
+  utoa(data,lcdline,10);
 
-  //getDeviceID(sf3_ID);
+
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -248,7 +236,14 @@ int main(void)
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
 	        	  switch (Keypad_Button) {
 	                  case TM_KEYPAD_Button_0:        /* Button 0 pressed */
+	                	  ILI9341_CS1();
+	                	  getDeviceID((uint8_t *)&sf3id);
+	                	  TM_ILI9341_Puts(5, 5, (data == 3?"ADS1256 OK\n":"ADS1256 failure\n"), &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	                	  sprintf(lcdline,"0x%x",sf3id.manufacturer);
+	                	  TM_ILI9341_Puts(5, 5, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	                	  break;
 	                  case TM_KEYPAD_Button_1:        /* Button 1 pressed */
+
 	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
 	                  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
 	                  case TM_KEYPAD_Button_4:        /* Button 4 pressed */
@@ -257,9 +252,9 @@ int main(void)
 	                  case TM_KEYPAD_Button_7:        /* Button 7 pressed */
 	                  case TM_KEYPAD_Button_8:        /* Button 8 pressed */
 	                  case TM_KEYPAD_Button_9:        /* Button 9 pressed */
-	                	  	  	utoa(Keypad_Button,keystr,10);
-	                	  		TM_HD44780_Clear();
-	                	  		TM_HD44780_Puts(0,0,keystr);
+	                	  sprintf(lcdline,"Button %d pressed",Keypad_Button);
+	                	  TM_ILI9341_Puts(5, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+
 //	                	 if(midiRecording == 0){
 //	                		  midiDrumPointer = 0;
 //	                		  midiDrumClock = 0;
@@ -277,15 +272,8 @@ int main(void)
 //	                	  }
 	                	  break;
 	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
-//	                	  if(midiRecording == 1){
-//	                		  midiEvents[midiDrumPointer] = No_Event;
-//	                		  midiTimes[midiDrumPointer] = midiDrumClock;
-//	                		  midiRecording = 0;
-//	                		  midiPlayback = 1;
-//	                		  midiDrumClock = 0;
-//	                		  midiDrumPointer = 0;
-//	                	  }
-	                      break;
+
+	                	  break;
 	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
 	                	  if(midiMetronome == 0){
 	                		  //playPercussion(NOTEON,Metronome_Bell);

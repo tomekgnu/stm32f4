@@ -45,6 +45,8 @@
 #include "main.h"
 #include "ads1256_test.h"
 #include "tm_stm32_hd44780.h"
+#include "tm_stm32f4_ili9341.h"
+#include "stdlib.h"
 #include "adc.h"
 
 extern int32_t mix32Max;
@@ -60,8 +62,11 @@ extern uint32_t read_pointer;
 extern uint32_t write_pointer;
 extern int16_t sample16Max;
 extern int16_t sample16Min;
+extern int32_t sample32Max;
+extern int32_t sample32Min;
 extern int32_t sample32s;
 extern int16_t sample16s;
+
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
@@ -85,7 +90,6 @@ extern int16_t sample16s;
      PB11   ------> LTDC_G5
      PB12   ------> USB_OTG_HS_ID
      PB13   ------> USB_OTG_HS_VBUS
-     PB14   ------> USB_OTG_HS_DM
      PB15   ------> USB_OTG_HS_DP
      PG6   ------> LTDC_R7
      PA11   ------> LTDC_R4
@@ -221,8 +225,8 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Alternate = GPIO_AF14_LTDC;
   HAL_GPIO_Init(G5_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PBPin PBPin PBPin */
-  GPIO_InitStruct.Pin = OTG_FS_ID_Pin|OTG_FS_DM_Pin|OTG_FS_DP_Pin;
+  /*Configure GPIO pins : PBPin PBPin */
+  GPIO_InitStruct.Pin = OTG_FS_ID_Pin|OTG_FS_DP_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -409,8 +413,8 @@ void KeyboardConfig(void){
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
-	uint16_t sample16u;
 
+	char keystr[20];
 	switch (GPIO_Pin) {
 
 	case GPIO_PIN_0:	// user button
@@ -433,17 +437,25 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		break;
 	case ADS1256_DRDY_Pin:
-		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
+		if(StartApp == 0)
+			return;
+		sample32s = ADS1256_ReadData() >> 8;
+		HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_SET);
+		HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_RESET);
+//		if(1){
+//			itoa(sample32s,keystr,10);
+//			//TM_HD44780_Clear();
+//			TM_HD44780_Puts(0,0,keystr);
+		Write_DAC8552(channel_A,(uint16_t)(sample32s + 16383));
+//		}
+
 		if(ToggleFunction == NONE || ToggleFunction == CH2 || ToggleFunction == CH12){
 			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_SET);
 			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_RESET);
 		}
 
-		if(ToggleFunction == CH1 || ToggleFunction == CH12){
-//			if(sample16s > 0 && sample16s > sample16Max)
-//				sample16Max = sample16s;
-//			if(sample16s <= 0 && sample16s < sample16Min)
-//				sample16Min = sample16s;
+		if(ToggleFunction == NONE || ToggleFunction == CH1 || ToggleFunction == CH12){
+
 			if(Playback == 1)
 				play32s(sample16s,CH1);
 			if(Recording == 1)

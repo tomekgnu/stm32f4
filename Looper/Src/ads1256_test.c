@@ -105,7 +105,6 @@ void bsp_InitADS1256(void)
 
 
 
-
 /*
 *********************************************************************************************************
 *	name: ADS1256_StartScan
@@ -143,8 +142,8 @@ void ADS1256_Send8Bit(uint8_t _data)
 {
 
 	bsp_DelayUS(10);
-	//HAL_SPI_Transmit(&hspi3,&_data,1,10);
-	HAL_SPI_Transmit_DMA(&hspi3,&_data,1);
+	HAL_SPI_Transmit(&hspi3,&_data,1,10);
+	//HAL_SPI_Transmit_DMA(&hspi3,&_data,1);
 }
 
 /*
@@ -277,8 +276,8 @@ uint8_t ADS1256_Recive8Bit(void)
 {
 	uint8_t read = 0;
 	uint8_t byte = 0xff;
-	//HAL_SPI_Receive(&hspi3,&read,1,10);
-	HAL_SPI_Receive_DMA(&hspi3,&read,1);
+	HAL_SPI_Receive(&hspi3,&read,1,10);
+	//HAL_SPI_Receive_DMA(&hspi3,&read,1);
 	return read;
 }
 
@@ -640,7 +639,7 @@ void Write_DAC8552(uint8_t channel, uint16_t Data)
 	sample[2] = (uint8_t)(Data & 0xff);
 	CS1_1();
 	CS1_0();
-	HAL_SPI_Transmit_DMA(&hspi3,sample,3);
+	HAL_SPI_Transmit(&hspi3,sample,3,100);
 	CS1_1();
 }
 
@@ -656,10 +655,10 @@ void Write_DAC8552_Both(uint16_t A,uint16_t B){
 	tab2[2] = (uint8_t)(B & 0x00ff);
 	CS1_1();
 	CS1_0();
-	HAL_SPI_Transmit_DMA(&hspi3,tab1,3);
+	HAL_SPI_Transmit(&hspi3,tab1,3,100);
 	CS1_1();
 	CS1_0();
-	HAL_SPI_Transmit_DMA(&hspi3,tab2,3);
+	HAL_SPI_Transmit(&hspi3,tab2,3,100);
 	CS1_1();
 }
 /*

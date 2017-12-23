@@ -157,6 +157,7 @@ static const uint8_t s_tabDataRate[ADS1256_DRATE_MAX] =
 #define LED_On()	HAL_GPIO_WritePin(LD4_GPIO_Port,LD4_Pin,GPIO_PIN_SET)
 #define LED_Off()	HAL_GPIO_WritePin(LD4_GPIO_Port,LD4_Pin,GPIO_PIN_RESET)
 
+
 void  bsp_DelayUS(uint64_t micros);
 void ADS1256_StartScan(uint8_t _ucScanMode);
 void ADS1256_Send8Bit(uint8_t _data);

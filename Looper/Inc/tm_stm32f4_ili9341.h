@@ -34,7 +34,8 @@
  * @addtogroup TM_STM32F4xx_Libraries
  * @{
  */
-
+#define ILI9341_CS0()		HAL_GPIO_WritePin(ILI9341_CS_GPIO_Port, ILI9341_CS_PIN,GPIO_PIN_RESET);
+#define ILI9341_CS1()		HAL_GPIO_WritePin(ILI9341_CS_GPIO_Port, ILI9341_CS_PIN,GPIO_PIN_SET);
 /**
  * @defgroup TM_ILI9341
  * @brief    ILI9341 library for STM32F4xx with SPI communication, without LTDC hardware - http://stm32f4-discovery.com/2014/04/library-08-ili9341-lcd-on-stm32f429-discovery-board/

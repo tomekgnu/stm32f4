@@ -39,6 +39,8 @@ Application/User/gpio.o: \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/main.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ads1256_test.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32_hd44780.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_ili9341.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_fonts.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/adc.h
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/gpio.h:
@@ -118,5 +120,9 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/main.h:
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ads1256_test.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32_hd44780.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_ili9341.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_fonts.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/adc.h:
