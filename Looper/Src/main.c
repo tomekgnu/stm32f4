@@ -161,6 +161,7 @@ int main(void)
   /* USER CODE BEGIN 2 */
   BSP_SDRAM_Init();
   HAL_NVIC_DisableIRQ(EXTI2_IRQn);
+  //getDeviceID((uint8_t *)&sf3id);
   TM_ILI9341_Init();
   //Rotate LCD for 90 degrees
   TM_ILI9341_Rotate(TM_ILI9341_Orientation_Landscape_1);
@@ -217,7 +218,6 @@ int main(void)
   TM_HD44780_Init(20, 4);
   TM_HD44780_Clear();
   TM_HD44780_Puts(0,0,"Looper");
-  utoa(data,lcdline,10);
 
 
 
@@ -236,11 +236,13 @@ int main(void)
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
 	        	  switch (Keypad_Button) {
 	                  case TM_KEYPAD_Button_0:        /* Button 0 pressed */
-	                	  ILI9341_CS1();
 	                	  getDeviceID((uint8_t *)&sf3id);
-	                	  TM_ILI9341_Puts(5, 5, (data == 3?"ADS1256 OK\n":"ADS1256 failure\n"), &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	                	  sprintf(lcdline,"0x%x",sf3id.manufacturer);
-	                	  TM_ILI9341_Puts(5, 5, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	                	  TM_HD44780_Puts(0,1,lcdline);
+	                	  //TM_ILI9341_Puts(0, 24, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	                	  //TM_ILI9341_Puts(0, 5, (data == 3?"ADS1256 OK\n":"ADS1256 failure\n"), &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	                	  StartApp = !StartApp;
+
 	                	  break;
 	                  case TM_KEYPAD_Button_1:        /* Button 1 pressed */
 
