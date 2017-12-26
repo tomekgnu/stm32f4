@@ -60,6 +60,8 @@
 #include "stdlib.h"
 #include "audio.h"
 #include "SF3.h"
+#include "spi_flash.h"
+#include "spiffs.h"
 #define pi 3.14159
 /* USER CODE END Includes */
 
@@ -99,8 +101,12 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
-
+#define LOG_PAGE_SIZE       256
+static void my_spiffs_mount();
+static u8_t spiffs_work_buf[LOG_PAGE_SIZE*2];
+static u8_t spiffs_fds[32*4];
+static u8_t spiffs_cache_buf[(LOG_PAGE_SIZE+32)*4];
+static spiffs fs;
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
@@ -120,7 +126,7 @@ int main(void)
 	SF3ID sf3id;
 	uint8_t sf3_hexID[40];
 	HAL_StatusTypeDef status;
-
+	spiffs_file fd1;
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
@@ -159,9 +165,12 @@ int main(void)
   MX_SPI5_Init();
 
   /* USER CODE BEGIN 2 */
+  sFLASH_Init();
+  my_spiffs_mount();
   BSP_SDRAM_Init();
   HAL_NVIC_DisableIRQ(EXTI2_IRQn);
-  //getDeviceID((uint8_t *)&sf3id);
+  //HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_SET);
+  resetDevice();	// S3 memory
   TM_ILI9341_Init();
   //Rotate LCD for 90 degrees
   TM_ILI9341_Rotate(TM_ILI9341_Orientation_Landscape_1);
@@ -207,7 +216,6 @@ int main(void)
   ADS1256_SetDiffChannel(0);
   ADS1256_WriteCmd(CMD_SELFCAL);
 
-
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
   ADS1256_WriteCmd(CMD_RDATAC);
   //FATFS_UnLinkDriver(SD_Path);
@@ -236,16 +244,31 @@ int main(void)
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
 	        	  switch (Keypad_Button) {
 	                  case TM_KEYPAD_Button_0:        /* Button 0 pressed */
+	                	  HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_SET);
 	                	  getDeviceID((uint8_t *)&sf3id);
-	                	  sprintf(lcdline,"0x%x",sf3id.manufacturer);
-	                	  TM_HD44780_Puts(0,1,lcdline);
-	                	  //TM_ILI9341_Puts(0, 24, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	                	  //TM_ILI9341_Puts(0, 5, (data == 3?"ADS1256 OK\n":"ADS1256 failure\n"), &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	                	  StartApp = !StartApp;
-
+	                	  sprintf(lcdline,"SF3 manufacturer: 0x%x",sf3id.manufacturer);
+	                	  TM_ILI9341_Puts(0, 24, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	                	  TM_ILI9341_Puts(0, 5, (data == 3?"ADS1256 OK\n":"ADS1256 failure\n"), &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	                	  if(StartApp == FALSE){
+	                		  StartApp = TRUE;
+	                		  TM_HD44780_Puts(7,0,"started");
+	                	  }
+	                	  else{
+	                		  StartApp = FALSE;
+	                		  TM_HD44780_Puts(7,0,"stopped");
+	                	  }
 	                	  break;
 	                  case TM_KEYPAD_Button_1:        /* Button 1 pressed */
 
+	                	  fd1 = SPIFFS_open(&fs, "my_file", SPIFFS_RDWR, 0);
+	                	  data = SPIFFS_errno(&fs);
+	                	  if (SPIFFS_read(&fs, fd1,sf3_hexID, 12) < 0) {
+	                		  data = SPIFFS_errno(&fs);
+	                		  sprintf(sf3_hexID,"%d",(int32_t)data);
+	                	  }
+	                	  TM_HD44780_Puts(0,1,(char *)sf3_hexID);
+	                	  SPIFFS_close(&fs, fd1);
+	                	  break;
 	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
 	                  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
 	                  case TM_KEYPAD_Button_4:        /* Button 4 pressed */
@@ -324,6 +347,7 @@ int main(void)
 
   /* USER CODE BEGIN 3 */
 
+
 	}
   /* USER CODE END 3 */
 
@@ -393,7 +417,43 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+static s32_t my_spiffs_read(u32_t addr, u32_t size, u8_t *dst) {
+    sFLASH_ReadBuffer(dst,addr,size);
+    return SPIFFS_OK;
+  }
 
+  static s32_t my_spiffs_write(u32_t addr, u32_t size, u8_t *src) {
+	sFLASH_WriteBuffer(src,addr,size);
+    return SPIFFS_OK;
+  }
+
+  static s32_t my_spiffs_erase(u32_t addr, u32_t size) {
+
+    return sFLASH_Erase(addr, size);
+  }
+
+void my_spiffs_mount() {
+    spiffs_config cfg;
+    cfg.phys_size = N25Q256A_FLASH_SIZE; // use all spi flash
+    cfg.phys_addr = 0; // start spiffs at start of spi flash
+    cfg.phys_erase_block = N25Q256A_SECTOR_SIZE; // according to datasheet
+    cfg.log_block_size = N25Q256A_SECTOR_SIZE; // let us not complicate things
+    cfg.log_page_size = N25Q256A_PAGE_SIZE; // as we said
+
+    cfg.hal_read_f = my_spiffs_read;
+    cfg.hal_write_f = my_spiffs_write;
+    cfg.hal_erase_f = my_spiffs_erase;
+
+    int res = SPIFFS_mount(&fs,
+      &cfg,
+      spiffs_work_buf,
+      spiffs_fds,
+      sizeof(spiffs_fds),
+      spiffs_cache_buf,
+      sizeof(spiffs_cache_buf),
+      0);
+    printf("mount res: %i\n", res);
+  }
 /**
  * @brief  Perform the SDRAM exernal memory inialization sequence
  * @param  hsdram: SDRAM handle

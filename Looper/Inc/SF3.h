@@ -42,7 +42,8 @@
 
 #include "main.h"
 
-
+#define COMMAND_RESET_ENABLE (byte)0x66
+#define COMMAND_RESET_MEMORY (byte)0x99
 #define COMMAND_WRITE_ENABLE (byte) 0x06
 #define COMMAND_RANDOM_READ (byte)0x03
 #define COMMAND_FAST_READ (byte)0x0B
@@ -58,6 +59,7 @@
 #define SF3_CS0()		HAL_GPIO_WritePin(SF3_CS_GPIO_Port,SF3_CS_Pin,GPIO_PIN_RESET);
 #define SF3_CS1()		HAL_GPIO_WritePin(SF3_CS_GPIO_Port,SF3_CS_Pin,GPIO_PIN_SET);
 
+void resetDevice();
 int getDeviceID(uint8_t * rcvBytes);
 uint8_t normalRead(int address);
 void writePage(uint8_t* writeData, int address);

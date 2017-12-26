@@ -53,7 +53,11 @@ Application/User/main.o: \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_keypad.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/drums.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/audio.h \
- C:/Users/Tomek/workspace/tom32f4/Looper/Inc/SF3.h
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/SF3.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spi_flash.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spiffs.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spiffs_config.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/params_test.h
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/main.h:
 
@@ -162,3 +166,11 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/drums.h:
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/audio.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/SF3.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spi_flash.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spiffs.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spiffs_config.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/params_test.h:

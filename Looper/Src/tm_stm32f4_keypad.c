@@ -147,16 +147,15 @@ uint8_t TM_KEYPAD_INT_Read(void) {
 		return check;
 	}
 
-	if (TM_KEYPAD_INT_KeypadType == TM_KEYPAD_Type_Large) {
-		/* Set column 4 to LOW */
-		TM_KEYPAD_INT_SetColumn(4);
-		/* Check rows */
-		check = TM_KEYPAD_INT_CheckRow(4);
-		if (check != KEYPAD_NO_PRESSED) {
-			return check;
-		}
+
+	/* Set column 4 to LOW */
+	TM_KEYPAD_INT_SetColumn(4);
+	/* Check rows */
+	check = TM_KEYPAD_INT_CheckRow(4);
+	if (check != KEYPAD_NO_PRESSED) {
+		return check;
 	}
-	
+
 	/* Not pressed */
 	return KEYPAD_NO_PRESSED;
 }
@@ -171,7 +170,7 @@ void TM_KEYPAD_Update(void) {
 		millis = 0;
 		//pressed = 0;
 		/* Read keyboard */
-		KeypadStatus = (TM_KEYPAD_Button_t) TM_KEYPAD_INT_Read();
 	}
+	KeypadStatus = (TM_KEYPAD_Button_t) TM_KEYPAD_INT_Read();
 }
 

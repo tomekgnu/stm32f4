@@ -71,6 +71,22 @@
 
 extern SPI_HandleTypeDef hspi5;
 
+void resetDevice(){
+	uint8_t cmd = COMMAND_RESET_ENABLE;
+
+		waitForWrite();
+		writeEnable();
+		SF3_CS0();
+		HAL_SPI_Transmit(&hspi5,&cmd,1,100);
+		SF3_CS1();
+		cmd = COMMAND_RESET_MEMORY;
+
+		SF3_CS0();
+		HAL_SPI_Transmit(&hspi5,&cmd,1,100);
+		SF3_CS1();
+
+}
+
 int getDeviceID(uint8_t * rcvBytes) {
 	uint8_t cmd = COMMAND_READ_ID;
 

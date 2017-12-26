@@ -124,7 +124,7 @@ R4			PC5				Row 4
  
 /* Number of milliseconds between 2 reads */
 #ifndef KEYPAD_READ_INTERVAL
-#define KEYPAD_READ_INTERVAL        1000
+#define KEYPAD_READ_INTERVAL        100
 #endif
 
 /* Keypad no pressed */
