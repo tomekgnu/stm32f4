@@ -53,6 +53,9 @@ uint8_t TM_KEYPAD_INT_Read(void);
 /* Private variables */
 TM_KEYPAD_Type_t TM_KEYPAD_INT_KeypadType;
 static TM_KEYPAD_Button_t KeypadStatus = TM_KEYPAD_Button_NOPRESSED;
+static TM_KEYPAD_Button_t KeyCode = TM_KEYPAD_Button_NOPRESSED;
+static uint8_t KeyPressCount = 0;
+static uint16_t millis = 0;
 
 void TM_KEYPAD_Init() {
 	
@@ -60,15 +63,14 @@ void TM_KEYPAD_Init() {
 }
 
 TM_KEYPAD_Button_t TM_KEYPAD_Read(void) {
-	TM_KEYPAD_Button_t temp;
-	
-	/* Get keypad status */
-	temp = KeypadStatus;
-	
-	/* Reset keypad status */
-	KeypadStatus = TM_KEYPAD_Button_NOPRESSED;
-	
-	return temp;
+
+	if(KeyCode != TM_KEYPAD_Button_NOPRESSED && KeypadStatus != TM_KEYPAD_Button_PRESSED){
+		millis = 0;
+		KeypadStatus = TM_KEYPAD_Button_PRESSED;
+		return KeyCode;
+	}
+		return TM_KEYPAD_Button_NOPRESSED;
+
 }
 
 /* Private */
@@ -162,15 +164,22 @@ uint8_t TM_KEYPAD_INT_Read(void) {
 
 
 void TM_KEYPAD_Update(void) {
-	static uint16_t millis = 0;
-	
+	KeyCode = (TM_KEYPAD_Button_t) TM_KEYPAD_INT_Read();
+
 	/* Every X ms read */
-	if (++millis >= KEYPAD_READ_INTERVAL && KeypadStatus == TM_KEYPAD_Button_NOPRESSED) {
+	if (++millis >= KEYPAD_READ_INTERVAL) {
 		/* Reset */
 		millis = 0;
+		if(KeyCode != TM_KEYPAD_Button_NOPRESSED)
+			KeyPressCount++;
+		else
+			KeyPressCount = 0;
+		if(KeyPressCount == 4)
+			KeyPressCount = 0;
+		KeypadStatus = TM_KEYPAD_Button_NOPRESSED;
 		//pressed = 0;
 		/* Read keyboard */
 	}
-	KeypadStatus = (TM_KEYPAD_Button_t) TM_KEYPAD_INT_Read();
+
 }
 

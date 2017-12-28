@@ -124,7 +124,7 @@ R4			PC5				Row 4
  
 /* Number of milliseconds between 2 reads */
 #ifndef KEYPAD_READ_INTERVAL
-#define KEYPAD_READ_INTERVAL        100
+#define KEYPAD_READ_INTERVAL        500
 #endif
 
 /* Keypad no pressed */
@@ -161,6 +161,7 @@ typedef enum {
 	TM_KEYPAD_Button_B = 0x0D,	                   /*!< Button B code. Only on large size */
 	TM_KEYPAD_Button_C = 0x0E,	                   /*!< Button C code. Only on large size */
 	TM_KEYPAD_Button_D = 0x0F,	                   /*!< Button D code. Only on large size */
+	TM_KEYPAD_Button_PRESSED = 0xFE,
 	TM_KEYPAD_Button_NOPRESSED = KEYPAD_NO_PRESSED /*!< No button pressed */
 } TM_KEYPAD_Button_t;
 
