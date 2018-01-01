@@ -1,5 +1,6 @@
 "Application/SW4STM32/startup_stm32f429xx.o"
 "Application/User/SF3.o"
+"Application/User/SRAMDriver.o"
 "Application/User/adc.o"
 "Application/User/ads1256_test.o"
 "Application/User/audio.o"

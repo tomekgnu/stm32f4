@@ -9,7 +9,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -62,6 +62,8 @@
 #include "SF3.h"
 #include "spi_flash.h"
 #include "spiffs.h"
+#include "SRAMDriver.h"
+
 #define pi 3.14159
 /* USER CODE END Includes */
 
@@ -165,6 +167,7 @@ int main(void)
   MX_SPI5_Init();
 
   /* USER CODE BEGIN 2 */
+
   sFLASH_Init();
   my_spiffs_mount();
   BSP_SDRAM_Init();
@@ -227,7 +230,7 @@ int main(void)
   TM_HD44780_Clear();
   TM_HD44780_Puts(0,0,"Looper");
 
-
+  InitSRAM();
 
   /* USER CODE END 2 */
 
@@ -270,7 +273,11 @@ int main(void)
 	                	  SPIFFS_close(&fs, fd1);
 	                	  break;
 	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
+	                	  	  SRAMWriteByte(0,0,0,'c');
+	                	  	  data = SRAMReadByte(0,0,0);
+	                	  	  break;
 	                  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
+	                	   	  break;
 	                  case TM_KEYPAD_Button_4:        /* Button 4 pressed */
 	                  case TM_KEYPAD_Button_5:        /* Button 5 pressed */
 	                  case TM_KEYPAD_Button_6:        /* Button 6 pressed */

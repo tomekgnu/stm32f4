@@ -40,6 +40,11 @@
 			<location>PARENT-2-PROJECT_LOC/Src/SF3.c</location>
 		</link>
 		<link>
+			<name>Application/User/SRAMDriver.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/SRAMDriver.c</location>
+		</link>
+		<link>
 			<name>Application/User/adc.c</name>
 			<type>1</type>
 			<location>PARENT-2-PROJECT_LOC/Src/adc.c</location>

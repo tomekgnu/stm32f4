@@ -9,7 +9,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * COPYRIGHT(c) 2017 STMicroelectronics
+  * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
   * are permitted provided that the following conditions are met:
@@ -127,10 +127,6 @@ extern uint8_t footswitch;
 #define ILI9341_CS_GPIO_Port GPIOC
 #define uSD_CS_Pin GPIO_PIN_3
 #define uSD_CS_GPIO_Port GPIOC
-#define SRAM_0_CS_Pin GPIO_PIN_1
-#define SRAM_0_CS_GPIO_Port GPIOA
-#define SRAM_1_CS_Pin GPIO_PIN_2
-#define SRAM_1_CS_GPIO_Port GPIOA
 #define SRAM_2_CS_Pin GPIO_PIN_3
 #define SRAM_2_CS_GPIO_Port GPIOA
 #define AD_KBD_Pin GPIO_PIN_4
@@ -210,6 +206,10 @@ extern uint8_t footswitch;
 #define D0_GPIO_Port GPIOD
 #define D1_Pin GPIO_PIN_15
 #define D1_GPIO_Port GPIOD
+#define SRAM_1_CS_Pin GPIO_PIN_2
+#define SRAM_1_CS_GPIO_Port GPIOG
+#define SRAM_0_CS_Pin GPIO_PIN_3
+#define SRAM_0_CS_GPIO_Port GPIOG
 #define BA0_Pin GPIO_PIN_4
 #define BA0_GPIO_Port GPIOG
 #define BA1_Pin GPIO_PIN_5
