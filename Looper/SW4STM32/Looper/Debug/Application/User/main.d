@@ -58,7 +58,13 @@ Application/User/main.o: \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spiffs.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spiffs_config.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/params_test.h \
- C:/Users/Tomek/workspace/tom32f4/Looper/Inc/SRAMDriver.h
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/SRAMDriver.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_fatfs.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/defines.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ff.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/integer.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ffconf.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/diskio.h
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/main.h:
 
@@ -177,3 +183,15 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spiffs_config.h:
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/params_test.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/SRAMDriver.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_fatfs.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/defines.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ff.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/integer.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ffconf.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/diskio.h:

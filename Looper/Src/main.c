@@ -63,7 +63,7 @@
 #include "spi_flash.h"
 #include "spiffs.h"
 #include "SRAMDriver.h"
-
+#include "tm_stm32f4_fatfs.h"
 #define pi 3.14159
 /* USER CODE END Includes */
 
@@ -129,6 +129,12 @@ int main(void)
 	uint8_t sf3_hexID[40];
 	HAL_StatusTypeDef status;
 	spiffs_file fd1;
+	//Fatfs object
+	    FATFS FatFs;
+	    //File object
+	    FIL fil;
+	    //Free and total space
+	    uint32_t total, free;
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
@@ -277,6 +283,33 @@ int main(void)
 	                	  	  data = SRAMReadByte(0,0,0);
 	                	  	  break;
 	                  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
+	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
+	                	         //Mounted OK, turn on RED LED
+	                	         BSP_LED_On(LED_RED);
+
+	                	         //Try to open file
+	                	         if (f_open(&fil, "1stfile.txt", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK) {
+	                	             //File opened, turn off RED and turn on GREEN led
+	                	        	 BSP_LED_On(LED_GREEN);
+	                	        	 BSP_LED_Off(LED_RED);
+
+	                	             //If we put more than 0 characters (everything OK)
+	                	             if (f_puts("First string in my file\n", &fil) > 0) {
+	                	                 if (TM_FATFS_DriveSize(&total, &free) == FR_OK) {
+	                	                     //Data for drive size are valid
+	                	                 }
+
+	                	                 //Turn on both leds
+	                	                 BSP_LED_On(LED_GREEN | LED_RED);
+	                	             }
+
+	                	             //Close file, don't forget this!
+	                	             f_close(&fil);
+	                	         }
+
+	                	         //Unmount drive, don't forget this!
+	                	         f_mount(0, "", 1);
+	                	     }
 	                	   	  break;
 	                  case TM_KEYPAD_Button_4:        /* Button 4 pressed */
 	                  case TM_KEYPAD_Button_5:        /* Button 5 pressed */

@@ -4,7 +4,7 @@
 uint8_t SRAMBuf[SRAMPageSize];
 
 static inline GPIO_TypeDef* getSRAMEnablePort(uint8_t n){
-	GPIO_TypeDef* port;
+
 	switch(n){
 		case SRAM_0: return SRAM_0_CS_GPIO_Port;
 		case SRAM_1: return SRAM_1_CS_GPIO_Port;
@@ -19,7 +19,7 @@ static inline GPIO_TypeDef* getSRAMEnablePort(uint8_t n){
 }
 
 static inline uint16_t getSRAMEnablePin(uint8_t n){
-	uint16_t pin;
+
 	switch(n){
 		case SRAM_0: return SRAM_0_CS_Pin;
 		case SRAM_1: return SRAM_1_CS_Pin;
