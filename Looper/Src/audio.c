@@ -94,17 +94,17 @@ void play32s(int16_t newsample,FUNCTION ch){
 		Write_DAC8552(channel_B,(uint16_t)((float)read16s + 16383.00));
 	else return;
 
-	if(Overdubbing == 1){
-		if(ch == 1)
+	if(Overdubbing == TRUE){
+		if(ch == CH1)
 			BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &mix32tmp, 1);
-		else if(ch == 2)
+		else if(ch == CH2)
 			BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer + 2,(uint16_t *) &mix32tmp, 1);
 		else return;
 	}
 	else{
-		if(ch == 1)
+		if(ch == CH1)
 			BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &read16s, 1);
-		else if(ch == 2)
+		else if(ch == CH2)
 			BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer + 2,(uint16_t *) &read16s, 1);
 		else return;
 	}
@@ -113,12 +113,10 @@ void play32s(int16_t newsample,FUNCTION ch){
 		if(Overdubbing == TRUE && mix32Max > 16383){
 			clipping = TRUE;
 			gain = 16383.00 / mix32Max;
-			BSP_LED_On(LED_RED);
 		}
 		else{
 			clipping = FALSE;
 			gain = 1.0;
-			BSP_LED_Off(LED_RED);
 		}
 
 		mix32Max = 16383;

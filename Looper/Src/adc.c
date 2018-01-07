@@ -71,21 +71,18 @@ void HAL_ADC_ErrorCallback(ADC_HandleTypeDef * hadc){
 }
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
-		if(hadc->Instance == ADC3){
-			adc3val = (uint32_t)HAL_ADC_GetValue(hadc);
-			adc3val = ((adc3val - 2048) << 4);
-			if(Playback == TRUE)
-				play32s(adc3val,CH2);
-			if(Recording == TRUE)
-				record32s(adc3val,CH2);
-			//if(ToggleFunction == NONE){
-				Write_DAC8552(channel_B,(uint16_t)(adc3val + 16384));
-			//}
-			return;
-		}
+	if(hadc->Instance == ADC3 && (ToggleFunction == CH2 || ToggleFunction == CH12)){
+		adc3val = ((HAL_ADC_GetValue(hadc) - 2048) << 4);
+
+		if(Playback == TRUE)
+			play32s(adc3val,CH2);
+		if(Recording == TRUE)
+			record32s(adc3val,CH2);
+		return;
+	}
 
 
-		if(ToggleFunction == PERC){
+		if(hadc->Instance == ADC1 && ToggleFunction == PERC){
 			adc1val = HAL_ADC_GetValue(hadc);
 		switch(adc1val){
 		case 0:

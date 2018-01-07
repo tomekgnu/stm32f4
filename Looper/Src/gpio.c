@@ -440,30 +440,18 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	case ADS1256_DRDY_Pin:
 		if(StartApp == 0)
 			return;
-		sample32s = ADS1256_ReadData() >> 8;
-		HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_SET);
-		HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_RESET);
-//		if(1){
-//			itoa(sample32s,keystr,10);
-//			//TM_HD44780_Clear();
-//			TM_HD44780_Puts(0,0,keystr);
-		Write_DAC8552(channel_A,(uint16_t)(sample32s + 16383));
-//		}
-
-		if(ToggleFunction == NONE || ToggleFunction == CH2 || ToggleFunction == CH12){
+		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
+		if(ToggleFunction == CH2 || ToggleFunction == CH12){
 			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_SET);
 			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_RESET);
 		}
 
-		if(ToggleFunction == NONE || ToggleFunction == CH1 || ToggleFunction == CH12){
-
+		if(ToggleFunction == CH1 || ToggleFunction == CH12){
 			if(Playback == 1)
 				play32s(sample16s,CH1);
 			if(Recording == 1)
 				record32s(sample16s,CH1);
 		}
-
-
 		break;
 
 	case Recording_Pin:
@@ -499,7 +487,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			return;
 		BUT_DOWN(BUT_PLAY);
 
-		showMinMaxSamples(sample16Min,sample16Max);
+		//showMinMaxSamples(sample16Min,sample16Max);
 		BSP_LED_On(LED_GREEN);
 		BSP_LED_Off(LED_RED);
 		SamplesRead = 0;
