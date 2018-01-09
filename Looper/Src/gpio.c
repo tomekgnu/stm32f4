@@ -56,15 +56,11 @@ extern __IO uint32_t midiDrumClock;
 extern __IO uint32_t midiDrumPointer;
 extern uint32_t SamplesRead;
 extern uint32_t SamplesWritten;
-extern uint32_t DataReady;
 extern uint32_t dub_pointer;
 extern uint32_t read_pointer;
 extern uint32_t write_pointer;
 extern int16_t sample16Max;
 extern int16_t sample16Min;
-extern int32_t sample32Max;
-extern int32_t sample32Min;
-extern int32_t sample32s;
 extern int16_t sample16s;
 
 /* USER CODE END 0 */
@@ -441,17 +437,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(StartApp == 0)
 			return;
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
-		if(ToggleFunction == CH2 || ToggleFunction == CH12){
-			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_SET);
-			HAL_GPIO_WritePin(ADC3_Trigger_GPIO_Port,ADC3_Trigger_Pin,GPIO_PIN_RESET);
-		}
-
-		if(ToggleFunction == CH1 || ToggleFunction == CH12){
-			if(Playback == 1)
-				play32s(sample16s,CH1);
-			if(Recording == 1)
-				record32s(sample16s,CH1);
-		}
+		if(Playback == 1)
+			play32s(sample16s,ToggleFunction);
+		if(Recording == 1)
+			record32s(sample16s,ToggleFunction);
 		break;
 
 	case Recording_Pin:
@@ -519,39 +508,21 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(IS_BUT_DOWN(BUT_TOGFUN) == TRUE)
 			return;
 		BUT_DOWN(BUT_TOGFUN);
-		if(ToggleFunction == NONE){
-			ToggleFunction = CH1;
-			HAL_ADC_Stop_IT(&hadc3);
-			HAL_ADC_Stop_IT(&hadc1);
-			TM_HD44780_Puts(0,1,"Channel 1     ");
-			return;
-		}
+		StartApp = FALSE;
+
 		if(ToggleFunction == CH1){
-			ToggleFunction = CH2;
-			HAL_ADC_Start_IT(&hadc3);
-			HAL_ADC_Stop_IT(&hadc1);
-			TM_HD44780_Puts(0,1,"Channel 2     ");
-			return;
+		  ToggleFunction = CH2;
+		  ADS1256_SetDiffChannel(1);
+		  StartApp = TRUE;
+		  return;
 		}
 		if(ToggleFunction == CH2){
-			ToggleFunction = CH12;
-			TM_HD44780_Puts(0,1,"Both channels ");
-			return;
+		  ToggleFunction = CH1;
+		  ADS1256_SetDiffChannel(0);
+		  StartApp = TRUE;
+		  return;
 		}
-		if(ToggleFunction == CH12){
-			ToggleFunction = PERC;
-			HAL_ADC_Stop_IT(&hadc3);
-			HAL_ADC_Start_IT(&hadc1);
-			TM_HD44780_Puts(0,1,"Percussion    ");
-			return;
-		}
-		if(ToggleFunction == PERC){
-			ToggleFunction = NONE;
-			HAL_ADC_Start_IT(&hadc3);
-			HAL_ADC_Stop_IT(&hadc1);
-			TM_HD44780_Puts(0,1,"Select channel");
-			return;
-		}
+
 		break;
 	default: break;
 

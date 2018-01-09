@@ -76,7 +76,7 @@
 __IO BOOL Recording = FALSE;
 __IO BOOL Playback = FALSE;
 __IO BOOL Overdubbing = FALSE;
-__IO FUNCTION ToggleFunction = NONE;
+__IO FUNCTION ToggleFunction = CH1;
 __IO BOOL StartApp = FALSE;
 __IO BOOL clipping = FALSE;
 uint8_t footswitch = 0;
@@ -246,8 +246,8 @@ int main(void)
 
   while (1)
   {
-	if(Overdubbing == 1 && clipping == TRUE)
-		BSP_LED_On(LED_RED);
+	//if(Overdubbing == 1 && clipping == TRUE)
+		//BSP_LED_On(LED_RED);
 
 	 Keypad_Button = TM_KEYPAD_Read();
 	          /* Keypad was pressed */
@@ -269,7 +269,6 @@ int main(void)
 	                	  }
 	                	  break;
 	                  case TM_KEYPAD_Button_1:        /* Button 1 pressed */
-
 	                	  fd1 = SPIFFS_open(&fs, "my_file", SPIFFS_RDWR, 0);
 	                	  data = SPIFFS_errno(&fs);
 	                	  if (SPIFFS_read(&fs, fd1,sf3_hexID, 12) < 0) {
@@ -280,9 +279,9 @@ int main(void)
 	                	  SPIFFS_close(&fs, fd1);
 	                	  break;
 	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
-	                	  	  SRAMWriteByte(0,0,0,'c');
-	                	  	  data = SRAMReadByte(0,0,0);
-	                	  	  break;
+	                	  SRAMWriteByte(0,0,0,'c');
+						  data = SRAMReadByte(0,0,0);
+						  break;
 	                  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
 	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
 	                	         //Mounted OK, turn on RED LED

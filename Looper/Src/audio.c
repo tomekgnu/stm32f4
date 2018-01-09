@@ -53,7 +53,7 @@ int16_t sample16Min = 0;
 
 void record32s(int16_t sample,FUNCTION ch){
 
-	if(StartApp == 0 ){
+	if(StartApp == FALSE ){
 		return;
 	}
 
@@ -75,6 +75,10 @@ uint32_t dacSample;
 void play32s(int16_t newsample,FUNCTION ch){
 	int16_t read16s;
 	int16_t mix32tmp;
+
+	if(StartApp == FALSE ){
+		return;
+	}
 
 	if(ch == CH1)
 		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &read16s, 1);
@@ -102,11 +106,11 @@ void play32s(int16_t newsample,FUNCTION ch){
 		else return;
 	}
 	else{
-		if(ch == CH1)
-			BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &read16s, 1);
-		else if(ch == CH2)
-			BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer + 2,(uint16_t *) &read16s, 1);
-		else return;
+		//if(ch == CH1)
+		//	BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &read16s, 1);
+		//else if(ch == CH2)
+			//BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer + 2,(uint16_t *) &read16s, 1);
+		//else return;
 	}
 	SamplesRead++;
 	if(SamplesRead == SamplesWritten){
