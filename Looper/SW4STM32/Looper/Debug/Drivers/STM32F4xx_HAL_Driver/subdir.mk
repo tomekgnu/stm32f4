@@ -22,7 +22,7 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4
 C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_spi.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c \
-../Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_uart.c \
+C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_fmc.c 
 
 OBJS += \
@@ -215,7 +215,7 @@ Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_tim_ex.o: C:/Users/Tomek/workspace/to
 	@echo 'Finished building: $<'
 	@echo ' '
 
-Drivers/STM32F4xx_HAL_Driver/%.o: ../Drivers/STM32F4xx_HAL_Driver/%.c
+Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_uart.o: C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_uart.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo $(PWD)

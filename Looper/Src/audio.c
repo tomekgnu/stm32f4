@@ -52,16 +52,24 @@ int16_t sample16Min = 0;
 
 
 void record32s(int16_t sample,FUNCTION ch){
-
+	int16_t read;
 	if(StartApp == FALSE ){
 		return;
 	}
 
-	if(ch == CH1)
+	if(ch == CH1){
 		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + write_pointer,(uint16_t *) &sample, 1);
-	else if(ch == CH2)
+		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + write_pointer + 2,(uint16_t *)&read,1);
+	}
+	else if(ch == CH2){
 		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + write_pointer + 2,(uint16_t *) &sample, 1);
+		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + write_pointer,(uint16_t *)&read,1);
+	}
 	else return;
+	if(ch == CH1)
+		Write_DAC8552(channel_B,(uint16_t)(read + 16383));
+	else if(ch == CH2)
+		Write_DAC8552(channel_A,(uint16_t)(read + 16383));
 	SamplesWritten++;
 	write_pointer += 4;
 	if(write_pointer == SDRAM_SIZE)
@@ -73,30 +81,31 @@ uint32_t dacSample;
 
 
 void play32s(int16_t newsample,FUNCTION ch){
-	int16_t read16s;
+	int16_t read16s1,read16s2;
 	int16_t mix32tmp;
 
 	if(StartApp == FALSE ){
 		return;
 	}
 
-	if(ch == CH1)
-		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &read16s, 1);
-	else if(ch == CH2)
-		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + read_pointer + 2,(uint16_t *) &read16s, 1);
+	//if(ch == CH1)
+		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &read16s1, 1);
 
-	mix32tmp = read16s  + newsample;
+	//else if(ch == CH2)
+		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + read_pointer + 2,(uint16_t *) &read16s2, 1);
+
+	mix32tmp = read16s1  + newsample;
 	if(clipping == TRUE){
-		mix32tmp = (int32_t)(gain * (float)read16s  + gain * (float)newsample);
+		mix32tmp = (int32_t)(gain * (float)read16s1  + gain * (float)newsample);
 	}
 
 	if(mix32tmp > mix32Max)
 		mix32Max = mix32tmp;
-	if(ch == CH1)
-		Write_DAC8552(channel_A,(uint16_t)((float)read16s + 16383.00));
-	else if(ch == CH2)
-		Write_DAC8552(channel_B,(uint16_t)((float)read16s + 16383.00));
-	else return;
+	//if(ch == CH1)
+	Write_DAC8552(channel_A,(uint16_t)(0.5 * (read16s1 + read16s2)+ 16383));
+	//else if(ch == CH2)
+		//Write_DAC8552(channel_B,(uint16_t)(read16s2 + 16383));
+	//else return;
 
 	if(Overdubbing == TRUE){
 		if(ch == CH1)

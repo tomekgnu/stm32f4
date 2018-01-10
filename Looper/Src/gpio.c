@@ -359,13 +359,13 @@ void MX_GPIO_Init(void)
   HAL_NVIC_SetPriority(EXTI2_IRQn, 0, 1);
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI4_IRQn, 0, 1);
+  HAL_NVIC_SetPriority(EXTI4_IRQn, 2, 3);
   HAL_NVIC_EnableIRQ(EXTI4_IRQn);
 
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 2, 3);
   HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
 
-  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
+  HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 1);
   HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 
 }
@@ -509,17 +509,18 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			return;
 		BUT_DOWN(BUT_TOGFUN);
 		StartApp = FALSE;
-
 		if(ToggleFunction == CH1){
 		  ToggleFunction = CH2;
 		  ADS1256_SetDiffChannel(1);
-		  StartApp = TRUE;
+		 TM_HD44780_Puts(0,0,"Channel 2       ");
+
 		  return;
 		}
 		if(ToggleFunction == CH2){
 		  ToggleFunction = CH1;
 		  ADS1256_SetDiffChannel(0);
-		  StartApp = TRUE;
+		  TM_HD44780_Puts(0,0,"Channel 1       ");
+
 		  return;
 		}
 
