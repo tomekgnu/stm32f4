@@ -645,20 +645,18 @@ void Write_DAC8552(uint8_t channel, uint16_t Data)
 
 
 void Write_DAC8552_Both(uint16_t A,uint16_t B){
-	uint8_t tab1[6];
-	uint8_t tab2[6];
-	tab1[0] = 0x10;
-	tab1[1] = (uint8_t)(A >> 8);
-	tab1[2] = (uint8_t)(A & 0x00ff);
-	tab2[0] = 0x24;
-	tab2[1] = (uint8_t)(B >> 8);
-	tab2[2] = (uint8_t)(B & 0x00ff);
+	uint8_t tab[6];
+	tab[0] = 0x00;
+	tab[1] = (uint8_t)(A >> 8);
+	tab[2] = (uint8_t)A;
+	tab[3] = 0x34;
+	tab[4] = (uint8_t)(B >> 8);
+	tab[5] = (uint8_t)B;
+	CS1_0();
+	HAL_SPI_Transmit(&hspi3,tab,3,100);
 	CS1_1();
 	CS1_0();
-	HAL_SPI_Transmit(&hspi3,tab1,3,100);
-	CS1_1();
-	CS1_0();
-	HAL_SPI_Transmit(&hspi3,tab2,3,100);
+	HAL_SPI_Transmit(&hspi3,(tab + 3),3,100);
 	CS1_1();
 }
 /*

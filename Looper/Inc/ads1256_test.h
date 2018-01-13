@@ -178,8 +178,8 @@ void ADS1256_ISR(void);
 uint8_t ADS1256_Scan(void);
 void ShortDelayUS(uint32_t Delay);
 
-#define channel_A   0x30
-#define channel_B   0x34
+#define channel_A   0x10
+#define channel_B   0x24
 
 void Write_DAC8552(uint8_t channel, uint16_t Data);
 void Write_DAC8552_Both(uint16_t A,uint16_t B);

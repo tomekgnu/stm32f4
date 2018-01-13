@@ -76,23 +76,18 @@
 __IO BOOL Recording = FALSE;
 __IO BOOL Playback = FALSE;
 __IO BOOL Overdubbing = FALSE;
-__IO FUNCTION ToggleFunction = CH1;
 __IO BOOL StartApp = FALSE;
-__IO BOOL clipping = FALSE;
+
 uint8_t footswitch = 0;
 
-
+extern __IO uint32_t midiMetronomeClock;
 extern __IO uint8_t midiMetronome;
 extern __IO uint8_t midiRecording;
 extern __IO uint8_t midiPlayback;
 extern __IO uint32_t midiDrumClock;
 extern __IO uint32_t midiDrumPointer;
-extern __IO uint32_t midiMetronomeClock;
-extern uint32_t SamplesRead;
-extern int32_t sample32s;
-extern int16_t sample16s;
-extern int16_t sample16Max;
-extern int16_t sample16Min;
+extern __IO CHANNEL ch1;
+extern __IO CHANNEL ch2;
 extern uint8_t key_to_drum[];
 extern uint8_t midiEvents[];
 extern uint32_t midiTimes[];
@@ -149,7 +144,10 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-
+  ch1.Active = TRUE;
+  ch1.Monitor = TRUE;
+  ch1.Number = ONE;
+  ch2.Number = TWO;
   /* USER CODE END Init */
 
   /* Configure the system clock */

@@ -13,137 +13,104 @@
 #define DOUBLE_TO_USHORT(x)					(uint16_t)(x * ((double)(USHRT_MAX + 1)))
 
 
-uint32_t sampleADC;
-int32_t sample32s;
-int32_t sample32Min;
-int32_t sample32Max;
-int16_t sample16s;
 
-uint32_t dub_pointer = 0;
-uint32_t read_pointer = 0;
 extern __IO uint32_t midiDrumClock;
 extern __IO uint32_t midiDrumPointer;
-uint32_t write_pointer = 0;
-uint32_t SamplesWritten = 0;
-uint32_t SamplesRead = 0;
-uint32_t DataReady = 0;
+uint32_t sdram_pointer = 0;
+int16_t sample16s;
 
-
-
-__IO uint32_t CurrentSize;
-__IO uint32_t CurrentBytes;
-__IO uint8_t DmaTransferReady = 0;
-__IO GPIO_PinState GuitarTrigger = 0;
-
-uint16_t sample;
-uint16_t newsample;
-
-uint16_t upper;
-uint16_t lower;
-uint16_t mixed;
-uint32_t upperlower;
-float gain = 1.0;
-uint32_t clipcnt = 0;
-int32_t mix32Max = 32767;
-int32_t sample32Min = 0;
-int32_t sample32Max = 0;
-int16_t sample16Max = 0;
-int16_t sample16Min = 0;
-
-
-void record32s(int16_t sample,FUNCTION ch){
-	int16_t read;
+void record_sample(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
+	int16_t sread;
 	if(StartApp == FALSE ){
 		return;
 	}
-
-	if(ch == CH1){
-		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + write_pointer,(uint16_t *) &sample, 1);
-		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + write_pointer + 2,(uint16_t *)&read,1);
-	}
-	else if(ch == CH2){
-		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + write_pointer + 2,(uint16_t *) &sample, 1);
-		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + write_pointer,(uint16_t *)&read,1);
-	}
-	else return;
-	if(ch == CH1)
-		Write_DAC8552(channel_B,(uint16_t)(read + 16383));
-	else if(ch == CH2)
-		Write_DAC8552(channel_A,(uint16_t)(read + 16383));
-	SamplesWritten++;
-	write_pointer += 4;
-	if(write_pointer == SDRAM_SIZE)
-		write_pointer = 0;
-}
-
-int32_t mix32s;
-uint32_t dacSample;
-
-
-void play32s(int16_t newsample,FUNCTION ch){
-	int16_t read16s1,read16s2;
-	int16_t mix32tmp;
-
-	if(StartApp == FALSE ){
-		return;
-	}
-
-	//if(ch == CH1)
-		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &read16s1, 1);
-
-	//else if(ch == CH2)
-		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + read_pointer + 2,(uint16_t *) &read16s2, 1);
-
-	mix32tmp = read16s1  + newsample;
-	if(clipping == TRUE){
-		mix32tmp = (int32_t)(gain * (float)read16s1  + gain * (float)newsample);
-	}
-
-	if(mix32tmp > mix32Max)
-		mix32Max = mix32tmp;
-	//if(ch == CH1)
-	Write_DAC8552(channel_A,(uint16_t)(0.5 * (read16s1 + read16s2)+ 16383));
-	//else if(ch == CH2)
-		//Write_DAC8552(channel_B,(uint16_t)(read16s2 + 16383));
-	//else return;
-
-	if(Overdubbing == TRUE){
-		if(ch == CH1)
-			BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &mix32tmp, 1);
-		else if(ch == CH2)
-			BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer + 2,(uint16_t *) &mix32tmp, 1);
-		else return;
+	if(cha->Active == TRUE){
+		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) &swrite, 1);
+		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer + 2,(uint16_t *)&sread,1);
+		cha->SamplesWritten++;
+		chb->CurrentSample = sread;
 	}
 	else{
-		//if(ch == CH1)
-		//	BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer,(uint16_t *) &read16s, 1);
-		//else if(ch == CH2)
-			//BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + read_pointer + 2,(uint16_t *) &read16s, 1);
-		//else return;
+		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer  + 2,(uint16_t *) &swrite, 1);
+		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *)&sread,1);
+		chb->SamplesWritten++;
+		cha->CurrentSample = sread;
 	}
-	SamplesRead++;
-	if(SamplesRead == SamplesWritten){
-		if(Overdubbing == TRUE && mix32Max > 16383){
-			clipping = TRUE;
-			gain = 16383.00 / mix32Max;
-		}
-		else{
-			clipping = FALSE;
-			gain = 1.0;
-		}
 
-		mix32Max = 16383;
-		dub_pointer = 0;
-		SamplesRead = 0;
-		read_pointer = 0;
+
+	sdram_pointer += 4;
+	if(sdram_pointer == SDRAM_SIZE){
+		sdram_pointer = 0;
+		cha->SamplesRead = 0;
+		chb->SamplesRead = 0;
+	}
+}
+
+void play_channels(__IO CHANNEL *cha,__IO CHANNEL *chb){
+	if(cha->Monitor == TRUE && chb->Monitor == TRUE)
+		Write_DAC8552_Both((uint16_t)(cha->CurrentSample + 16383),(uint16_t)(chb->CurrentSample + 16383));
+	else if(cha->Monitor == TRUE)
+		Write_DAC8552(channel_A,(uint16_t)(cha->CurrentSample + 16383));
+	else if(chb->Monitor == TRUE)
+		Write_DAC8552(channel_B,(uint16_t)(chb->CurrentSample + 16383));
+
+
+}
+void read_sample(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
+	__IO CHANNEL *cur;	// currently active channel
+	int16_t sread[2];
+
+	if(StartApp == FALSE ){
 		return;
 	}
-		dub_pointer += 4;
-		read_pointer += 4;
-		if(read_pointer == SDRAM_SIZE)
-			read_pointer = 0;
-		if(dub_pointer == SDRAM_SIZE)
-			dub_pointer = 0;
+
+	BSP_SDRAM_ReadData(SDRAM_DEVICE_ADDR + sdram_pointer,(uint32_t *) sread, 1);
+	if(cha->Active == TRUE){
+		cur = cha;
+		cur->mix32tmp = sread[0]  + swrite;
+		cur->CurrentSample = sread[0];
+		chb->CurrentSample = sread[1];
+
+	}
+	else if(chb->Active == TRUE){
+		cur = chb;
+		cur->mix32tmp = sread[1]  + swrite;
+		cur->CurrentSample = sread[1];
+		cha->CurrentSample = sread[0];
+	}
+	else return;
+
+	cur->SamplesRead++;
+	if(cur->Clipping == TRUE)
+		cur->mix32tmp = (int32_t)(cur->gain * (float)sread[0]  + cur->gain * (float)swrite);
+	if(cur->mix32tmp > cur->mix32Max)
+		cur->mix32Max = cur->mix32tmp;
+	if(cur->Overdub == TRUE){
+		if(cur->Number == ONE)
+			BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) &cur->mix32tmp, 1);
+		else if(cur->Number == TWO)
+			BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer + 2,(uint16_t *) &cur->mix32tmp, 1);
+	}
+	if(cur->SamplesRead == cur->SamplesWritten){
+		if(cur->Overdub == TRUE && cur->mix32Max > 16383){
+			cur->Clipping = TRUE;
+			cur->gain = 16383.00 / cur->mix32Max;
+		}
+		else{
+			cur->Clipping = FALSE;
+			cur->gain = 1.0;
+		}
+
+		cur->mix32Max = 16383;
+		sdram_pointer = 0;
+		cur->SamplesRead = 0;
+		return;
+		}
+
+		sdram_pointer += 4;
+
+	if(sdram_pointer == SDRAM_SIZE)
+		sdram_pointer = 0;
 
 }
 
