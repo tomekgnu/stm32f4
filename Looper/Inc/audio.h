@@ -19,8 +19,8 @@ typedef struct {
 } CHANNEL;
 
 void showMinMaxSamples(int32_t min,int32_t max);
-void read_sample(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb);
-void record_sample(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb);
-void play_channels(__IO CHANNEL *cha,__IO CHANNEL *chb);
+void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb);
+void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb);
+void play_samples(__IO CHANNEL *cha,__IO CHANNEL *chb);
 
 #endif

@@ -146,6 +146,8 @@ int main(void)
   /* USER CODE BEGIN Init */
   ch1.Active = TRUE;
   ch1.Monitor = TRUE;
+  ch2.Active = FALSE;
+  ch2.Monitor = TRUE;
   ch1.Number = ONE;
   ch2.Number = TWO;
   /* USER CODE END Init */
@@ -160,15 +162,12 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_TIM3_Init();
   MX_TIM2_Init();
   MX_FMC_Init();
   MX_TIM4_Init();
-  MX_TIM8_Init();
   MX_SPI3_Init();
   MX_USART1_UART_Init();
   MX_ADC1_Init();
-  MX_ADC3_Init();
   MX_SPI5_Init();
 
   /* USER CODE BEGIN 2 */
@@ -213,7 +212,6 @@ int main(void)
 
   status = HAL_TIM_Base_Start_IT(&htim4);
   status = HAL_ADC_Start_IT(&hadc1);
-  status = HAL_ADC_Start_IT(&hadc3);
 
   ADS1256_WriteCmd(CMD_RESET);
   ADS1256_WriteCmd(CMD_SDATAC);

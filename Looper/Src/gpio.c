@@ -444,11 +444,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			return;
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
 		if(Playback == 1){
-			read_sample(sample16s,&ch1,&ch2);
-			play_channels(&ch1,&ch2);
+			read_samples(sample16s,&ch1,&ch2);
+			play_samples(&ch1,&ch2);
 		}
 		if(Recording == 1){
-			record_sample(sample16s,&ch1,&ch2);
+			record_samples(sample16s,&ch1,&ch2);
+			play_samples(&ch1,&ch2);
 		}
 		break;
 
@@ -498,6 +499,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		BUT_DOWN(BUT_PLAY);
 		StartApp = 0;
 		sdram_pointer = 0;
+		ch1.SamplesRead = 0;
+		ch2.SamplesRead = 0;
 		if(ch1.Active == TRUE){
 			ch1.Clipping = FALSE;
 			ch1.Overdub = FALSE;
