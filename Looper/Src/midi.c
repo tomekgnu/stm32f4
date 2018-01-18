@@ -3,12 +3,18 @@
 #include "usart.h"
 #include "tm_stm32f4_keypad.h"
 
-__IO uint32_t midiDrumClock = 0;
-__IO uint32_t midiMetronomeClock = 0;
-__IO uint32_t midiDrumPointer = 0;
+__IO uint16_t midiDrumClock = 0;
+__IO uint16_t midiMetronomeClock = 0;
+uint32_t midiDrumPointers[4];
 __IO uint32_t midiMetronomePointer = 0;
+
+uint16_t beats_per_minute	= 60;			// 1s = 1 quarter
+uint16_t millis_per_beat = 60000 / 60;
+
 uint8_t midiEvents[MIDI_QUEUE];
-uint32_t midiTimes[MIDI_QUEUE];
+uint16_t midiTimes[MIDI_QUEUE];
+
+uint16_t drumTracks[4][2][16];
 
 __IO uint8_t midiRecording = 0;
 __IO uint8_t midiPlayback = 0;
@@ -27,14 +33,26 @@ uint8_t key_to_drum[10] = {
 		Ride_Cymbal_2
 };
 
+void midiHandler(){
+	if(midiDrumClock < 4000)
+		midiDrumClock++;
+	else{
+			midiDrumClock = 0;
+			midiDrumPointers[L_HAND] = 0;
+			midiDrumPointers[R_HAND] = 0;
+			midiDrumPointers[L_FOOT] = 0;
+			midiDrumPointers[R_FOOT] = 0;
+	}
+}
+
 void playPercussionEvent(){
-	if(midiEvents[midiDrumPointer] != No_Event)
-		playPercussion(NOTEON,midiEvents[midiDrumPointer]);
+	//if(midiEvents[midiDrumPointer] != No_Event)
+		//playPercussion(NOTEON,midiEvents[midiDrumPointer]);
 }
 
 void recordPercussionEvent(TM_KEYPAD_Button_t e){
-	midiEvents[midiDrumPointer] = key_to_drum[e];
-	midiTimes[midiDrumPointer] = midiDrumClock;
+	//midiEvents[midiDrumPointer] = key_to_drum[e];
+	//midiTimes[midiDrumPointer] = midiDrumClock;
 }
 void setupMidi(){
 	//Reset the VS1053
@@ -74,7 +92,19 @@ void playPercussion(byte onoff,byte instrument){
 		noteOff(9, instrument, 60);
 }
 
+void playDrums(){
+	if(drumTracks[R_FOOT][DRUM][midiDrumPointers[R_FOOT]] != 0 && midiDrumClock >= drumTracks[R_FOOT][TIME][midiDrumPointers[R_FOOT]])
+		playPercussion(NOTEON,drumTracks[R_FOOT][DRUM][midiDrumPointers[R_FOOT]++]);
 
+	if(drumTracks[L_FOOT][DRUM][midiDrumPointers[L_FOOT]] != 0 && midiDrumClock >= drumTracks[L_FOOT][TIME][midiDrumPointers[L_FOOT]])
+		playPercussion(NOTEON,drumTracks[L_FOOT][DRUM][midiDrumPointers[L_FOOT]++]);
+
+	if(drumTracks[R_HAND][DRUM][midiDrumPointers[R_HAND]] != 0 && midiDrumClock >= drumTracks[R_HAND][TIME][midiDrumPointers[R_HAND]])
+		playPercussion(NOTEON,drumTracks[R_HAND][DRUM][midiDrumPointers[R_HAND]++]);
+
+	if(drumTracks[L_HAND][DRUM][midiDrumPointers[L_HAND]] != 0 && midiDrumClock >= drumTracks[L_HAND][TIME][midiDrumPointers[L_HAND]])
+		playPercussion(NOTEON,drumTracks[L_HAND][DRUM][midiDrumPointers[L_HAND]++]);
+}
 ///* MIDI Looper - Mike Cook
 // * -----------------
 // * records MIDI input then plays it out continuously

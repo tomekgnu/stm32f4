@@ -6,6 +6,14 @@
 #include "stm32f429xx.h"
 #include "tm_stm32f4_keypad.h"
 
+extern __IO uint16_t midiDrumClock;
+extern __IO uint16_t midiMetronomeClock;
+extern uint32_t midiDrumPointers[];
+extern __IO uint32_t midiMetronomePointer;
+extern __IO uint8_t midiRecording;
+extern __IO uint8_t midiPlayback;
+extern __IO uint8_t midiMetronome;
+
 void setupMidi();
 void noteOn(byte channel, byte note, byte attack_velocity);
 void noteOff(byte channel, byte note, byte release_velocity);
@@ -13,13 +21,22 @@ void talkMIDI(byte cmd, byte data1, byte data2);
 void playPercussion(byte onoff,byte instrument);
 void recordPercussionEvent(TM_KEYPAD_Button_t but);
 void playPercussionEvent();
+void midiHandler();
+void playDrums();
+
+#define L_HAND	0
+#define R_HAND	1
+#define L_FOOT	2
+#define R_FOOT	3
+#define	DRUM	0
+#define	TIME	1
 
 #define	VS1053_LOW()	HAL_GPIO_WritePin(VS1053_RESET_GPIO_Port,VS1053_RESET_Pin,GPIO_PIN_RESET);
 #define	VS1053_HIGH()	HAL_GPIO_WritePin(VS1053_RESET_GPIO_Port,VS1053_RESET_Pin,GPIO_PIN_SET);
 
-extern uint16_t BPM;			// beats per minute
+extern uint16_t beats_per_minute;			// beats per minute
+extern uint16_t millis_per_beat;
 
-#define BPQ					192	// beats per quarter
 #define NOTEON				1
 #define NOTEOFF				0
 

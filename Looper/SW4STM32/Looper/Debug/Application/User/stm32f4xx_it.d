@@ -39,7 +39,10 @@ Application/User/stm32f4xx_it.o: \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/stm32f429i_discovery_sdram.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_keypad.h \
- C:/Users/Tomek/workspace/tom32f4/Looper/Inc/audio.h
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/audio.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/midi.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_keypad.h
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h:
 
@@ -120,3 +123,9 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/stm32f429i_discovery.h:
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_keypad.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/audio.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/midi.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_keypad.h:

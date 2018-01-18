@@ -41,11 +41,9 @@
 #include "stm32f429i_discovery_sdram.h"
 #include "tm_stm32f4_keypad.h"
 #include "audio.h"
+#include "midi.h"
 
 extern ADC_HandleTypeDef hadc1;
-extern __IO uint8_t DmaTransferReady;
-extern __IO uint32_t midiDrumClock;
-extern __IO uint32_t midiMetronomeClock;
 
 /* USER CODE END 0 */
 
@@ -191,8 +189,7 @@ void TIM2_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
   TM_KEYPAD_Update();
-  midiDrumClock++;
-  midiMetronomeClock++;
+  midiHandler();
   /* USER CODE END TIM2_IRQn 1 */
 }
 
@@ -265,7 +262,7 @@ void EXTI0_IRQHandler(void) {
 
 
 void HAL_SDRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma){
-	DmaTransferReady = 1;
+
 }
 
 void HAL_SDRAM_DMA_XferErrorCallback(DMA_HandleTypeDef *hdma){

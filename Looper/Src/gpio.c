@@ -48,12 +48,8 @@
 #include "tm_stm32f4_ili9341.h"
 #include "stdlib.h"
 #include "adc.h"
+#include "midi.h"
 
-
-extern __IO uint8_t midiRecording;
-extern __IO uint8_t midiPlayback;
-extern __IO uint32_t midiDrumClock;
-extern __IO uint32_t midiDrumPointer;
 
 extern uint32_t sdram_pointer;
 extern int16_t sample16s;
@@ -413,8 +409,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	case GPIO_PIN_0:	// user button
 			midiRecording = FALSE;
 			midiPlayback = FALSE;
-			midiDrumPointer = FALSE;
-			midiDrumClock = FALSE;
+			midiDrumClock = 0;
+			midiDrumPointers[L_HAND] = 0;
+			midiDrumPointers[R_HAND] = 0;
+			midiDrumPointers[L_FOOT] = 0;
+			midiDrumPointers[R_FOOT] = 0;
 
 		if(Recording == 1 || Playback == 1){
 			Recording = FALSE;
@@ -461,6 +460,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		BUT_DOWN(BUT_REC);
 		StartApp = 0;
 		sdram_pointer = 0;
+		midiDrumClock = 0;
+		midiDrumPointers[L_HAND] = 0;
+		midiDrumPointers[R_HAND] = 0;
+		midiDrumPointers[L_FOOT] = 0;
+		midiDrumPointers[R_FOOT] = 0;
 		if(ch1.Active == TRUE){
 			ch1.Clipping = FALSE;
 			ch1.Overdub = FALSE;
@@ -483,8 +487,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		BSP_LED_On(LED_RED);
 		BSP_LED_Off(LED_GREEN);
 
-		midiDrumPointer = 0;
-		midiDrumClock = 0;
+		//midiDrumPointer = 0;
+		//midiDrumClock = 0;
 		Recording = 1;
 		Playback = 0;
 		StartApp = 1;
@@ -499,6 +503,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		BUT_DOWN(BUT_PLAY);
 		StartApp = 0;
 		sdram_pointer = 0;
+		midiDrumClock = 0;
+		midiDrumPointers[L_HAND] = 0;
+		midiDrumPointers[R_HAND] = 0;
+		midiDrumPointers[L_FOOT] = 0;
+		midiDrumPointers[R_FOOT] = 0;
 		ch1.SamplesRead = 0;
 		ch2.SamplesRead = 0;
 		if(ch1.Active == TRUE){
@@ -514,8 +523,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		BSP_LED_On(LED_GREEN);
 		BSP_LED_Off(LED_RED);
-		midiDrumPointer = 0;
-		midiDrumClock = 0;
+		//midiDrumPointer = 0;
+		//midiDrumClock = 0;
 		Recording = 0;
 		Playback = 1;
 		StartApp = 1;

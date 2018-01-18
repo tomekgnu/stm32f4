@@ -9,9 +9,9 @@
 #include "tm_stm32_hd44780.h"
 #include "stdlib.h"
 #include "math.h"
+#include "midi.h"
 
-extern __IO uint32_t midiDrumClock;
-extern __IO uint32_t midiDrumPointer;
+
 uint32_t sdram_pointer = 0;
 int16_t sample16s;
 
@@ -107,6 +107,11 @@ void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 		active->mix32Max = 16383;
 		sdram_pointer = 0;
 		active->SamplesRead = 0;
+		midiDrumClock = 0;
+		midiDrumPointers[L_HAND] = 0;
+		midiDrumPointers[R_HAND] = 0;
+		midiDrumPointers[L_FOOT] = 0;
+		midiDrumPointers[R_FOOT] = 0;
 		return;
 		}
 

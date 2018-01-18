@@ -80,17 +80,10 @@ __IO BOOL StartApp = FALSE;
 
 uint8_t footswitch = 0;
 
-extern __IO uint32_t midiMetronomeClock;
-extern __IO uint8_t midiMetronome;
-extern __IO uint8_t midiRecording;
-extern __IO uint8_t midiPlayback;
-extern __IO uint32_t midiDrumClock;
-extern __IO uint32_t midiDrumPointer;
+
 extern __IO CHANNEL ch1;
 extern __IO CHANNEL ch2;
 extern uint8_t key_to_drum[];
-extern uint8_t midiEvents[];
-extern uint32_t midiTimes[];
 
 /* USER CODE END PV */
 
@@ -119,6 +112,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+	extern uint16_t drumTracks[4][2][16];
 	uint32_t data;
 	char lcdline[30];
 	SF3ID sf3id;
@@ -227,6 +221,20 @@ int main(void)
   //FATFS_UnLinkDriver(SD_Path);
   TM_KEYPAD_Init();
   setupMidi();
+  memset(drumTracks,0,sizeof(drumTracks));
+  drumTracks[R_FOOT][DRUM][0] = Acoustic_Bass_Drum;
+  drumTracks[R_FOOT][DRUM][1] = Acoustic_Bass_Drum;
+  drumTracks[R_FOOT][DRUM][2] = Acoustic_Bass_Drum;
+  drumTracks[R_FOOT][TIME][0] = 0;
+  drumTracks[R_FOOT][TIME][1] = 2000;
+  drumTracks[R_FOOT][TIME][2] = 2500;
+
+  drumTracks[R_HAND][DRUM][0] = Acoustic_Snare;
+  drumTracks[R_HAND][DRUM][1] = Acoustic_Snare;
+  drumTracks[R_HAND][TIME][0] = 1000;
+  drumTracks[R_HAND][TIME][1] = 3000;
+
+
   talkMIDI(0xB0, 0, 0x01); //Default bank GM1
 
   TM_HD44780_Init(20, 4);
@@ -242,8 +250,7 @@ int main(void)
 
   while (1)
   {
-	//if(Overdubbing == 1 && clipping == TRUE)
-		//BSP_LED_On(LED_RED);
+
 
 	 Keypad_Button = TM_KEYPAD_Read();
 	          /* Keypad was pressed */
