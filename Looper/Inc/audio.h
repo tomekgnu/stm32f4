@@ -22,5 +22,6 @@ void showMinMaxSamples(int32_t min,int32_t max);
 void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb);
 void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb);
 void play_samples(__IO CHANNEL *cha,__IO CHANNEL *chb);
+void resetChannels(CHANNEL *ch1,CHANNEL *ch2);
 
 #endif

@@ -105,6 +105,16 @@ void playDrums(){
 	if(drumTracks[L_HAND][DRUM][midiDrumPointers[L_HAND]] != 0 && midiDrumClock >= drumTracks[L_HAND][TIME][midiDrumPointers[L_HAND]])
 		playPercussion(NOTEON,drumTracks[L_HAND][DRUM][midiDrumPointers[L_HAND]++]);
 }
+
+void resetDrums(){
+
+	midiDrumClock = 0;
+	midiDrumPointers[L_HAND] = 0;
+	midiDrumPointers[R_HAND] = 0;
+	midiDrumPointers[L_FOOT] = 0;
+	midiDrumPointers[R_FOOT] = 0;
+
+}
 ///* MIDI Looper - Mike Cook
 // * -----------------
 // * records MIDI input then plays it out continuously

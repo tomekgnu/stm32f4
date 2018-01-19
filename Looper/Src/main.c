@@ -76,7 +76,8 @@
 __IO BOOL Recording = FALSE;
 __IO BOOL Playback = FALSE;
 __IO BOOL Overdubbing = FALSE;
-__IO BOOL StartApp = FALSE;
+__IO BOOL StartLooper = FALSE;
+__IO BOOL StartDrums = FALSE;
 
 uint8_t footswitch = 0;
 
@@ -250,9 +251,9 @@ int main(void)
 
   while (1)
   {
-
-
-	 Keypad_Button = TM_KEYPAD_Read();
+	  if(StartDrums == TRUE)
+		  playDrums();
+	  Keypad_Button = TM_KEYPAD_Read();
 	          /* Keypad was pressed */
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
 	        	  switch (Keypad_Button) {
@@ -262,12 +263,12 @@ int main(void)
 	                	  sprintf(lcdline,"SF3 manufacturer: 0x%x",sf3id.manufacturer);
 	                	  TM_ILI9341_Puts(0, 24, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	                	  TM_ILI9341_Puts(0, 5, (data == 3?"ADS1256 OK\n":"ADS1256 failure\n"), &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	                	  if(StartApp == FALSE){
-	                		  StartApp = TRUE;
+	                	  if(StartLooper == FALSE){
+	                		  StartLooper = TRUE;
 	                		  TM_HD44780_Puts(7,0,"started");
 	                	  }
 	                	  else{
-	                		  StartApp = FALSE;
+	                		  StartLooper = FALSE;
 	                		  TM_HD44780_Puts(7,0,"stopped");
 	                	  }
 	                	  break;
@@ -340,7 +341,13 @@ int main(void)
 //	                	  }
 	                	  break;
 	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
-
+	                	  if(StartDrums == FALSE){
+	                		  resetDrums();
+	                		  StartDrums = TRUE;
+	                	  }
+	                	  else{
+	                		  StartDrums = FALSE;
+	                	  }
 	                	  break;
 	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
 	                	  if(midiMetronome == 0){

@@ -409,37 +409,22 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	case GPIO_PIN_0:	// user button
 			midiRecording = FALSE;
 			midiPlayback = FALSE;
-			midiDrumClock = 0;
-			midiDrumPointers[L_HAND] = 0;
-			midiDrumPointers[R_HAND] = 0;
-			midiDrumPointers[L_FOOT] = 0;
-			midiDrumPointers[R_FOOT] = 0;
+			StartDrums = FALSE;
+			resetDrums();
+			resetChannels(&ch1,&ch2);
 
 		if(Recording == 1 || Playback == 1){
 			Recording = FALSE;
 			Playback = FALSE;
-			StartApp = FALSE;
-			ch1.Clipping = FALSE;
-			ch2.Clipping = FALSE;
-			ch1.Overdub = FALSE;
-			ch2.Overdub = FALSE;
-			ch1.mix32Max = 16383;
-			ch2.mix32Max = 16383;
-			ch1.gain = 1.0;
-			ch2.gain = 1.0;
-			ch1.SamplesRead = 0;
-			ch2.SamplesRead = 0;
-			ch1.SamplesWritten = 0;
-			ch2.SamplesWritten = 0;
-			ch1.CurrentSample = 0;
-			ch2.CurrentSample = 0;
+			StartLooper = FALSE;
+			StartDrums = FALSE;
 			BSP_LED_Off(LED_RED);
 			BSP_LED_Off(LED_GREEN);
 		}
 
 		break;
 	case ADS1256_DRDY_Pin:
-		if(StartApp == 0)
+		if(StartLooper == 0)
 			return;
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
 		if(Playback == 1){
@@ -458,13 +443,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(IS_BUT_DOWN(BUT_REC) == TRUE)
 			return;
 		BUT_DOWN(BUT_REC);
-		StartApp = 0;
+		StartLooper = 0;
 		sdram_pointer = 0;
-		midiDrumClock = 0;
-		midiDrumPointers[L_HAND] = 0;
-		midiDrumPointers[R_HAND] = 0;
-		midiDrumPointers[L_FOOT] = 0;
-		midiDrumPointers[R_FOOT] = 0;
+		resetDrums();
 		if(ch1.Active == TRUE){
 			ch1.Clipping = FALSE;
 			ch1.Overdub = FALSE;
@@ -491,7 +472,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		//midiDrumClock = 0;
 		Recording = 1;
 		Playback = 0;
-		StartApp = 1;
+		StartLooper = 1;
 		break;
 	case Playback_Pin:
 		if(Playback == TRUE)
@@ -501,13 +482,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(IS_BUT_DOWN(BUT_PLAY) == TRUE)
 			return;
 		BUT_DOWN(BUT_PLAY);
-		StartApp = 0;
+		StartLooper = 0;
 		sdram_pointer = 0;
-		midiDrumClock = 0;
-		midiDrumPointers[L_HAND] = 0;
-		midiDrumPointers[R_HAND] = 0;
-		midiDrumPointers[L_FOOT] = 0;
-		midiDrumPointers[R_FOOT] = 0;
+		resetDrums();
 		ch1.SamplesRead = 0;
 		ch2.SamplesRead = 0;
 		if(ch1.Active == TRUE){
@@ -527,7 +504,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		//midiDrumClock = 0;
 		Recording = 0;
 		Playback = 1;
-		StartApp = 1;
+		StartLooper = 1;
 		break;
 	case Overdubbing_Pin:
 		if(IS_BUT_DOWN(BUT_OVERDUB) == TRUE)
@@ -550,7 +527,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(IS_BUT_DOWN(BUT_TOGFUN) == TRUE)
 			return;
 		BUT_DOWN(BUT_TOGFUN);
-		StartApp = FALSE;
+		StartLooper = FALSE;
 		if(ch1.Active == TRUE){
 			ch1.Active = FALSE;
 			ch2.Active = TRUE;

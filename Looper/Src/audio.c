@@ -17,7 +17,7 @@ int16_t sample16s;
 
 void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 	int16_t sread;
-	if(StartApp == FALSE ){
+	if(StartLooper == FALSE ){
 		return;
 	}
 	if(cha->Active == TRUE){
@@ -35,10 +35,14 @@ void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 
 
 	sdram_pointer += 4;
+	if(cha->SamplesWritten == chb->SamplesWritten){
+		StartLooper = FALSE;
+	}
 	if(sdram_pointer == SDRAM_SIZE){
 		sdram_pointer = 0;
 		cha->SamplesRead = 0;
 		chb->SamplesRead = 0;
+		resetDrums();
 	}
 }
 
@@ -58,7 +62,7 @@ void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 	__IO CHANNEL *other;	// other channel
 	int16_t sread[2];
 
-	if(StartApp == FALSE ){
+	if(StartLooper == FALSE ){
 		return;
 	}
 
@@ -107,11 +111,7 @@ void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 		active->mix32Max = 16383;
 		sdram_pointer = 0;
 		active->SamplesRead = 0;
-		midiDrumClock = 0;
-		midiDrumPointers[L_HAND] = 0;
-		midiDrumPointers[R_HAND] = 0;
-		midiDrumPointers[L_FOOT] = 0;
-		midiDrumPointers[R_FOOT] = 0;
+		resetDrums();
 		return;
 		}
 
@@ -122,6 +122,22 @@ void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 
 }
 
+void resetChannels(CHANNEL *ch1,CHANNEL *ch2){
+	ch1->Clipping = FALSE;
+	ch2->Clipping = FALSE;
+	ch1->Overdub = FALSE;
+	ch2->Overdub = FALSE;
+	ch1->mix32Max = 16383;
+	ch2->mix32Max = 16383;
+	ch1->gain = 1.0;
+	ch2->gain = 1.0;
+	ch1->SamplesRead = 0;
+	ch2->SamplesRead = 0;
+	ch1->SamplesWritten = 0;
+	ch2->SamplesWritten = 0;
+	ch1->CurrentSample = 0;
+	ch2->CurrentSample = 0;
+}
 
 void showMinMaxSamples(int32_t max,int32_t min){
 	char minstr[10],maxstr[10];

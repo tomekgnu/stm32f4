@@ -22,6 +22,7 @@ void playPercussion(byte onoff,byte instrument);
 void recordPercussionEvent(TM_KEYPAD_Button_t but);
 void playPercussionEvent();
 void midiHandler();
+void resetDrums();
 void playDrums();
 
 #define L_HAND	0
