@@ -15,7 +15,10 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+Application/FatFS \
+Application/SPIFFS \
 Application/SW4STM32 \
+Application/TM \
 Application/User \
 Drivers/CMSIS \
 Drivers/STM32F4xx_HAL_Driver \

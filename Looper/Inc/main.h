@@ -68,10 +68,8 @@ void Error_Handler(void);
 extern __IO BOOL Recording;
 extern __IO BOOL Playback;
 extern __IO BOOL Overdubbing;
-extern __IO FUNCTION ToggleFunction;
 extern __IO BOOL StartLooper;
 extern __IO BOOL StartDrums;
-extern __IO BOOL clipping;
 extern uint8_t footswitch;
 
 #define delayUS_ASM(us) do {\

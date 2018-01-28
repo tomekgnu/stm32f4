@@ -11,7 +11,10 @@ RM := rm -rf
 -include Drivers/STM32F4xx_HAL_Driver/subdir.mk
 -include Drivers/CMSIS/subdir.mk
 -include Application/User/subdir.mk
+-include Application/TM/subdir.mk
 -include Application/SW4STM32/subdir.mk
+-include Application/SPIFFS/subdir.mk
+-include Application/FatFS/subdir.mk
 -include subdir.mk
 -include objects.mk
 

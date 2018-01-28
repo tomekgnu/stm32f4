@@ -42,7 +42,7 @@
 #include "tm_stm32f4_keypad.h"
 #include "audio.h"
 #include "midi.h"
-
+#include "drums.h"
 extern ADC_HandleTypeDef hadc1;
 
 /* USER CODE END 0 */
@@ -190,7 +190,7 @@ void TIM2_IRQHandler(void)
   /* USER CODE BEGIN TIM2_IRQn 1 */
   TM_KEYPAD_Update();
   if(StartDrums == TRUE)
-	  midiHandler();
+	  midiDrumHandler();
   /* USER CODE END TIM2_IRQn 1 */
 }
 

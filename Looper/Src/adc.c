@@ -51,6 +51,7 @@
 #include "math.h"
 #include "tm_stm32_hd44780.h"
 #include "midi.h"
+#include "drums.h"
 #include "ads1256_test.h"
 
 #define pi 3.14159
@@ -59,11 +60,8 @@ extern uint8_t key_to_drum[];
 
 
 uint32_t adc1val;
-int32_t adc3val;
 char strval[5];
 
-uint32_t key_ticks_button_up = 0;
-uint32_t key_ticks_button_down = 0;
 
 void HAL_ADC_ErrorCallback(ADC_HandleTypeDef * hadc){
 	utoa(hadc->ErrorCode,strval,10);
@@ -136,7 +134,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		case 61: adc1val = 15;
 				break;
 		case 62: adc1val = 16;
-				Overdubbing = !Overdubbing;
 				break;
 		default: return;
 

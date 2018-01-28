@@ -55,6 +55,7 @@
 #include "stm32f429i_discovery_sdram.h"
 #include "main.h"
 #include "midi.h"
+#include "drums.h"
 #include "string.h"
 #include "math.h"
 #include "drums.h"
@@ -66,6 +67,7 @@
 #include "SRAMDriver.h"
 #include "tm_stm32f4_fatfs.h"
 #define pi 3.14159
+#define LOG_PAGE_SIZE       256
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -78,7 +80,6 @@ __IO BOOL Playback = FALSE;
 __IO BOOL Overdubbing = FALSE;
 __IO BOOL StartLooper = FALSE;
 __IO BOOL StartDrums = FALSE;
-
 uint8_t footswitch = 0;
 
 
@@ -93,18 +94,18 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-#define LOG_PAGE_SIZE       256
+
 static void my_spiffs_mount();
+
+
+/* USER CODE END PFP */
+
+/* USER CODE BEGIN 0 */
 static u8_t spiffs_work_buf[LOG_PAGE_SIZE*2];
 static u8_t spiffs_fds[32*4];
 static u8_t spiffs_cache_buf[(LOG_PAGE_SIZE+32)*4];
 static spiffs fs;
-/* USER CODE END PFP */
 
-/* USER CODE BEGIN 0 */
-
-
-extern char SD_Path[];
 TM_KEYPAD_Button_t Keypad_Button;
 
 /* USER CODE END 0 */
@@ -116,8 +117,7 @@ int main(void)
 	extern uint16_t drumTracks[4][2][16];
 	uint32_t data;
 	char lcdline[30];
-	SF3ID sf3id;
-	uint8_t sf3_hexID[40];
+	uint32_t SF3ID;
 	HAL_StatusTypeDef status;
 	spiffs_file fd1;
 	//Fatfs object
@@ -172,7 +172,6 @@ int main(void)
   BSP_SDRAM_Init();
   HAL_NVIC_DisableIRQ(EXTI2_IRQn);
   //HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_SET);
-  resetDevice();	// S3 memory
   TM_ILI9341_Init();
   //Rotate LCD for 90 degrees
   TM_ILI9341_Rotate(TM_ILI9341_Orientation_Landscape_1);
@@ -259,8 +258,8 @@ int main(void)
 	        	  switch (Keypad_Button) {
 	                  case TM_KEYPAD_Button_0:        /* Button 0 pressed */
 	                	  HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_SET);
-	                	  getDeviceID((uint8_t *)&sf3id);
-	                	  sprintf(lcdline,"SF3 manufacturer: 0x%x",sf3id.manufacturer);
+	                	  SF3ID = sFLASH_ReadID();
+	                	  sprintf(lcdline,"SF3 manufacturer: 0x%x",(unsigned int)SF3ID);
 	                	  TM_ILI9341_Puts(0, 24, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	                	  TM_ILI9341_Puts(0, 5, (data == 3?"ADS1256 OK\n":"ADS1256 failure\n"), &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	                	  if(StartLooper == FALSE){
@@ -275,11 +274,8 @@ int main(void)
 	                  case TM_KEYPAD_Button_1:        /* Button 1 pressed */
 	                	  fd1 = SPIFFS_open(&fs, "my_file", SPIFFS_RDWR, 0);
 	                	  data = SPIFFS_errno(&fs);
-	                	  if (SPIFFS_read(&fs, fd1,sf3_hexID, 12) < 0) {
-	                		  data = SPIFFS_errno(&fs);
-	                		  sprintf(sf3_hexID,"%d",(int32_t)data);
-	                	  }
-	                	  TM_HD44780_Puts(0,1,(char *)sf3_hexID);
+	                	  if(data == 0)
+	                		  TM_HD44780_Puts(0,1,"Hello world");
 	                	  SPIFFS_close(&fs, fd1);
 	                	  break;
 	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
@@ -323,22 +319,6 @@ int main(void)
 	                  case TM_KEYPAD_Button_9:        /* Button 9 pressed */
 	                	  sprintf(lcdline,"Button %d pressed",Keypad_Button);
 	                	  TM_ILI9341_Puts(5, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-
-//	                	 if(midiRecording == 0){
-//	                		  midiDrumPointer = 0;
-//	                		  midiDrumClock = 0;
-//	                		  midiRecording = 1;
-//	                		  midiPlayback = 0;
-//	                	  }
-	                	  //recordPercussionEvent(Keypad_Button);
-	                	  playPercussion(NOTEON,key_to_drum[Keypad_Button]);
-//	                	  midiDrumPointer++;
-//	                	  if(midiDrumPointer == MIDI_QUEUE){
-//	                		  midiEvents[MIDI_QUEUE - 1] = No_Event;
-//	                		  midiTimes[MIDI_QUEUE - 1] = midiDrumClock;
-//	                		  midiDrumClock = 0;
-//	                		  midiDrumPointer = 0;
-//	                	  }
 	                	  break;
 	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
 	                	  if(StartDrums == FALSE){
@@ -350,16 +330,10 @@ int main(void)
 	                	  }
 	                	  break;
 	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
-	                	  if(midiMetronome == 0){
-	                		  //playPercussion(NOTEON,Metronome_Bell);
-	                		  midiMetronome = 1;
-	                	  }
-	                	  else
-	                		  midiMetronome = 0;
-	                	  midiMetronomeClock = 0;
+
 	                      break;
 	                  case TM_KEYPAD_Button_A:        /* Button A pressed, only on large keyboard */
-	                      /* Do your stuff here */
+
 	                	 break;
 	                  case TM_KEYPAD_Button_B:        /* Button B pressed, only on large keyboard */
 	                      /* Do your stuff here */
@@ -376,21 +350,6 @@ int main(void)
 
 	        	  }// end of key pressed
 
-//	          if(midiMetronome == 1 && midiMetronomeClock >= 10000){
-//	        	  midiMetronomeClock = 0;
-//	        	  playPercussion(NOTEON,Metronome_Bell);
-//	          }
-//
-//	          if(midiPlayback == 1 && midiDrumClock >= midiTimes[midiDrumPointer]){
-//	          	playPercussionEvent();
-//	          	if(midiEvents[midiDrumPointer] == No_Event){
-//	          		midiDrumPointer = 0;
-//	          		midiDrumClock = 0;
-//	          	}
-//	          	else
-//	          		midiDrumPointer++;
-
-//	          }
 
 
   /* USER CODE END WHILE */

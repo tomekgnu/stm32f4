@@ -49,7 +49,7 @@
 #include "stdlib.h"
 #include "adc.h"
 #include "midi.h"
-
+#include "drums.h"
 
 extern uint32_t sdram_pointer;
 extern int16_t sample16s;
@@ -402,13 +402,10 @@ void KeyboardConfig(void){
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
-
 	char keystr[20];
 	switch (GPIO_Pin) {
 
 	case GPIO_PIN_0:	// user button
-			midiRecording = FALSE;
-			midiPlayback = FALSE;
 			StartDrums = FALSE;
 			resetDrums();
 			resetChannels(&ch1,&ch2);
