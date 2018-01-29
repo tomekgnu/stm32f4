@@ -55,6 +55,7 @@
 #include "stm32f429i_discovery_sdram.h"
 #include "main.h"
 #include "midi.h"
+#include "menu.h"
 #include "drums.h"
 #include "string.h"
 #include "math.h"
@@ -79,13 +80,12 @@ __IO BOOL Recording = FALSE;
 __IO BOOL Playback = FALSE;
 __IO BOOL Overdubbing = FALSE;
 __IO BOOL StartLooper = FALSE;
-__IO BOOL StartDrums = FALSE;
+__IO DrumFunction DrumState = DRUM_STOP;
 uint8_t footswitch = 0;
 
 
 extern __IO CHANNEL ch1;
 extern __IO CHANNEL ch2;
-extern uint8_t key_to_drum[];
 
 /* USER CODE END PV */
 
@@ -250,7 +250,7 @@ int main(void)
 
   while (1)
   {
-	  if(StartDrums == TRUE)
+	  if(DrumState == DRUM_START)
 		  playDrums();
 	  Keypad_Button = TM_KEYPAD_Read();
 	          /* Keypad was pressed */
@@ -321,14 +321,17 @@ int main(void)
 	                	  TM_ILI9341_Puts(5, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	                	  break;
 	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
-	                	  if(StartDrums == FALSE){
-	                		  resetDrums();
-	                		  StartDrums = TRUE;
-	                	  }
-	                	  else{
-	                		  StartDrums = FALSE;
-	                	  }
-	                	  break;
+							  switch(DrumState){
+							  	 case DRUM_EDIT: resetDrums();
+											  	 DrumState = DRUM_START;
+											  	 break;
+							  	 case DRUM_START: DrumState = DRUM_STOP;
+											  	  break;
+							  	 case DRUM_STOP: DrumState = DRUM_EDIT;
+							  	 	 	 	 	 menuDrumEdit();
+											  	 break;
+							  }
+							  break;
 	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
 
 	                      break;

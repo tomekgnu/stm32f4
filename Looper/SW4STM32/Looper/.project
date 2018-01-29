@@ -171,6 +171,11 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/main.c</locationURI>
 		</link>
 		<link>
+			<name>Application/User/menu.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/menu.c</locationURI>
+		</link>
+		<link>
 			<name>Application/User/midi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/midi.c</locationURI>

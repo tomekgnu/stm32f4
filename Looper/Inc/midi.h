@@ -6,6 +6,9 @@
 #include "stm32f429xx.h"
 #include "tm_stm32f4_keypad.h"
 
+typedef enum{DRUM_START,DRUM_STOP,DRUM_EDIT}DrumFunction;
+
+extern __IO DrumFunction DrumState;
 extern __IO uint16_t midiDrumClock;
 extern __IO uint16_t midiMetronomeClock;
 extern uint32_t midiDrumPointers[];

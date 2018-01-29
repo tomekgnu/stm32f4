@@ -189,7 +189,7 @@ void TIM2_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
   TM_KEYPAD_Update();
-  if(StartDrums == TRUE)
+  if(DrumState == DRUM_START)
 	  midiDrumHandler();
   /* USER CODE END TIM2_IRQn 1 */
 }

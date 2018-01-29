@@ -406,7 +406,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	switch (GPIO_Pin) {
 
 	case GPIO_PIN_0:	// user button
-			StartDrums = FALSE;
+			DrumState = DRUM_STOP;
 			resetDrums();
 			resetChannels(&ch1,&ch2);
 
@@ -414,7 +414,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			Recording = FALSE;
 			Playback = FALSE;
 			StartLooper = FALSE;
-			StartDrums = FALSE;
+			DrumState = DRUM_STOP;
 			BSP_LED_Off(LED_RED);
 			BSP_LED_Off(LED_GREEN);
 		}

@@ -51,6 +51,7 @@ Application/User/main.o: \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/midi.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_keypad.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/menu.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/drums.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/audio.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/SF3.h \
@@ -167,6 +168,8 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/midi.h:
 C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_keypad.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/menu.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/drums.h:
 
