@@ -52,6 +52,7 @@
 #include "tm_stm32_hd44780.h"
 #include "midi.h"
 #include "drums.h"
+#include "menu.h"
 #include "ads1256_test.h"
 
 #define pi 3.14159
@@ -59,7 +60,7 @@
 extern uint8_t key_to_drum[];
 
 
-uint32_t adc1val;
+uint32_t adc1val = 0;
 char strval[5];
 
 
@@ -77,6 +78,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		case 1:
 		case 2:
 		case 3:adc1val = 1;
+
 				break;
 		case 9:
 		case 10:
@@ -142,6 +144,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		utoa(adc1val,strval,10);
 		TM_HD44780_Puts(0,0,strval);
 		playPercussion(NOTEON,key_to_drum[adc1val - 1]);
+
 	}
 }
 

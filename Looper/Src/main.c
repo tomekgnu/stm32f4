@@ -86,7 +86,7 @@ uint8_t footswitch = 0;
 
 extern __IO CHANNEL ch1;
 extern __IO CHANNEL ch2;
-
+extern adc1val;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -222,19 +222,7 @@ int main(void)
   TM_KEYPAD_Init();
   setupMidi();
   memset(drumTracks,0,sizeof(drumTracks));
-  drumTracks[R_FOOT][DRUM][0] = Acoustic_Bass_Drum;
-  drumTracks[R_FOOT][DRUM][1] = Acoustic_Bass_Drum;
-  drumTracks[R_FOOT][DRUM][2] = Acoustic_Bass_Drum;
-  drumTracks[R_FOOT][TIME][0] = 0;
-  drumTracks[R_FOOT][TIME][1] = 2000;
-  drumTracks[R_FOOT][TIME][2] = 2500;
-
-  drumTracks[R_HAND][DRUM][0] = Acoustic_Snare;
-  drumTracks[R_HAND][DRUM][1] = Acoustic_Snare;
-  drumTracks[R_HAND][TIME][0] = 1000;
-  drumTracks[R_HAND][TIME][1] = 3000;
-
-
+  initDrumBeats();
   talkMIDI(0xB0, 0, 0x01); //Default bank GM1
 
   TM_HD44780_Init(20, 4);
@@ -252,6 +240,10 @@ int main(void)
   {
 	  if(DrumState == DRUM_START)
 		  playDrums();
+	  if(DrumState == DRUM_EDIT && adc1val > 0){
+		  placeDrumSymbol(adc1val);
+		  adc1val = 0;
+	  }
 	  Keypad_Button = TM_KEYPAD_Read();
 	          /* Keypad was pressed */
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
@@ -312,8 +304,12 @@ int main(void)
 	                	     }
 	                	   	  break;
 	                  case TM_KEYPAD_Button_4:        /* Button 4 pressed */
+	                	  	  moveBeatBack();
+	                	  	  break;
 	                  case TM_KEYPAD_Button_5:        /* Button 5 pressed */
 	                  case TM_KEYPAD_Button_6:        /* Button 6 pressed */
+	                	  	  moveBeatForward();
+	                	  	  break;
 	                  case TM_KEYPAD_Button_7:        /* Button 7 pressed */
 	                  case TM_KEYPAD_Button_8:        /* Button 8 pressed */
 	                  case TM_KEYPAD_Button_9:        /* Button 9 pressed */
@@ -333,19 +329,18 @@ int main(void)
 							  }
 							  break;
 	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
-
-	                      break;
+	                	  break;
 	                  case TM_KEYPAD_Button_A:        /* Button A pressed, only on large keyboard */
-
+	                	 setDrumPart(R_HAND);
 	                	 break;
 	                  case TM_KEYPAD_Button_B:        /* Button B pressed, only on large keyboard */
-	                      /* Do your stuff here */
+	                	  setDrumPart(L_HAND);
 	                      break;
 	                  case TM_KEYPAD_Button_C:        /* Button C pressed, only on large keyboard */
-	                      /* Do your stuff here */
+	                	  setDrumPart(R_FOOT);
 	                      break;
 	                  case TM_KEYPAD_Button_D:        /* Button D pressed, only on large keyboard */
-	                      /* Do your stuff here */
+	                	  setDrumPart(L_FOOT);
 	                      break;
 	                  default:
 	                      break;
