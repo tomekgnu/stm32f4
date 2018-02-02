@@ -86,7 +86,8 @@ uint8_t footswitch = 0;
 
 extern __IO CHANNEL ch1;
 extern __IO CHANNEL ch2;
-extern adc1val;
+extern uint32_t adc1val;
+extern BOOL ShowBeat;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -178,26 +179,6 @@ int main(void)
   //FIll lcd with color
   TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
 
-//     //Draw white circle
-//     TM_ILI9341_DrawCircle(60, 60, 40, ILI9341_COLOR_GREEN);
-//     //Draw red filled circle
-//     TM_ILI9341_DrawFilledCircle(60, 60, 35, ILI9341_COLOR_RED);
-//     //Draw blue rectangle
-//     TM_ILI9341_DrawRectangle(120, 20, 220, 100, ILI9341_COLOR_BLUE);
-//     //Draw black filled rectangle
-//     TM_ILI9341_DrawFilledRectangle(130, 30, 210, 90, ILI9341_COLOR_BLACK);
-//     //Draw line with custom color 0x0005
-//     TM_ILI9341_DrawLine(10, 120, 310, 120, 0x0005);
-//
-//     //Put string with black foreground color and blue background with 11x18px font
-//     TM_ILI9341_Puts(65, 130, "STM32F4 Discovery", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-//     //Put string with black foreground color and blue background with 11x18px font
-//     TM_ILI9341_Puts(60, 150, "ILI9341 LCD Module", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-//     //Put string with black foreground color and red background with 11x18px font
-//     TM_ILI9341_Puts(245, 225, "majerle.eu", &TM_Font_7x10, ILI9341_COLOR_BLACK, ILI9341_COLOR_ORANGE);
-
-
-
   status = HAL_TIM_Base_Start_IT(&htim2);
 
   BSP_LED_Init(LED_GREEN);
@@ -238,8 +219,7 @@ int main(void)
 
   while (1)
   {
-	  if(DrumState == DRUM_START)
-		  playDrums();
+
 	  if(DrumState == DRUM_EDIT && adc1val > 0){
 		  placeDrumSymbol(adc1val);
 		  adc1val = 0;
@@ -249,6 +229,10 @@ int main(void)
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
 	        	  switch (Keypad_Button) {
 	                  case TM_KEYPAD_Button_0:        /* Button 0 pressed */
+	                	  if(DrumState == DRUM_EDIT){
+	                		  clearDrumSymbol();
+	                		  break;
+	                	  }
 	                	  HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_SET);
 	                	  SF3ID = sFLASH_ReadID();
 	                	  sprintf(lcdline,"SF3 manufacturer: 0x%x",(unsigned int)SF3ID);
@@ -324,6 +308,7 @@ int main(void)
 							  	 case DRUM_START: DrumState = DRUM_STOP;
 											  	  break;
 							  	 case DRUM_STOP: DrumState = DRUM_EDIT;
+							  	 	 	 	 	 adc1val = 0;
 							  	 	 	 	 	 menuDrumEdit();
 											  	 break;
 							  }
@@ -331,16 +316,20 @@ int main(void)
 	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
 	                	  break;
 	                  case TM_KEYPAD_Button_A:        /* Button A pressed, only on large keyboard */
-	                	 setDrumPart(R_HAND);
+	                	 if(DrumState == DRUM_EDIT)
+	                		 setDrumPart(R_HAND);
 	                	 break;
 	                  case TM_KEYPAD_Button_B:        /* Button B pressed, only on large keyboard */
-	                	  setDrumPart(L_HAND);
+	                	  if(DrumState == DRUM_EDIT)
+	                	  	setDrumPart(L_HAND);
 	                      break;
 	                  case TM_KEYPAD_Button_C:        /* Button C pressed, only on large keyboard */
-	                	  setDrumPart(R_FOOT);
+	                	  if(DrumState == DRUM_EDIT)
+	                		  setDrumPart(R_FOOT);
 	                      break;
 	                  case TM_KEYPAD_Button_D:        /* Button D pressed, only on large keyboard */
-	                	  setDrumPart(L_FOOT);
+	                	  if(DrumState == DRUM_EDIT)
+	                		  setDrumPart(L_FOOT);
 	                      break;
 	                  default:
 	                      break;
