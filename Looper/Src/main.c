@@ -115,7 +115,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	extern uint16_t drumTracks[4][2][16];
+
 	uint32_t data;
 	char lcdline[30];
 	uint32_t SF3ID;
@@ -221,7 +221,7 @@ int main(void)
   {
 
 	  if(DrumState == DRUM_EDIT && adc1val > 0){
-		  placeDrumSymbol(adc1val);
+		  placeDrumFromKeyboard(adc1val);
 		  adc1val = 0;
 	  }
 	  Keypad_Button = TM_KEYPAD_Read();
@@ -270,13 +270,14 @@ int main(void)
 	                	        	 BSP_LED_Off(LED_RED);
 
 	                	             //If we put more than 0 characters (everything OK)
-	                	             if (f_puts("First string in my file\n", &fil) > 0) {
+	                	             if (f_write(&fil,drumTracks,sizeof(drumTracks),(UINT *)&data) == FR_OK) {
 	                	                 if (TM_FATFS_DriveSize(&total, &free) == FR_OK) {
 	                	                     //Data for drive size are valid
 	                	                 }
 
 	                	                 //Turn on both leds
-	                	                 BSP_LED_On(LED_GREEN | LED_RED);
+	                	                 BSP_LED_On(LED_GREEN);
+	                	                 BSP_LED_On(LED_RED);
 	                	             }
 
 	                	             //Close file, don't forget this!
@@ -291,6 +292,35 @@ int main(void)
 	                	  	  moveBeatBack();
 	                	  	  break;
 	                  case TM_KEYPAD_Button_5:        /* Button 5 pressed */
+	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
+								 //Mounted OK, turn on RED LED
+								 BSP_LED_On(LED_RED);
+
+								 //Try to open file
+								 if (f_open(&fil, "1stfile.txt", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK) {
+									 //File opened, turn off RED and turn on GREEN led
+									 BSP_LED_On(LED_GREEN);
+									 BSP_LED_On(LED_RED);
+
+									 //If we put more than 0 characters (everything OK)
+									 if (f_read(&fil,drumTracks,sizeof(drumTracks),(UINT *)&data) == FR_OK) {
+										 if (TM_FATFS_DriveSize(&total, &free) == FR_OK) {
+											 //Data for drive size are valid
+										 }
+
+										 //Turn on both leds
+										 BSP_LED_On(LED_GREEN);
+										 BSP_LED_On(LED_RED);
+									 }
+
+									 //Close file, don't forget this!
+									 f_close(&fil);
+								 }
+
+								 //Unmount drive, don't forget this!
+								 f_mount(0, "", 1);
+							 }
+	                	  break;
 	                  case TM_KEYPAD_Button_6:        /* Button 6 pressed */
 	                	  	  moveBeatForward();
 	                	  	  break;
@@ -304,11 +334,14 @@ int main(void)
 							  switch(DrumState){
 							  	 case DRUM_EDIT: resetDrums();
 											  	 DrumState = DRUM_START;
+											  	 TM_HD44780_Puts(0,0,"  Drums started ");
 											  	 break;
 							  	 case DRUM_START: DrumState = DRUM_STOP;
-											  	  break;
+							  	 	 	 	 	 TM_HD44780_Puts(0,0,"  Drums stopped ");
+											  	 break;
 							  	 case DRUM_STOP: DrumState = DRUM_EDIT;
 							  	 	 	 	 	 adc1val = 0;
+							  	 	 	 	 	 TM_HD44780_Puts(0,0,"  Drums edited  ");
 							  	 	 	 	 	 menuDrumEdit();
 											  	 break;
 							  }
@@ -450,12 +483,25 @@ void my_spiffs_mount() {
       0);
     printf("mount res: %i\n", res);
   }
-/**
- * @brief  Perform the SDRAM exernal memory inialization sequence
- * @param  hsdram: SDRAM handle
- * @param  Command: Pointer to SDRAM command structure
- * @retval None
- */
+
+FRESULT open_append (
+    FIL* fp,            /* [OUT] File object to create */
+    const char* path    /* [IN]  File name to be opened */
+)
+{
+    FRESULT fr;
+
+    /* Opens an existing file. If not exist, creates a new file. */
+    fr = f_open(fp, path, FA_WRITE | FA_OPEN_ALWAYS);
+    if (fr == FR_OK) {
+        /* Seek to end of the file to append data */
+        fr = f_lseek(fp, f_size(fp));
+        if (fr != FR_OK)
+            f_close(fp);
+    }
+    return fr;
+}
+
 
 
 void buttonHandler() {

@@ -7,7 +7,8 @@
 void setDrumPart(uint8_t lev);
 void menuDrumEdit();
 void clearDrumSymbol();
-void placeDrumSymbol(uint8_t val);
+void placeDrumFromKeyboard(uint8_t val);
+void placeDrumFromFile(uint8_t val);
 void setDrumLevel(uint8_t lev);
 void moveBeatBack();
 void moveBeatForward();

@@ -2,7 +2,7 @@
 #include "midi.h"
 
 
-uint16_t drumTracks[4][2][16];
+uint16_t drumTracks[4][16];
 __IO BOOL ShowBeat = FALSE;
 
 uint8_t key_to_drum[16] = {
@@ -28,14 +28,14 @@ void midiDrumHandler(){
 
 	if(midiDrumClock < 4000){
 		if(midiDrumClock % 250 == 0){
-			if(drumTracks[R_FOOT][DRUM][midiDrumPointers[R_FOOT]] != 0)
-				playPercussion(NOTEON,drumTracks[R_FOOT][DRUM][midiDrumPointers[R_FOOT]]);
-			if(drumTracks[L_FOOT][DRUM][midiDrumPointers[L_FOOT]] != 0)
-				playPercussion(NOTEON,drumTracks[L_FOOT][DRUM][midiDrumPointers[L_FOOT]]);
-			if(drumTracks[R_HAND][DRUM][midiDrumPointers[R_HAND]] != 0)
-				playPercussion(NOTEON,drumTracks[R_HAND][DRUM][midiDrumPointers[R_HAND]]);
-			if(drumTracks[L_HAND][DRUM][midiDrumPointers[L_HAND]] != 0)
-				playPercussion(NOTEON,drumTracks[L_HAND][DRUM][midiDrumPointers[L_HAND]]);
+			if(drumTracks[R_FOOT][midiDrumPointers[R_FOOT]] != 0)
+				playPercussion(NOTEON,drumTracks[R_FOOT][midiDrumPointers[R_FOOT]]);
+			if(drumTracks[L_FOOT][midiDrumPointers[L_FOOT]] != 0)
+				playPercussion(NOTEON,drumTracks[L_FOOT][midiDrumPointers[L_FOOT]]);
+			if(drumTracks[R_HAND][midiDrumPointers[R_HAND]] != 0)
+				playPercussion(NOTEON,drumTracks[R_HAND][midiDrumPointers[R_HAND]]);
+			if(drumTracks[L_HAND][midiDrumPointers[L_HAND]] != 0)
+				playPercussion(NOTEON,drumTracks[L_HAND][midiDrumPointers[L_HAND]]);
 			midiDrumPointers[R_FOOT]++;
 			midiDrumPointers[L_FOOT]++;
 			midiDrumPointers[R_HAND]++;
@@ -57,41 +57,32 @@ void midiDrumHandler(){
 
 void playDrums(){
 
-		if(drumTracks[R_FOOT][DRUM][midiDrumPointers[R_FOOT]] != 0)
-			playPercussion(NOTEON,drumTracks[R_FOOT][DRUM][midiDrumPointers[R_FOOT]]);
+		if(drumTracks[R_FOOT][midiDrumPointers[R_FOOT]] != 0)
+			playPercussion(NOTEON,drumTracks[R_FOOT][midiDrumPointers[R_FOOT]]);
 
 
 
 
-		if(drumTracks[L_FOOT][DRUM][midiDrumPointers[L_FOOT]] != 0)
-			playPercussion(NOTEON,drumTracks[L_FOOT][DRUM][midiDrumPointers[L_FOOT]]);
+		if(drumTracks[L_FOOT][midiDrumPointers[L_FOOT]] != 0)
+			playPercussion(NOTEON,drumTracks[L_FOOT][midiDrumPointers[L_FOOT]]);
 
 
 
 
-		if(drumTracks[R_HAND][DRUM][midiDrumPointers[R_HAND]] != 0)
-			playPercussion(NOTEON,drumTracks[R_HAND][DRUM][midiDrumPointers[R_HAND]]);
+		if(drumTracks[R_HAND][midiDrumPointers[R_HAND]] != 0)
+			playPercussion(NOTEON,drumTracks[R_HAND][midiDrumPointers[R_HAND]]);
 
 
 
 
-		if(drumTracks[L_HAND][DRUM][midiDrumPointers[L_HAND]] != 0)
-			playPercussion(NOTEON,drumTracks[L_HAND][DRUM][midiDrumPointers[L_HAND]]);
+		if(drumTracks[L_HAND][midiDrumPointers[L_HAND]] != 0)
+			playPercussion(NOTEON,drumTracks[L_HAND][midiDrumPointers[L_HAND]]);
 
 
 
 }
 
 void initDrumBeats(){
-	uint8_t index;
-	for(index = 0;index < 16;index++){
-		uint16_t tm = index * 250;
-		drumTracks[L_FOOT][TIME][index] = tm;
-		drumTracks[R_FOOT][TIME][index] = tm;
-		drumTracks[L_HAND][TIME][index] = tm;
-		drumTracks[L_HAND][TIME][index] = tm;
-	}
-
 
 }
 

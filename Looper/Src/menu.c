@@ -28,6 +28,22 @@ static uint16_t xpix_beat = 120;		// x coord. for beats
 static uint8_t bar_beat = 0;			// 1 beat every 10 pixels
 static uint16_t beat_time = 0;
 
+/**
+ * Read from file
+ */
+void menuDrumRead(){
+	uint32_t part,beat;
+	resetBeat();
+	for(part = 0; part < 4; part++){
+		for(beat = 0; beat < 16; beat++){
+			if(drumTracks[part][beat] != 0)
+				placeDrumFromFile(drumTracks[part][beat]);
+			moveBeatForward();
+		}
+	resetBeat();
+	}
+}
+
 void menuDrumEdit(){
 	TM_ILI9341_DrawLine(120,24,120,204,ILI9341_COLOR_GRAY);
 	TM_ILI9341_DrawLine(130,24,130,204,ILI9341_COLOR_GRAY);
@@ -76,7 +92,7 @@ void menuDrumEdit(){
 	TM_ILI9341_Puts(2, 200, "16 Chn.cymb", &TM_Font_7x10, ILI9341_COLOR_WHITE, ILI9341_COLOR_MAGENTA);
 	//TM_ILI9341_Puts(2, 218, "[A]=Right hand [B]=Left hand", &TM_Font_7x10, ILI9341_COLOR_RED, ILI9341_COLOR_MAGENTA);
 	//TM_ILI9341_Puts(2, 230, "[C]=Right foot [D]=Left foot", &TM_Font_7x10, ILI9341_COLOR_RED, ILI9341_COLOR_MAGENTA);
-
+	//menuDrumRead();
 }
 
 void drawActiveBeat(){
@@ -131,7 +147,7 @@ void moveBeatBack(){
 }
 
 void clearDrumSymbol(){
-	drumTracks[drum_part][DRUM][bar_beat] = 0;
+	drumTracks[drum_part][bar_beat] = 0;
 	TM_ILI9341_DrawFilledCircle(xpix_beat,ypix_level,3,ILI9341_COLOR_MAGENTA);
 	if(xpix_beat == 120)
 		TM_ILI9341_DrawLine(xpix_beat,ypix_level,xpix_beat + 4,ypix_level,ILI9341_COLOR_GRAY);
@@ -147,7 +163,36 @@ void clearDrumSymbol(){
 		TM_ILI9341_DrawLine(xpix_beat,ypix_level + 4,xpix_beat,ypix_level - 4,ILI9341_COLOR_GRAY);
 }
 
-void placeDrumSymbol(uint8_t val){
+void placeDrumFromFile(uint8_t val){
+	switch(val){
+			case Acoustic_Bass_Drum: setDrumPart(R_FOOT);
+									 break;
+			case Side_Stick:
+			case Acoustic_Snare:
+			case Cowbell:
+			case Low_Floor_Tom:
+			case High_Floor_Tom:	setDrumPart(R_HAND);
+									break;
+
+			case Hi_Mid_Tom:
+			case High_Tom:
+			case Closed_Hi_Hat:
+			case Open_Hi_Hat:
+			case Crash_Cymbal_1:
+			case Ride_Cymbal_2:
+			case Splash_Cymbal:
+			case Chinese_Cymbal:
+									setDrumPart(L_HAND);
+									break;
+
+			case Pedal_Hi_Hat:		setDrumPart(L_FOOT);
+									break;
+
+		}
+	TM_ILI9341_DrawFilledCircle(xpix_beat,ypix_level,3,ILI9341_COLOR_GREEN);
+}
+
+void placeDrumFromKeyboard(uint8_t val){
 	uint32_t color;
 	switch(key_to_drum[val - 1]){
 		case Acoustic_Bass_Drum: setDrumPart(R_FOOT);
@@ -176,6 +221,6 @@ void placeDrumSymbol(uint8_t val){
 	}
 	drawActiveBeat();
 	TM_ILI9341_DrawFilledCircle(xpix_beat,ypix_level,3,ILI9341_COLOR_GREEN);
-	//drumTracks[R_FOOT][TIME][bar_beat] = beat_time;
-	drumTracks[drum_part][DRUM][bar_beat] = key_to_drum[val - 1];
+	//drumTracks[R_FOOT][bar_beat] = beat_time;
+	drumTracks[drum_part][bar_beat] = key_to_drum[val - 1];
 }

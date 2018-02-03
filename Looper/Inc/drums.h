@@ -15,6 +15,6 @@ void initDrumBeats();
 #define	DRUM	0
 #define	TIME	1
 
-extern uint16_t drumTracks[4][2][16];
+extern uint16_t drumTracks[4][16];
 extern uint8_t key_to_drum[];
 #endif
