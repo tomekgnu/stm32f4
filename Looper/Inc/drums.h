@@ -7,6 +7,8 @@ void resetDrums();
 void playDrums();
 void midiDrumHandler();
 void initDrumBeats();
+void setBarDuration(uint16_t dur);
+void setNumberOfBeats(uint16_t dur);
 
 #define L_HAND	0
 #define R_HAND	1

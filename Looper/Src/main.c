@@ -270,7 +270,8 @@ int main(void)
 	                	        	 BSP_LED_Off(LED_RED);
 
 	                	             //If we put more than 0 characters (everything OK)
-	                	             if (f_write(&fil,drumTracks,sizeof(drumTracks),(UINT *)&data) == FR_OK) {
+	                	        	 data = 0xffffffff;
+	                	             if (f_write(&fil,drumTracks,4,(UINT *)&data) == FR_OK) {
 	                	                 if (TM_FATFS_DriveSize(&total, &free) == FR_OK) {
 	                	                     //Data for drive size are valid
 	                	                 }
@@ -333,6 +334,8 @@ int main(void)
 	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
 							  switch(DrumState){
 							  	 case DRUM_EDIT: resetDrums();
+							  	 	 	 	 	 setBarDuration(1000);
+							  	 	 	 	 	 setNumberOfBeats(3);
 											  	 DrumState = DRUM_START;
 											  	 TM_HD44780_Puts(0,0,"  Drums started ");
 											  	 break;
