@@ -36,8 +36,8 @@ void menuDrumRead(){
 	resetBeat();
 	for(part = 0; part < 4; part++){
 		for(beat = 0; beat < 16; beat++){
-			if(drumTracks[part][beat] != 0)
-				placeDrumFromFile(drumTracks[part][beat]);
+			//if(drumTracks1[part][beat] != 0)
+				//placeDrumFromFile(drumTracks1[part][beat]);
 			moveBeatForward();
 		}
 	resetBeat();
@@ -147,7 +147,7 @@ void moveBeatBack(){
 }
 
 void clearDrumSymbol(){
-	drumTracks[drum_part][bar_beat] = 0;
+	//drumTracks1[drum_part][bar_beat] = 0;
 	TM_ILI9341_DrawFilledCircle(xpix_beat,ypix_level,3,ILI9341_COLOR_MAGENTA);
 	if(xpix_beat == 120)
 		TM_ILI9341_DrawLine(xpix_beat,ypix_level,xpix_beat + 4,ypix_level,ILI9341_COLOR_GRAY);
@@ -222,5 +222,5 @@ void placeDrumFromKeyboard(uint8_t val){
 	drawActiveBeat();
 	TM_ILI9341_DrawFilledCircle(xpix_beat,ypix_level,3,ILI9341_COLOR_GREEN);
 	//drumTracks[R_FOOT][bar_beat] = beat_time;
-	drumTracks[drum_part][bar_beat] = key_to_drum[val - 1];
+	//drumTracks1[drum_part][bar_beat] = key_to_drum[val - 1];
 }

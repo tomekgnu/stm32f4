@@ -202,8 +202,7 @@ int main(void)
   //FATFS_UnLinkDriver(SD_Path);
   TM_KEYPAD_Init();
   setupMidi();
-  memset(drumTracks,0,sizeof(drumTracks));
-  initDrumBeats();
+
   talkMIDI(0xB0, 0, 0x01); //Default bank GM1
 
   TM_HD44780_Init(20, 4);
@@ -259,69 +258,13 @@ int main(void)
 						  data = SRAMReadByte(0,0,0);
 						  break;
 	                  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
-	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
-	                	         //Mounted OK, turn on RED LED
-	                	         BSP_LED_On(LED_RED);
 
-	                	         //Try to open file
-	                	         if (f_open(&fil, "1stfile.txt", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK) {
-	                	             //File opened, turn off RED and turn on GREEN led
-	                	        	 BSP_LED_On(LED_GREEN);
-	                	        	 BSP_LED_Off(LED_RED);
-
-	                	             //If we put more than 0 characters (everything OK)
-	                	        	 data = 0xffffffff;
-	                	             if (f_write(&fil,drumTracks,4,(UINT *)&data) == FR_OK) {
-	                	                 if (TM_FATFS_DriveSize(&total, &free) == FR_OK) {
-	                	                     //Data for drive size are valid
-	                	                 }
-
-	                	                 //Turn on both leds
-	                	                 BSP_LED_On(LED_GREEN);
-	                	                 BSP_LED_On(LED_RED);
-	                	             }
-
-	                	             //Close file, don't forget this!
-	                	             f_close(&fil);
-	                	         }
-
-	                	         //Unmount drive, don't forget this!
-	                	         f_mount(0, "", 1);
-	                	     }
 	                	   	  break;
 	                  case TM_KEYPAD_Button_4:        /* Button 4 pressed */
 	                	  	  moveBeatBack();
 	                	  	  break;
 	                  case TM_KEYPAD_Button_5:        /* Button 5 pressed */
-	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
-								 //Mounted OK, turn on RED LED
-								 BSP_LED_On(LED_RED);
-
-								 //Try to open file
-								 if (f_open(&fil, "1stfile.txt", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK) {
-									 //File opened, turn off RED and turn on GREEN led
-									 BSP_LED_On(LED_GREEN);
-									 BSP_LED_On(LED_RED);
-
-									 //If we put more than 0 characters (everything OK)
-									 if (f_read(&fil,drumTracks,sizeof(drumTracks),(UINT *)&data) == FR_OK) {
-										 if (TM_FATFS_DriveSize(&total, &free) == FR_OK) {
-											 //Data for drive size are valid
-										 }
-
-										 //Turn on both leds
-										 BSP_LED_On(LED_GREEN);
-										 BSP_LED_On(LED_RED);
-									 }
-
-									 //Close file, don't forget this!
-									 f_close(&fil);
-								 }
-
-								 //Unmount drive, don't forget this!
-								 f_mount(0, "", 1);
-							 }
-	                	  break;
+	                	 	  break;
 	                  case TM_KEYPAD_Button_6:        /* Button 6 pressed */
 	                	  	  moveBeatForward();
 	                	  	  break;
@@ -334,10 +277,20 @@ int main(void)
 	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
 							  switch(DrumState){
 							  	 case DRUM_EDIT: resetDrums();
-							  	 	 	 	 	 setBarDuration(1000);
-							  	 	 	 	 	 setNumberOfBeats(3);
-											  	 DrumState = DRUM_START;
 											  	 TM_HD44780_Puts(0,0,"  Drums started ");
+											  	 if (f_mount(&FatFs, "", 1) == FR_OK) {
+											  		//Mounted OK, turn on RED LED
+											  		BSP_LED_On(LED_RED);
+											  		if (f_open(&fil, "plik.bin", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
+											  			BSP_LED_On(LED_GREEN);
+											  			readDrums(&fil);
+											  			f_close(&fil);
+											  			BSP_LED_Off(LED_GREEN);
+											  			//Unmount drive, don't forget this!
+											  			f_mount(0, "", 1);
+											  			BSP_LED_Off(LED_RED);
+											  		}
+											  	 }
 											  	 break;
 							  	 case DRUM_START: DrumState = DRUM_STOP;
 							  	 	 	 	 	 TM_HD44780_Puts(0,0,"  Drums stopped ");
@@ -449,6 +402,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
 static s32_t my_spiffs_read(u32_t addr, u32_t size, u8_t *dst) {
     sFLASH_ReadBuffer(dst,addr,size);
     return SPIFFS_OK;

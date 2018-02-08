@@ -1,13 +1,17 @@
 #include "drums.h"
 #include "midi.h"
+#include "ff.h"
 
 
-uint16_t drumTracks[4][16];
+DrumBar bar1,bar2;
+uint8_t (*drumTracksPointer)[32];
+uint32_t drumBeatIndex;
 static uint16_t barDuration = 0;
 static uint16_t numberOfBeats = 0;
 static uint16_t beatDuration = 0;
 static uint8_t remainder = 0;
-
+static __IO BOOL switch_buff;
+static __IO BOOL first_beat;
 __IO BOOL ShowBeat = FALSE;
 
 uint8_t key_to_drum[16] = {
@@ -29,12 +33,51 @@ uint8_t key_to_drum[16] = {
 		Chinese_Cymbal
 };
 
-void setBarDuration(uint16_t dur){
-	barDuration = dur;
+void readDrums(FIL *fil){
+
+	uint32_t bytesRead;
+
+	switch_buff = FALSE;
+	first_beat = FALSE;
+	if(f_eof(fil))
+		return;
+	f_read(fil,&bar1,sizeof(DrumBar),(UINT *)&bytesRead);
+	f_read(fil,&bar2,sizeof(DrumBar),(UINT *)&bytesRead);
+	resetDrums();
+	setBarBeats(bar1.duration,bar1.beats);
+	drumTracksPointer = bar1.drumTracks;
+	DrumState = DRUM_START;
+
+	while(bytesRead > 0 && DrumState == DRUM_START){
+		while(first_beat == FALSE)
+			continue;
+		first_beat = FALSE;
+		if(switch_buff == FALSE){
+			setBarBeats(bar1.duration,bar1.beats);
+			drumTracksPointer = bar1.drumTracks;
+			if(f_eof(fil))
+				f_lseek(fil,SEEK_SET);
+			f_read(fil,&bar2,sizeof(DrumBar),(UINT *)&bytesRead);
+			switch_buff = TRUE;
+		}
+		else{
+			setBarBeats(bar2.duration,bar2.beats);
+			drumTracksPointer = bar2.drumTracks;
+			if(f_eof(fil))
+				f_lseek(fil,SEEK_SET);
+			f_read(fil,&bar1,sizeof(DrumBar),(UINT *)&bytesRead);
+			switch_buff = FALSE;
+
+		}
+
+	}
+
 }
 
-void setNumberOfBeats(uint16_t num){
-	numberOfBeats = num;
+
+void setBarBeats(uint16_t bar,uint16_t beats){
+	numberOfBeats = beats;
+	barDuration = bar;
 	remainder = barDuration % numberOfBeats;
 	beatDuration = barDuration / numberOfBeats;
 }
@@ -42,24 +85,25 @@ void setNumberOfBeats(uint16_t num){
 void midiDrumHandler(){
 
 	if(midiDrumClock < barDuration){
-		if(midiDrumClock % (remainder > 0?(beatDuration + remainder):beatDuration) == 0){
-			if(drumTracks[R_FOOT][midiDrumPointer] != 0)
-				playPercussion(NOTEON,drumTracks[R_FOOT][midiDrumPointer]);
-			if(drumTracks[L_FOOT][midiDrumPointer] != 0)
-				playPercussion(NOTEON,drumTracks[L_FOOT][midiDrumPointer]);
-			if(drumTracks[R_HAND][midiDrumPointer] != 0)
-				playPercussion(NOTEON,drumTracks[R_HAND][midiDrumPointer]);
-			if(drumTracks[L_HAND][midiDrumPointer] != 0)
-				playPercussion(NOTEON,drumTracks[L_HAND][midiDrumPointer]);
-			midiDrumPointer++;
+		if(midiDrumClock % ((remainder > 0 && drumBeatIndex == 0)?(beatDuration + remainder):beatDuration) == 0){
+			if(drumTracksPointer[R_FOOT][drumBeatIndex] != 0)
+				playPercussion(NOTEON,drumTracksPointer[R_FOOT][drumBeatIndex]);
+			if(drumTracksPointer[L_FOOT][drumBeatIndex] != 0)
+				playPercussion(NOTEON,drumTracksPointer[L_FOOT][drumBeatIndex]);
+			if(drumTracksPointer[R_HAND][drumBeatIndex] != 0)
+				playPercussion(NOTEON,drumTracksPointer[R_HAND][drumBeatIndex]);
+			if(drumTracksPointer[L_HAND][drumBeatIndex] != 0)
+				playPercussion(NOTEON,drumTracksPointer[L_HAND][drumBeatIndex]);
+			drumBeatIndex++;
 			ShowBeat = TRUE;
 		}
 		midiDrumClock++;
 	}
 	else
 	{
+		first_beat = TRUE;
 		midiDrumClock = 0;
-		midiDrumPointer = 0;
+		drumBeatIndex = 0;
 	}
 
 }
@@ -72,7 +116,7 @@ void initDrumBeats(){
 void resetDrums(){
 
 	midiDrumClock = 0;
-	midiDrumPointer = 0;
+	drumBeatIndex = 0;
 
 }
 

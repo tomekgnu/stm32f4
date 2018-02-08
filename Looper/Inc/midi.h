@@ -11,7 +11,7 @@ typedef enum{DRUM_START,DRUM_STOP,DRUM_EDIT}DrumFunction;
 extern __IO DrumFunction DrumState;
 extern __IO uint16_t midiDrumClock;
 extern __IO uint16_t midiMetronomeClock;
-extern uint32_t midiDrumPointer;
+
 extern __IO uint32_t midiMetronomePointer;
 extern __IO uint8_t midiRecording;
 extern __IO uint8_t midiPlayback;

@@ -5,7 +5,6 @@
 
 __IO uint16_t midiDrumClock = 0;
 __IO uint16_t midiMetronomeClock = 0;
-uint32_t midiDrumPointer;
 __IO uint32_t midiMetronomePointer = 0;
 
 uint16_t beats_per_minute	= 60;			// 1s = 1 quarter
