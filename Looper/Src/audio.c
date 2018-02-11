@@ -10,10 +10,11 @@
 #include "stdlib.h"
 #include "math.h"
 #include "midi.h"
-
+#include "drums.h"
 
 uint32_t sdram_pointer = 0;
-int16_t sample16s;
+int16_t sample16s;	// sample obtained from ADS1256
+uint16_t sample16u;	// sample passed to DAC8552 (if single channel)
 
 void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 	int16_t sread;
@@ -44,6 +45,67 @@ void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 		chb->SamplesRead = 0;
 		resetDrums();
 	}
+}
+
+void record_sample(int16_t swrite,__IO CHANNEL *cha){
+	if(StartLooper == FALSE ){
+		return;
+	}
+	BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) &swrite, 1);
+	cha->SamplesWritten++;
+	sdram_pointer += 2;
+	if(sdram_pointer == SDRAM_SIZE){
+		sdram_pointer = 0;
+		cha->SamplesRead = 0;
+		resetDrums();
+	}
+}
+
+void read_sample(int16_t swrite,__IO CHANNEL *cha){
+	int16_t sread;
+	if(StartLooper == FALSE ){
+			return;
+	}
+	BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) &sread, 1);
+	cha->mix32tmp = sread  + swrite;
+	cha->CurrentSample = sread;
+	cha->SamplesRead++;
+
+	if(cha->Clipping == TRUE)
+		cha->mix32tmp = (int32_t)(cha->gain * (float)sread  + cha->gain * (float)swrite);
+
+	if(cha->mix32tmp > cha->mix32Max)
+		cha->mix32Max = cha->mix32tmp;
+
+	if(cha->Overdub == TRUE)
+		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) &cha->mix32tmp, 1);
+
+	if(cha->SamplesRead == cha->SamplesWritten){
+		if(cha->Overdub == TRUE && cha->mix32Max > 16383){
+			cha->Clipping = TRUE;
+			cha->gain = 16383.00 / cha->mix32Max;
+		}
+		else{
+			cha->Clipping = FALSE;
+			cha->gain = 1.0;
+		}
+
+		cha->mix32Max = 16383;
+		sdram_pointer = 0;
+		cha->SamplesRead = 0;
+		resetDrums();
+		return;
+	}
+
+	sdram_pointer += 2;
+
+	if(sdram_pointer == SDRAM_SIZE)
+		sdram_pointer = 0;
+}
+
+
+void play_sample(__IO CHANNEL *cha){
+	Write_DAC8552(channel_A,(uint16_t)(cha->CurrentSample + 16383));
 }
 
 void play_samples(__IO CHANNEL *cha,__IO CHANNEL *chb){
@@ -122,7 +184,7 @@ void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 
 }
 
-void resetChannels(CHANNEL *ch1,CHANNEL *ch2){
+void resetChannels(__IO CHANNEL *ch1,__IO CHANNEL *ch2){
 	ch1->Clipping = FALSE;
 	ch2->Clipping = FALSE;
 	ch1->Overdub = FALSE;

@@ -53,8 +53,10 @@
 
 extern uint32_t sdram_pointer;
 extern int16_t sample16s;
+extern uint16_t sample16u;
 __IO CHANNEL ch1;
 __IO CHANNEL ch2;
+__IO FUNCTION function;
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
@@ -425,12 +427,24 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			return;
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
 		if(Playback == 1){
-			read_samples(sample16s,&ch1,&ch2);
-			play_samples(&ch1,&ch2);
+			if(function == SINGLE_CHANNEL){
+				read_sample(sample16s,&ch1);
+				play_sample(&ch1);
+			}
+			else if(function == CHANNEL_A || function == CHANNEL_B){
+				read_samples(sample16s,&ch1,&ch2);
+				play_samples(&ch1,&ch2);
+			}
 		}
 		if(Recording == 1){
-			record_samples(sample16s,&ch1,&ch2);
-			play_samples(&ch1,&ch2);
+			if(function == SINGLE_CHANNEL){
+				record_sample(sample16s,&ch1);
+
+			}
+			else if(function == CHANNEL_A || function == CHANNEL_B){
+				record_samples(sample16s,&ch1,&ch2);
+				play_samples(&ch1,&ch2);
+			}
 		}
 		break;
 
@@ -525,27 +539,29 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			return;
 		BUT_DOWN(BUT_TOGFUN);
 		StartLooper = FALSE;
-		if(ch1.Active == TRUE){
-			ch1.Active = FALSE;
-			ch2.Active = TRUE;
-			ch1.Monitor = FALSE;
-			ch2.Monitor = TRUE;
-			ADS1256_SetDiffChannel(1);
-			TM_HD44780_Puts(0,0,"Channel 2       ");
-			return;
-		}
-		else{
-			ch1.Active = TRUE;
-			ch2.Active = FALSE;
-			ch1.Monitor = TRUE;
-			ch2.Monitor = FALSE;
-			ADS1256_SetDiffChannel(0);
-			TM_HD44780_Puts(0,0,"Channel 1       ");
-			return;
-		}
+		switch(function){
+			case SINGLE_CHANNEL:
+			case CHANNEL_B:
+				function = CHANNEL_A;
+				ch1.Active = TRUE;
+				ch2.Active = FALSE;
+				ch1.Monitor = TRUE;
+				ch2.Monitor = FALSE;
+				ADS1256_SetDiffChannel(0);
+				TM_HD44780_Puts(0,0,"Channel 1       ");
+				break;
+			case CHANNEL_A:
+				function = CHANNEL_B;
+				ch1.Active = FALSE;
+				ch2.Active = TRUE;
+				ch1.Monitor = FALSE;
+				ch2.Monitor = TRUE;
+				ADS1256_SetDiffChannel(1);
+				TM_HD44780_Puts(0,0,"Channel 2       ");
+				break;
+			default: break;
 
-		break;
-	default: break;
+		}
 
 	}
 

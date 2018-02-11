@@ -37,7 +37,7 @@ void readDrums(FIL *fil){
 
 	uint32_t bytesRead;
 
-	switch_buff = FALSE;
+	switch_buff = TRUE;
 	first_beat = FALSE;
 	if(f_eof(fil))
 		return;
@@ -49,7 +49,7 @@ void readDrums(FIL *fil){
 	DrumState = DRUM_START;
 
 	while(bytesRead > 0 && DrumState == DRUM_START){
-		while(first_beat == FALSE)
+		while(first_beat == FALSE && DrumState == DRUM_START)
 			continue;
 		first_beat = FALSE;
 		if(switch_buff == FALSE){

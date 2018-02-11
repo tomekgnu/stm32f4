@@ -87,7 +87,7 @@ uint8_t footswitch = 0;
 extern __IO CHANNEL ch1;
 extern __IO CHANNEL ch2;
 extern uint32_t adc1val;
-extern BOOL ShowBeat;
+extern __IO FUNCTION function;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -130,7 +130,7 @@ int main(void)
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-
+	function = SINGLE_CHANNEL;
 
   /* USER CODE END 1 */
 
@@ -247,13 +247,16 @@ int main(void)
 	                	  }
 	                	  break;
 	                  case TM_KEYPAD_Button_1:        /* Button 1 pressed */
+	                	  ADS1256_SetDiffChannel(0);
+	                	  function = SINGLE_CHANNEL;
+	                	  TM_HD44780_Puts(0,0,"Single Channel  ");
+	                	  break;
+	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
 	                	  fd1 = SPIFFS_open(&fs, "my_file", SPIFFS_RDWR, 0);
 	                	  data = SPIFFS_errno(&fs);
 	                	  if(data == 0)
-	                		  TM_HD44780_Puts(0,1,"Hello world");
+	                	  	TM_HD44780_Puts(0,1,"Hello world");
 	                	  SPIFFS_close(&fs, fd1);
-	                	  break;
-	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
 	                	  SRAMWriteByte(0,0,0,'c');
 						  data = SRAMReadByte(0,0,0);
 						  break;
