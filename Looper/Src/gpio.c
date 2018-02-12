@@ -53,7 +53,7 @@
 
 extern uint32_t sdram_pointer;
 extern int16_t sample16s;
-extern uint16_t sample16u;
+uint8_t displayTime[16];
 __IO CHANNEL ch1;
 __IO CHANNEL ch2;
 __IO FUNCTION function;
@@ -445,6 +445,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				record_samples(sample16s,&ch1,&ch2);
 				play_samples(&ch1,&ch2);
 			}
+
 		}
 		break;
 

@@ -223,6 +223,9 @@ int main(void)
 		  placeDrumFromKeyboard(adc1val);
 		  adc1val = 0;
 	  }
+	  if(StartLooper == TRUE){
+		 menuShowTimers(&ch1,&ch2);
+	  }
 	  Keypad_Button = TM_KEYPAD_Read();
 	          /* Keypad was pressed */
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
@@ -232,11 +235,11 @@ int main(void)
 	                		  clearDrumSymbol();
 	                		  break;
 	                	  }
-	                	  HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_SET);
-	                	  SF3ID = sFLASH_ReadID();
-	                	  sprintf(lcdline,"SF3 manufacturer: 0x%x",(unsigned int)SF3ID);
-	                	  TM_ILI9341_Puts(0, 24, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	                	  TM_ILI9341_Puts(0, 5, (data == 3?"ADS1256 OK\n":"ADS1256 failure\n"), &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+//	                	  HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_SET);
+//	                	  SF3ID = sFLASH_ReadID();
+//	                	  sprintf(lcdline,"SF3 manufacturer: 0x%x",(unsigned int)SF3ID);
+//	                	  TM_ILI9341_Puts(0, 24, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+//	                	  TM_ILI9341_Puts(0, 5, (data == 3?"ADS1256 OK\n":"ADS1256 failure\n"), &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	                	  if(StartLooper == FALSE){
 	                		  StartLooper = TRUE;
 	                		  TM_HD44780_Puts(7,0,"started");

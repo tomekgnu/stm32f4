@@ -14,7 +14,6 @@
 
 uint32_t sdram_pointer = 0;
 int16_t sample16s;	// sample obtained from ADS1256
-uint16_t sample16u;	// sample passed to DAC8552 (if single channel)
 
 void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 	int16_t sread;
