@@ -15,36 +15,7 @@
 uint32_t sdram_pointer = 0;
 int16_t sample16s;	// sample obtained from ADS1256
 
-void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
-	int16_t sread;
-	if(StartLooper == FALSE ){
-		return;
-	}
-	if(cha->Active == TRUE){
-		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) &swrite, 1);
-		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer + 2,(uint16_t *)&sread,1);
-		cha->SamplesWritten++;
-		chb->CurrentSample = sread;
-	}
-	else{
-		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer  + 2,(uint16_t *) &swrite, 1);
-		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *)&sread,1);
-		chb->SamplesWritten++;
-		cha->CurrentSample = sread;
-	}
 
-
-	sdram_pointer += 4;
-	if(cha->SamplesWritten == chb->SamplesWritten){
-		StartLooper = FALSE;
-	}
-	if(sdram_pointer == SDRAM_SIZE){
-		sdram_pointer = 0;
-		cha->SamplesRead = 0;
-		chb->SamplesRead = 0;
-		resetDrums();
-	}
-}
 
 void record_sample(int16_t swrite,__IO CHANNEL *cha){
 	if(StartLooper == FALSE ){
@@ -105,6 +76,47 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha){
 
 void play_sample(__IO CHANNEL *cha){
 	Write_DAC8552(channel_A,(uint16_t)(cha->CurrentSample + 16383));
+}
+
+void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
+	int16_t sread;
+	if(StartLooper == FALSE ){
+		return;
+	}
+	if(cha->Active == TRUE){
+		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) &swrite, 1);
+		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer + 2,(uint16_t *)&sread,1);
+		cha->SamplesWritten++;
+		chb->CurrentSample = sread;
+	}
+	else if(chb->Active == TRUE){
+		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer  + 2,(uint16_t *) &swrite, 1);
+		BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *)&sread,1);
+		chb->SamplesWritten++;
+		cha->CurrentSample = sread;
+	}
+	else return;
+
+	sdram_pointer += 4;
+	if(cha->SamplesWritten == chb->SamplesWritten){
+		StartLooper = FALSE;
+		BSP_LED_On(LED_GREEN);
+		BSP_LED_Off(LED_RED);
+		Playback = TRUE;
+		Recording = FALSE;
+		cha->SamplesRead = 0;
+		chb->SamplesRead = 0;
+		sdram_pointer = 0;
+		resetDrums();
+		StartLooper = TRUE;
+		return;
+	}
+	if(sdram_pointer == SDRAM_SIZE){
+		sdram_pointer = 0;
+		cha->SamplesRead = 0;
+		chb->SamplesRead = 0;
+		resetDrums();
+	}
 }
 
 void play_samples(__IO CHANNEL *cha,__IO CHANNEL *chb){

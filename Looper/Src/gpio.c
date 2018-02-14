@@ -494,9 +494,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(IS_BUT_DOWN(BUT_PLAY) == TRUE)
 			return;
 		BUT_DOWN(BUT_PLAY);
-		StartLooper = 0;
 		sdram_pointer = 0;
 		resetDrums();
+		StartLooper = 0;
 		ch1.SamplesRead = 0;
 		ch2.SamplesRead = 0;
 		if(ch1.Active == TRUE){
