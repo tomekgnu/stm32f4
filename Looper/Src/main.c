@@ -67,6 +67,7 @@
 #include "spiffs.h"
 #include "SRAMDriver.h"
 #include "tm_stm32f4_fatfs.h"
+#include "fileops.h"
 #define pi 3.14159
 #define LOG_PAGE_SIZE       256
 /* USER CODE END Includes */
@@ -264,7 +265,19 @@ int main(void)
 						  data = SRAMReadByte(0,0,0);
 						  break;
 	                  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
-
+	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
+	                	  		//Mounted OK, turn on RED LED
+	                	  		BSP_LED_On(LED_RED);
+	                	  		if (f_open(&fil, "single.bin", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
+									BSP_LED_On(LED_GREEN);
+									writeSingleTrackSD(&ch1,&fil);
+									f_close(&fil);
+									BSP_LED_Off(LED_GREEN);
+									//Unmount drive, don't forget this!
+									f_mount(0, "", 1);
+									BSP_LED_Off(LED_RED);
+								}
+							 }
 	                	   	  break;
 	                  case TM_KEYPAD_Button_4:        /* Button 4 pressed */
 	                	  	  moveBeatBack();
@@ -309,6 +322,22 @@ int main(void)
 							  }
 							  break;
 	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
+	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
+							//Mounted OK, turn on RED LED
+							BSP_LED_On(LED_RED);
+							if (f_open(&fil, "single.bin", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
+								BSP_LED_On(LED_GREEN);
+								readSingleTrackSD(&fil);
+								f_close(&fil);
+								BSP_LED_Off(LED_GREEN);
+								//Unmount drive, don't forget this!
+								f_mount(0, "", 1);
+								BSP_LED_Off(LED_RED);
+							}
+						 }
+
+
+
 	                	  break;
 	                  case TM_KEYPAD_Button_A:        /* Button A pressed, only on large keyboard */
 	                	 if(DrumState == DRUM_EDIT)

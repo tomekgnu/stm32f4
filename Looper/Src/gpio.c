@@ -50,7 +50,7 @@
 #include "adc.h"
 #include "midi.h"
 #include "drums.h"
-
+#include "fileops.h"
 extern uint32_t sdram_pointer;
 extern int16_t sample16s;
 uint8_t displayTime[16];
@@ -423,6 +423,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		break;
 	case ADS1256_DRDY_Pin:
+		if(function == PLAY_SD){
+			ch1.CurrentSample = readSampleSD();
+			play_sample(&ch1);
+		}
 		if(StartLooper == 0)
 			return;
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);

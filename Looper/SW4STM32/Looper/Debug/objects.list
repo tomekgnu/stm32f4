@@ -24,6 +24,7 @@
 "Application/User/audio.o"
 "Application/User/dma.o"
 "Application/User/drums.o"
+"Application/User/fileops.o"
 "Application/User/fmc.o"
 "Application/User/gpio.o"
 "Application/User/main.o"

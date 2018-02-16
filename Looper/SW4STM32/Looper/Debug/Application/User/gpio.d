@@ -48,7 +48,8 @@ Application/User/gpio.o: \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/drums.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ff.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/integer.h \
- C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ffconf.h
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ffconf.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/fileops.h
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/gpio.h:
 
@@ -147,3 +148,5 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ff.h:
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/integer.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/ffconf.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/fileops.h:

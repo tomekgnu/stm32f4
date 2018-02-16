@@ -10,6 +10,7 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Src/ads1256_test.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/audio.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/dma.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/drums.c \
+C:/Users/Tomek/workspace/tom32f4/Looper/Src/fileops.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/fmc.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/gpio.c \
 C:/Users/Tomek/workspace/tom32f4/Looper/Src/main.c \
@@ -30,6 +31,7 @@ OBJS += \
 ./Application/User/audio.o \
 ./Application/User/dma.o \
 ./Application/User/drums.o \
+./Application/User/fileops.o \
 ./Application/User/fmc.o \
 ./Application/User/gpio.o \
 ./Application/User/main.o \
@@ -50,6 +52,7 @@ C_DEPS += \
 ./Application/User/audio.d \
 ./Application/User/dma.d \
 ./Application/User/drums.d \
+./Application/User/fileops.d \
 ./Application/User/fmc.d \
 ./Application/User/gpio.d \
 ./Application/User/main.d \
@@ -106,6 +109,14 @@ Application/User/dma.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/dma.c
 	@echo ' '
 
 Application/User/drums.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/drums.c
+	@echo 'Building file: $<'
+	@echo 'Invoking: MCU GCC Compiler'
+	@echo $(PWD)
+	arm-none-eabi-gcc -mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16 '-D__weak=__attribute__((weak))' -DNO_TEST '-D__packed="__attribute__((__packed__))"' -DUSE_HAL_DRIVER -DSTM32F429xx '-D__weak=__attribute__((weak))' '-D__packed=__attribute__((__packed__))' -I"C:/Users/Tomek/workspace/tom32f4/Looper/Inc" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Include" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Drivers/CMSIS/Device/ST/STM32F4xx/Include" -I"C:/Users/Tomek/workspace/tom32f4/Looper/Inc"  -Og -g3 -Wall -fmessage-length=0 -ffunction-sections -c -fmessage-length=0 -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -o "$@" "$<"
+	@echo 'Finished building: $<'
+	@echo ' '
+
+Application/User/fileops.o: C:/Users/Tomek/workspace/tom32f4/Looper/Src/fileops.c
 	@echo 'Building file: $<'
 	@echo 'Invoking: MCU GCC Compiler'
 	@echo $(PWD)
