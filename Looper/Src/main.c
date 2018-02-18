@@ -227,6 +227,7 @@ int main(void)
 	  if(StartLooper == TRUE){
 		 menuShowTimers(&ch1,&ch2);
 	  }
+
 	  Keypad_Button = TM_KEYPAD_Read();
 	          /* Keypad was pressed */
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */

@@ -43,8 +43,10 @@
 #include "audio.h"
 #include "midi.h"
 #include "drums.h"
+#include "fileops.h"
 extern ADC_HandleTypeDef hadc1;
-
+extern CHANNEL ch1;
+extern FUNCTION function;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/

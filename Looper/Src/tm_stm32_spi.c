@@ -280,7 +280,7 @@ void TM_SPI_WriteMulti(SPI_TypeDef* SPIx, uint8_t* dataOut, uint32_t count) {
 void TM_SPI_ReadMulti(SPI_TypeDef* SPIx, uint8_t* dataIn, uint8_t dummy, uint32_t count) {
 	/* Check if SPI is enabled */
 	SPI_CHECK_ENABLED(SPIx);
-	
+
 	while (count--) {
 		/* Wait busy */
 		SPI_WAIT_TX(SPIx);
@@ -337,7 +337,7 @@ void TM_SPI_WriteMulti16(SPI_TypeDef* SPIx, uint16_t* dataOut, uint32_t count) {
 void TM_SPI_ReadMulti16(SPI_TypeDef* SPIx, uint16_t* dataIn, uint16_t dummy, uint32_t count) {
 	/* Check if SPI is enabled */
 	SPI_CHECK_ENABLED(SPIx);
-	
+
 	/* Wait for previous transmissions to complete if DMA TX enabled for SPI */
 	SPI_WAIT_TX(SPIx);
 	

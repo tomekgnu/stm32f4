@@ -426,6 +426,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(function == PLAY_SD){
 			ch1.CurrentSample = readSampleSD();
 			play_sample(&ch1);
+			return;
 		}
 		if(StartLooper == 0)
 			return;
