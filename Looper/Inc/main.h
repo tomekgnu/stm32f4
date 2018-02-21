@@ -55,7 +55,7 @@
 
 typedef enum {FALSE,TRUE} BOOL;
 typedef enum{BUT_UP,BUT_DOWN} BUTTON ;
-typedef enum{SINGLE_CHANNEL,CHANNEL_A,CHANNEL_B,PLAY_SD} FUNCTION;
+typedef enum{NONE,SINGLE_CHANNEL,CHANNEL_A,CHANNEL_B,READ_SD,PLAY_SD,READ_SF3,PLAY_SF3} FUNCTION;
 typedef uint8_t byte;
 
 void play_record();

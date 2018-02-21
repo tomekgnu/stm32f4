@@ -424,8 +424,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		break;
 	case ADS1256_DRDY_Pin:
 		if(function == PLAY_SD){
-			ch1.CurrentSample = readSampleSD();
-			play_sample(&ch1);
+			SF3_readSample();
 			return;
 		}
 		if(StartLooper == 0)
@@ -564,6 +563,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				ch2.Monitor = TRUE;
 				ADS1256_SetDiffChannel(1);
 				TM_HD44780_Puts(0,0,"Channel 2       ");
+				break;
+			case READ_SD:
+				function = PLAY_SD;
+				TM_HD44780_Puts(0,0,"Playing SD      ");
+				break;
+			case PLAY_SD:
+				function = SINGLE_CHANNEL;
+				TM_HD44780_Puts(0,0,"Single Channel  ");
 				break;
 			default: break;
 

@@ -257,11 +257,7 @@ int main(void)
 	                	  TM_HD44780_Puts(0,0,"Single Channel  ");
 	                	  break;
 	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
-	                	  fd1 = SPIFFS_open(&fs, "my_file", SPIFFS_RDWR, 0);
-	                	  data = SPIFFS_errno(&fs);
-	                	  if(data == 0)
-	                	  	TM_HD44780_Puts(0,1,"Hello world");
-	                	  SPIFFS_close(&fs, fd1);
+
 	                	  SRAMWriteByte(0,0,0,'c');
 						  data = SRAMReadByte(0,0,0);
 						  break;
@@ -271,7 +267,7 @@ int main(void)
 	                	  		BSP_LED_On(LED_RED);
 	                	  		if (f_open(&fil, "single.bin", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
 									BSP_LED_On(LED_GREEN);
-									writeSingleTrackSD(&ch1,&fil);
+									SD_writeSingleTrack(&ch1,&fil);
 									f_close(&fil);
 									BSP_LED_Off(LED_GREEN);
 									//Unmount drive, don't forget this!
@@ -289,7 +285,25 @@ int main(void)
 	                	  	  moveBeatForward();
 	                	  	  break;
 	                  case TM_KEYPAD_Button_7:        /* Button 7 pressed */
+	                	  fd1 = SPIFFS_open(&fs, "my_file2", SPIFFS_CREAT | SPIFFS_TRUNC | SPIFFS_RDWR, 0);
+						  data = SPIFFS_errno(&fs);
+						  //if(data == 0){
+							BSP_LED_On(LED_GREEN);
+							SF3_writeSingleTrack(&ch1,&fs,fd1);
+							SPIFFS_close(&fs, fd1);
+							BSP_LED_Off(LED_GREEN);
+						  //}
+						  break;
 	                  case TM_KEYPAD_Button_8:        /* Button 8 pressed */
+	                	  fd1 = SPIFFS_open(&fs, "my_file2", SPIFFS_RDONLY, 0);
+						  data = SPIFFS_errno(&fs);
+						  //if(data == 0){
+							BSP_LED_On(LED_GREEN);
+							SF3_readSingleTrack(&fs,fd1);
+							SPIFFS_close(&fs, fd1);
+							BSP_LED_Off(LED_GREEN);
+						 // }
+	                	  break;
 	                  case TM_KEYPAD_Button_9:        /* Button 9 pressed */
 	                	  sprintf(lcdline,"Button %d pressed",Keypad_Button);
 	                	  TM_ILI9341_Puts(5, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
@@ -327,8 +341,9 @@ int main(void)
 							//Mounted OK, turn on RED LED
 							BSP_LED_On(LED_RED);
 							if (f_open(&fil, "single.bin", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
+								function = READ_SD;
 								BSP_LED_On(LED_GREEN);
-								readSingleTrackSD(&fil);
+								SD_readSingleTrack(&fil);
 								f_close(&fil);
 								BSP_LED_Off(LED_GREEN);
 								//Unmount drive, don't forget this!

@@ -242,7 +242,7 @@ TM_SPI_DataSize_t TM_SPI_SetDataSize(SPI_TypeDef* SPIx, TM_SPI_DataSize_t DataSi
 void TM_SPI_SendMulti(SPI_TypeDef* SPIx, uint8_t* dataOut, uint8_t* dataIn, uint32_t count) {
 	/* Check if SPI is enabled */
 	SPI_CHECK_ENABLED(SPIx);
-	
+
 	while (count--) {
 		/* Wait busy */
 		SPI_WAIT_TX(SPIx);
@@ -261,7 +261,7 @@ void TM_SPI_SendMulti(SPI_TypeDef* SPIx, uint8_t* dataOut, uint8_t* dataIn, uint
 void TM_SPI_WriteMulti(SPI_TypeDef* SPIx, uint8_t* dataOut, uint32_t count) {
 	/* Check if SPI is enabled */
 	SPI_CHECK_ENABLED(SPIx);
-	
+
 	while (count--) {
 		/* Wait busy */
 		SPI_WAIT_TX(SPIx);

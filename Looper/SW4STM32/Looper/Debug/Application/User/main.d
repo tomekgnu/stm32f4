@@ -67,7 +67,8 @@ Application/User/main.o: \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/tm_stm32f4_fatfs.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/defines.h \
  C:/Users/Tomek/workspace/tom32f4/Looper/Inc/diskio.h \
- C:/Users/Tomek/workspace/tom32f4/Looper/Inc/fileops.h
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/fileops.h \
+ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spiffs.h
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/main.h:
 
@@ -204,3 +205,5 @@ C:/Users/Tomek/workspace/tom32f4/Looper/Inc/defines.h:
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/diskio.h:
 
 C:/Users/Tomek/workspace/tom32f4/Looper/Inc/fileops.h:
+
+C:/Users/Tomek/workspace/tom32f4/Looper/Inc/spiffs.h:
