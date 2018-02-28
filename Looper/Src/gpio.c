@@ -424,7 +424,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		break;
 	case ADS1256_DRDY_Pin:
 		if(function == PLAY_SD){
-			SF3_readSample();
+			SD_readSample();
 			return;
 		}
 		if(StartLooper == 0)

@@ -5,6 +5,7 @@
 #include "tm_stm32_hd44780.h"
 #include "spiffs.h"
 #include "spiffs_nucleus.h"
+#include "fatfs_sd.h"
 
 static __IO uint8_t play_buffer = 0;					//Keeps track of which buffer is currently being used
 static __IO BOOL new_buffer_ready = FALSE;			//Flag used by 'Loop' code to tell the Interrupt that new data is ready in the buffer.
@@ -56,7 +57,7 @@ void SD_readSingleTrack(FIL *fp){
 	    	//Get the next BUFFERSIZE bytes from the file.
 	   		buf_pointer = file_buf2;
 	   		new_buffer_ready = TRUE;
-	    	f_read(fp, file_buf1, BYTE_SIZE,&bytes_read);
+	   		f_read(fp, file_buf1, BYTE_SIZE,&bytes_read);
 	    	play_buffer = 1;
 	    }
 	     else
@@ -71,7 +72,7 @@ void SD_readSingleTrack(FIL *fp){
 	     //If file_read returns 0 or -1 file is over. Find the next file!
 	      if(bytes_read == 0)
 	      {
-	    	function = SINGLE_CHANNEL;;	//Disable interrupts to stop playback.
+	    	function = SINGLE_CHANNEL;	//Disable interrupts to stop playback.
 	        play_buffer = 0;
 	        f_lseek(fp,SEEK_SET);
 	        f_read(fp,file_buf1,BYTE_SIZE,&bytes_read);
