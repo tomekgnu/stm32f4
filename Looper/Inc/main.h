@@ -124,6 +124,8 @@ extern uint8_t footswitch;
 #define PH1_OSC_OUT_GPIO_Port GPIOH
 #define SDNWE_Pin GPIO_PIN_0
 #define SDNWE_GPIO_Port GPIOC
+#define SRAM_3_CS_Pin GPIO_PIN_1
+#define SRAM_3_CS_GPIO_Port GPIOC
 #define ILI9341_CS_Pin GPIO_PIN_2
 #define ILI9341_CS_GPIO_Port GPIOC
 #define uSD_CS_Pin GPIO_PIN_3
@@ -132,8 +134,6 @@ extern uint8_t footswitch;
 #define SRAM_2_CS_GPIO_Port GPIOA
 #define AD_KBD_Pin GPIO_PIN_4
 #define AD_KBD_GPIO_Port GPIOA
-#define SRAM_3_CS_Pin GPIO_PIN_5
-#define SRAM_3_CS_GPIO_Port GPIOA
 #define SRAM_4_CS_Pin GPIO_PIN_6
 #define SRAM_4_CS_GPIO_Port GPIOA
 #define ACP_RST_Pin GPIO_PIN_7

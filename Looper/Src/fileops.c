@@ -30,7 +30,7 @@ void SD_readSample(){
 	    	return;
 		}
 	ch1.CurrentSample = buf_pointer[word_count];
-	play_sample(&ch1);
+	play_sample_dac(&ch1);
 	word_count += 1;
 }
 

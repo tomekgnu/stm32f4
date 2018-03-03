@@ -103,14 +103,14 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOE, KEYPAD_COLUMN_1_Pin|KEYPAD_COLUMN_2_Pin|KEYPAD_COLUMN_3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, KEYPAD_COLUMN_4_Pin|ILI9341_CS_Pin|OTG_FS_PSO_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOC, KEYPAD_COLUMN_4_Pin|SRAM_3_CS_Pin|ILI9341_CS_Pin|OTG_FS_PSO_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, uSD_CS_Pin|HD44780_D6_Pin|HD44780_D5_Pin|HD44780_D4_Pin 
                           |HD44780_E_Pin|ADS1256_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, SRAM_2_CS_Pin|SRAM_3_CS_Pin|SRAM_4_CS_Pin|HD44780_RS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, SRAM_2_CS_Pin|SRAM_4_CS_Pin|HD44780_RS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(ACP_RST_GPIO_Port, ACP_RST_Pin, GPIO_PIN_RESET);
@@ -152,8 +152,8 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PCPin PCPin PCPin */
-  GPIO_InitStruct.Pin = KEYPAD_COLUMN_4_Pin|ILI9341_CS_Pin|OTG_FS_PSO_Pin;
+  /*Configure GPIO pins : PCPin PCPin PCPin PCPin */
+  GPIO_InitStruct.Pin = KEYPAD_COLUMN_4_Pin|SRAM_3_CS_Pin|ILI9341_CS_Pin|OTG_FS_PSO_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -172,8 +172,8 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PAPin PAPin PAPin */
-  GPIO_InitStruct.Pin = SRAM_2_CS_Pin|SRAM_3_CS_Pin|SRAM_4_CS_Pin;
+  /*Configure GPIO pins : PAPin PAPin */
+  GPIO_InitStruct.Pin = SRAM_2_CS_Pin|SRAM_4_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;

@@ -40,6 +40,7 @@
 #include "main.h"
 #include "stm32f4xx_hal.h"
 #include "adc.h"
+#include "dac.h"
 #include "dma.h"
 #include "spi.h"
 #include "tim.h"
@@ -166,6 +167,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_ADC1_Init();
   MX_SPI5_Init();
+  MX_DAC_Init();
 
   /* USER CODE BEGIN 2 */
 
@@ -211,7 +213,7 @@ int main(void)
   TM_HD44780_Puts(0,0,"Looper");
 
   InitSRAM();
-
+  HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
   /* USER CODE END 2 */
 
   /* Infinite loop */

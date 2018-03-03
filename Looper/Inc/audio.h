@@ -26,7 +26,7 @@ void play_samples(__IO CHANNEL *cha,__IO CHANNEL *chb);
 void read_sample(int16_t swrite,__IO CHANNEL *cha);
 void record_sample(int16_t swrite,__IO CHANNEL *cha);
 void play_sample(__IO CHANNEL *cha);
-
+void play_sample_dac(__IO CHANNEL *cha);
 void resetChannels(__IO CHANNEL *ch1,__IO CHANNEL *ch2);
 
 #endif

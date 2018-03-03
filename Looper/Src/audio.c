@@ -11,6 +11,7 @@
 #include "math.h"
 #include "midi.h"
 #include "drums.h"
+#include "dac.h"
 
 uint32_t sdram_pointer = 0;
 int16_t sample16s;	// sample obtained from ADS1256
@@ -76,6 +77,11 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha){
 
 void play_sample(__IO CHANNEL *cha){
 	Write_DAC8552(channel_A,(uint16_t)(cha->CurrentSample + 16383));
+
+}
+
+void play_sample_dac(__IO CHANNEL *cha){
+	HAL_DAC_SetValue(&hdac,DAC_CHANNEL_2,DAC_ALIGN_12B_R,(cha->CurrentSample / 4) + 2048);
 }
 
 void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){

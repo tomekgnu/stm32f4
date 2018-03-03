@@ -83,6 +83,12 @@
 							<name>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc_ex.c</name>
 						</file>
 						<file>
+							<name>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dac.c</name>
+						</file>
+						<file>
+							<name>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dac_ex.c</name>
+						</file>
+						<file>
 							<name>../Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_fmc.c</name>
 						</file>
 						<file>
@@ -158,6 +164,10 @@
 
                                 <file>
                                  <name>..\Src\adc.c</name>
+                                </file>
+
+                                <file>
+                                 <name>..\Src\dac.c</name>
                                 </file>
 
                                 <file>

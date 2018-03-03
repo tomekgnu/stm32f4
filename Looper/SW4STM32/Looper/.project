@@ -24,7 +24,19 @@
 		<nature>org.eclipse.cdt.managedbuilder.core.ScannerConfigNature</nature>
 		<nature>fr.ac6.mcu.ide.core.MCUProjectNature</nature>
 	</natures>
-	<linkedResources>
+	<linkedResources><link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dac_ex.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dac_ex.c</location>
+		</link><link>
+			<name>Drivers/STM32F4xx_HAL_Driver/stm32f4xx_hal_dac.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dac.c</location>
+		</link><link>
+			<name>Application/User/dac.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/dac.c</location>
+		</link>
 		<link>
 			<name>Application/FatFS/diskio.c</name>
 			<type>1</type>
