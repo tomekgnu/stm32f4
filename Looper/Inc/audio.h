@@ -2,6 +2,7 @@
 #define __AUDIO_H__
 #include "main.h"
 
+#define	SIGNED16_UNSIGNED12(x)		((x / 4) + 2048)
 enum { ONE,TWO,THREE,FOUR };
 typedef struct {
 	uint8_t Number: 1;
@@ -18,6 +19,7 @@ typedef struct {
 	float gain;
 } CHANNEL;
 
+void signed16_unsigned12(int16_t *buf,int32_t start,int32_t stop);
 void showMinMaxSamples(int32_t min,int32_t max);
 void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb);
 void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb);

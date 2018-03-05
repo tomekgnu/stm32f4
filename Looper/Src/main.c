@@ -168,6 +168,7 @@ int main(void)
   MX_ADC1_Init();
   MX_SPI5_Init();
   MX_DAC_Init();
+  MX_TIM8_Init();
 
   /* USER CODE BEGIN 2 */
 
@@ -213,7 +214,7 @@ int main(void)
   TM_HD44780_Puts(0,0,"Looper");
 
   InitSRAM();
-  HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
+  //HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
   /* USER CODE END 2 */
 
   /* Infinite loop */

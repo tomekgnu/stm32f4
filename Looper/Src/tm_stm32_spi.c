@@ -25,6 +25,7 @@
  */
 #include "tm_stm32_spi.h"
 #include "defines.h"
+#include "spi.h"
 /* Defines for alternate functions */
 #if defined(STM32F4xx) || defined(STM32F7xx)
 #define GPIO_AFx_SPI1    GPIO_AF5_SPI1
@@ -242,7 +243,8 @@ TM_SPI_DataSize_t TM_SPI_SetDataSize(SPI_TypeDef* SPIx, TM_SPI_DataSize_t DataSi
 void TM_SPI_SendMulti(SPI_TypeDef* SPIx, uint8_t* dataOut, uint8_t* dataIn, uint32_t count) {
 	/* Check if SPI is enabled */
 	SPI_CHECK_ENABLED(SPIx);
-
+	//HAL_SPI_TransmitReceive_DMA(&hspi5,dataOut,dataIn,count);
+	//return;
 	while (count--) {
 		/* Wait busy */
 		SPI_WAIT_TX(SPIx);
@@ -261,7 +263,8 @@ void TM_SPI_SendMulti(SPI_TypeDef* SPIx, uint8_t* dataOut, uint8_t* dataIn, uint
 void TM_SPI_WriteMulti(SPI_TypeDef* SPIx, uint8_t* dataOut, uint32_t count) {
 	/* Check if SPI is enabled */
 	SPI_CHECK_ENABLED(SPIx);
-
+	//HAL_SPI_Transmit_DMA(&hspi5,dataOut,count);
+	//return;
 	while (count--) {
 		/* Wait busy */
 		SPI_WAIT_TX(SPIx);
@@ -280,7 +283,8 @@ void TM_SPI_WriteMulti(SPI_TypeDef* SPIx, uint8_t* dataOut, uint32_t count) {
 void TM_SPI_ReadMulti(SPI_TypeDef* SPIx, uint8_t* dataIn, uint8_t dummy, uint32_t count) {
 	/* Check if SPI is enabled */
 	SPI_CHECK_ENABLED(SPIx);
-
+	//HAL_SPI_Receive_DMA(&hspi5,dataIn,count);
+	//return;
 	while (count--) {
 		/* Wait busy */
 		SPI_WAIT_TX(SPIx);

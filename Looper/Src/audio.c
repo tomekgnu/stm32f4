@@ -17,6 +17,10 @@ uint32_t sdram_pointer = 0;
 int16_t sample16s;	// sample obtained from ADS1256
 
 
+void signed16_unsigned12(int16_t *buf,int32_t start,int32_t stop){
+	for(;start < stop;start++)
+		buf[start] = SIGNED16_UNSIGNED12(buf[start]);
+}
 
 void record_sample(int16_t swrite,__IO CHANNEL *cha){
 	if(StartLooper == FALSE ){

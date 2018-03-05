@@ -51,6 +51,8 @@
 #include "midi.h"
 #include "drums.h"
 #include "fileops.h"
+#include "tim.h"
+
 extern uint32_t sdram_pointer;
 extern int16_t sample16s;
 uint8_t displayTime[16];
@@ -405,7 +407,9 @@ void KeyboardConfig(void){
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 	char keystr[20];
-	switch (GPIO_Pin) {
+	if(function == PLAY_SD || function == PLAY_SF3)
+	__HAL_TIM_SET_COUNTER(&htim8,0);
+		switch (GPIO_Pin) {
 
 	case GPIO_PIN_0:	// user button
 			DrumState = DRUM_STOP;
@@ -423,10 +427,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		break;
 	case ADS1256_DRDY_Pin:
-		if(function == PLAY_SD){
-			SD_readSample();
-			return;
-		}
+//		if(function == PLAY_SD){
+//			SD_readSample();
+//			return;
+//		}
 		if(StartLooper == 0)
 			return;
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
