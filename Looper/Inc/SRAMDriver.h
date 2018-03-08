@@ -21,20 +21,21 @@
 #define		SRAMSeqMode						0x40
 #define		SRAMPageSize					32
 #define		SRAMPageCount					4096
+#define		SRAMSize						(SRAMPageSize * SRAMPageCount)
 #define		DummyByte						0xFF
 
-extern void	SRAMEnable(uint8_t n);
-extern void SRAMDisable(uint8_t n);
 
+extern BOOL checkSRAM();
 extern void InitSRAM(void);
 extern uint8_t SRAMReadStatusReg(void);
 extern uint8_t SRAMWriteStatusReg(uint8_t WriteVal);
 extern void SRAMCommand(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t RWCmd);
 extern uint8_t SRAMWriteByte(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t WriteData);
 extern uint8_t SRAMReadByte(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB);
-extern uint32_t SRAMWritePage(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t RWCmd, uint8_t *WriteData);
-extern uint32_t SRAMReadPage(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t RWCmd,uint8_t *ReadData);
-extern uint8_t SRAMWriteSeq(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t RWCmd, uint8_t *WriteData,uint32_t WriteCnt);
-extern uint8_t SRAMReadSeq(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t RWCmd,uint8_t *ReadData,uint32_t ReadCnt);
-
+extern uint32_t SRAMWritePage(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t *WriteData);
+extern uint32_t SRAMReadPage(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t *ReadData);
+extern uint8_t SRAMWriteSeq(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t *WriteData,uint32_t WriteCnt);
+extern uint8_t SRAMReadSeq(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t *ReadData,uint32_t ReadCnt);
+extern void SRAM_WriteData16b(uint32_t StartAddress,uint16_t * pData,uint32_t DataSize);
+extern void SRAM_ReadData16b(uint32_t StartAddress,uint16_t * pData,uint32_t DataSize);
 #endif

@@ -573,8 +573,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				TM_HD44780_Puts(0,0,"Playing SD      ");
 				break;
 			case PLAY_SD:
+			case PLAY_SF3:
 				function = SINGLE_CHANNEL;
 				TM_HD44780_Puts(0,0,"Single Channel  ");
+				break;
+			case READ_SF3:
+				function = PLAY_SF3;
+				TM_HD44780_Puts(0,0,"Playing SF3     ");
 				break;
 			default: break;
 

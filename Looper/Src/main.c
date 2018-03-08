@@ -260,9 +260,12 @@ int main(void)
 	                	  TM_HD44780_Puts(0,0,"Single Channel  ");
 	                	  break;
 	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
-
-	                	  SRAMWriteByte(0,0,0,'c');
-						  data = SRAMReadByte(0,0,0);
+//	                	  SPIFFS_unmount(&fs);
+//	                	  TM_HD44780_Puts(0,0,"Formatting SF3..");
+//	                	  SPIFFS_format(&fs);
+//	                	  my_spiffs_mount();
+//	                	  TM_HD44780_Puts(0,0,"Format finished ");
+	                	  data = checkSRAM();
 						  break;
 	                  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
 	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
@@ -288,18 +291,21 @@ int main(void)
 	                	  	  moveBeatForward();
 	                	  	  break;
 	                  case TM_KEYPAD_Button_7:        /* Button 7 pressed */
-	                	  fd1 = SPIFFS_open(&fs, "my_file2", SPIFFS_CREAT | SPIFFS_TRUNC | SPIFFS_RDWR, 0);
+	                	  fd1 = SPIFFS_open(&fs, "audio_file", SPIFFS_CREAT | SPIFFS_TRUNC | SPIFFS_RDWR, 0);
 						  data = SPIFFS_errno(&fs);
 						  //if(data == 0){
+						  	BSP_LED_On(LED_RED);
 							BSP_LED_On(LED_GREEN);
 							SF3_writeSingleTrack(&ch1,&fs,fd1);
 							SPIFFS_close(&fs, fd1);
+							BSP_LED_Off(LED_RED);
 							BSP_LED_Off(LED_GREEN);
 						  //}
 						  break;
 	                  case TM_KEYPAD_Button_8:        /* Button 8 pressed */
-	                	  fd1 = SPIFFS_open(&fs, "my_file2", SPIFFS_RDONLY, 0);
+	                	  fd1 = SPIFFS_open(&fs, "audio_file", SPIFFS_RDONLY, 0);
 						  data = SPIFFS_errno(&fs);
+						  function = READ_SF3;
 						  //if(data == 0){
 							BSP_LED_On(LED_GREEN);
 							SF3_readSingleTrack(&fs,fd1);

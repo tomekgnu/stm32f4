@@ -51,7 +51,7 @@ void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef* hdac){
 }
 
 void SD_readSingleTrack(FIL *fp){
-	f_read(fp,audio_buf,WORD_SIZE,&bytes_read);
+	f_read(fp,(uint8_t *)audio_buf,WORD_SIZE,&bytes_read);
 	f_read(fp,(uint8_t *)audio_buf + WORD_SIZE,WORD_SIZE,&bytes_read);
 	signed16_unsigned12(audio_buf,0,WORD_SIZE);
 	play_buffer = 0;
@@ -110,78 +110,85 @@ void SD_readSingleTrack(FIL *fp){
 }
 
 void SF3_readSingleTrack(spiffs * fs,spiffs_file fh){
-//	function = NONE;
-//		SPIFFS_read(fs,fh,file_buf[0],BYTE_SIZE);
-//		SPIFFS_read(fs,fh,file_buf[1],BYTE_SIZE);
-//		need_new_data = FALSE;
-//		play_buffer = 0;
-//		function = PLAY_SF3;
-//		 while(function == READ_SF3)
-//			continue;
-//
-//		 while(function == PLAY_SF3){
-//
-//			 while(need_new_data == FALSE){
-//				 if(function != PLAY_SF3)
-//					 return;
-//			 }
-//
-//		   	need_new_data = FALSE;	//Clear the flag.
-//		   	if(play_buffer == 0)	//play_buffer indicates which buffer is now empty
-//		    {
-//		    	//Get the next BUFFERSIZE bytes from the file.
-//		   		play_buffer = 1;
-//		   		SPIFFS_read(fs,fh,file_buf[0],BYTE_SIZE);
-//
-//		    }
-//		     else
-//		     {
-//		        //Get the next BUFFERSIZE bytes from the file.
-//		    	 play_buffer = 0;
-//		    	 SPIFFS_read(fs,fh,file_buf[1],BYTE_SIZE);
-//
-//		     }
-//		     	//new_buffer_ready flag tells the ISR that the buffer has been filled.
-//		     //If file_read returns 0 or -1 file is over. Find the next file!
-//		      if(SPIFFS_eof(fs,fh))
-//		      {
-//		    	function = SINGLE_CHANNEL;	//Disable interrupts to stop playback.
-//		        play_buffer = 0;
-//		        SPIFFS_lseek(fs,fh,0,SPIFFS_SEEK_SET);
-//		        SPIFFS_read(fs,fh,file_buf[0],BYTE_SIZE);
-//		        SPIFFS_read(fs,fh,file_buf[1],BYTE_SIZE);
-//		        need_new_data = FALSE;
-//		        play_buffer = 0;
-//		        function = PLAY_SD;
-//		      }
-//
-//		}
+		SPIFFS_read(fs,fh,(uint8_t *)audio_buf,WORD_SIZE);
+		SPIFFS_read(fs,fh,(uint8_t *)audio_buf + WORD_SIZE,WORD_SIZE);
+		signed16_unsigned12(audio_buf,0,WORD_SIZE);
+		play_buffer = 0;
+		word_count = 0;
+		while(function != PLAY_SF3)
+			continue;
+		HAL_TIM_Base_Start(&htim8);
+		HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
+		HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_2,(uint32_t*)audio_buf,WORD_SIZE,DAC_ALIGN_12B_R);
+
+		while(function == PLAY_SF3){
+
+			 while(need_new_data == FALSE){
+				 if(function != PLAY_SF3){
+					 HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_2);
+					 HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
+					 HAL_TIM_Base_Stop(&htim8);
+					 return;
+				 }
+			 }
+
+			need_new_data = FALSE;
+		   	if(play_buffer == 0)	//play_buffer indicates which buffer is now empty
+		    {
+		    	SPIFFS_read(fs,fh,(uint8_t *)audio_buf + WORD_SIZE,WORD_SIZE);
+		    	signed16_unsigned12(audio_buf,WORD_HALF_SIZE,WORD_SIZE);
+		    }
+		     else
+		     {
+		    	 SPIFFS_read(fs,fh,(uint8_t *)audio_buf,WORD_SIZE);
+		    	 signed16_unsigned12(audio_buf,0,WORD_HALF_SIZE);
+		     }
+
+		      if(SPIFFS_eof(fs,fh))
+		      {
+		    	  HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_2);
+		    	  HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
+		    	  HAL_TIM_Base_Stop(&htim8);
+		    	  SPIFFS_lseek(fs,fh,0,SPIFFS_SEEK_SET);
+		    	  SPIFFS_read(fs,fh,(uint8_t *)audio_buf,WORD_SIZE);
+		    	  SPIFFS_read(fs,fh,(uint8_t *)audio_buf + WORD_SIZE,WORD_SIZE);
+		    	  signed16_unsigned12(audio_buf,0,WORD_SIZE);
+		    	  need_new_data = FALSE;
+		    	  word_count = 0;
+		    	  play_buffer = 0;
+		    	  HAL_TIM_Base_Start(&htim8);
+		    	  HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
+		    	  HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_2,(uint32_t*)audio_buf,WORD_SIZE,DAC_ALIGN_12B_R);
+		      }
+
+		}
 }
 void SF3_writeSingleTrack(__IO CHANNEL *ch,spiffs * fs,spiffs_file fh){
 
-//	uint32_t allbytes = ch->SamplesWritten * 2;
-//	uint32_t remainder = allbytes % BYTE_SIZE;
-//
-//	sdram_pointer = 0;
-//
-//		while(allbytes > 0){
-//			if(allbytes > remainder){
-//				BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) file_buf[0], WORD_SIZE);
-//				SPIFFS_write(fs,fh,file_buf[0],BYTE_SIZE);
-//				allbytes -= BYTE_SIZE;
-//				sdram_pointer += BYTE_SIZE;
-//			}
-//			else{
-//				BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) file_buf[0], remainder / 2);
-//				SPIFFS_write(fs,fh,file_buf[0],remainder);
-//				allbytes -= remainder;
-//				sdram_pointer += remainder;
-//			}
-//
-//			SPIFFS_fflush(fs,fh);
-//
-//		}
+	uint32_t allbytes = ch->SamplesWritten * 2;
+	uint32_t remainder = allbytes % BYTE_SIZE;
+
+	sdram_pointer = 0;
+
+		while(allbytes > 0){
+			if(allbytes > remainder){
+				BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *)audio_buf, WORD_SIZE);
+				SPIFFS_write(fs,fh,(uint8_t *)audio_buf,BYTE_SIZE);
+				allbytes -= BYTE_SIZE;
+				sdram_pointer += BYTE_SIZE;
+			}
+			else{
+				BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *)audio_buf, remainder / 2);
+				SPIFFS_write(fs,fh,(uint8_t *)audio_buf,remainder);
+				allbytes -= remainder;
+				sdram_pointer += remainder;
+			}
+
+			SPIFFS_fflush(fs,fh);
+
+		}
 }
+
 void SF3_readSample(){
 	if(word_count == WORD_SIZE){
 		word_count = 0;		//Reset the count
