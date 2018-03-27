@@ -13,7 +13,7 @@
 static __IO uint8_t play_buffer = 0;					//Keeps track of which buffer is currently being used
 static __IO BOOL need_new_data = FALSE;
 static __IO uint32_t word_count = 0;
-static int16_t audio_buf[WORD_SIZE];
+int16_t audio_buf[WORD_SIZE];
 static int16_t * buf_pointer;
 FIL *fil;
 static UINT bytes_read;
@@ -48,6 +48,35 @@ void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef* hdac){
 	need_new_data = TRUE;
 	play_buffer = 1;
 	return;
+}
+
+void SRAM_readSingleTrack(){
+
+
+}
+
+void SRAM_writeSingleTrack(__IO CHANNEL *ch){
+	uint32_t allbytes = ch->SamplesWritten * 2;
+	uint32_t remainder = allbytes % BYTE_SIZE;
+
+	sdram_pointer = 0;
+
+	while(allbytes > 0){
+		if(allbytes > remainder){
+			BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *)audio_buf, WORD_SIZE);
+			SRAM_WriteMultiplePages((uint8_t *)audio_buf,BYTE_SIZE);
+			allbytes -= BYTE_SIZE;
+			sdram_pointer += BYTE_SIZE;
+		}
+		else{
+			BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *)audio_buf, remainder / 2);
+			SRAM_WriteMultiplePages((uint8_t *)audio_buf,remainder);
+			allbytes -= remainder;
+			sdram_pointer += remainder;
+		}
+
+	}
+
 }
 
 void SD_readSingleTrack(FIL *fp){

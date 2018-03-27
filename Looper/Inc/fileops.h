@@ -17,4 +17,7 @@ void SF3_readSingleTrack(spiffs * fs,spiffs_file fh);
 void SF3_writeSingleTrack(__IO CHANNEL *ch,spiffs * fs,spiffs_file fh);
 void SF3_readSample();
 
+void SRAM_readSingleTrack();
+void SRAM_writeSingleTrack(__IO CHANNEL *ch);
+
 #endif

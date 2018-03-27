@@ -4,36 +4,135 @@
 
 static uint8_t SRAMBuf[SRAMPageSize];
 static uint8_t currentSRAM = SRAM_0;
-static union {
-	uint32_t num;
-	uint8_t arr;
-} CurrentAddress;
+static sramAddress currentRW = {0};
+static void incrementBytes(int size);
+static void SRAM_addressReset();
 
-void SRAM_WriteData16b(uint32_t StartAddress,uint16_t * pData,uint32_t DataSize){
-	uint32_t currentByte;	// determine byte in SRAM chip
-	uint32_t TotalBytes = DataSize * 2;
-	uint32_t i = 0;	// sram chip counter
-	uint32_t written = 0;
-	if((TotalBytes / SRAMSize) > 7)
-		return;
 
-	while(TotalBytes > 0){
-		currentSRAM = StartAddress / SRAMSize; 			// determine which SRAM chip
-		CurrentAddress.num = StartAddress % SRAMSize;		// determine address in SRAM chip
-		if((written = (TotalBytes / SRAMSize)) > 0)
-			SRAMWriteSeq(CurrentAddress.arr[0],CurrentAddress.arr[1],CurrentAddress.arr[2],pData,written);
 
-		StartAddress += written;
-		pData += written;
-		TotalBytes -= StartAddress;
+static void SRAM_addressReset(){
+	currentRW.currentByte.value = 0;
+	currentRW.currentPage.value = 0;
+	currentRW.totalBytes.value = 0;
+	currentRW.currentPage.value = 0;
+	currentRW.currentByte.value = 0;
+	currentSRAM = 0;
+}
+
+
+void SRAM_seek(unsigned int size,unsigned int whence){
+	switch(whence){
+		case SRAM_SET: SRAM_addressReset();
+					   incrementBytes(size);
+					   break;
+		case SRAM_CUR: incrementBytes(size);
+					   break;
+		case SRAM_END: SRAM_addressReset();
+					   incrementBytes(SRAMTotalSize - size);
+					   break;
+		default:	   break;
+
 	}
 
 }
 
-void SRAM_ReadData16b(uint32_t StartAddress,uint16_t * pData,uint32_t DataSize){
-	currentSRAM = StartAddress / SRAMSize; 			// determine which SRAM chip
-	uint32_t currentByte = StartAddress / SRAMSize;	// determine byte in SRAM chip
+static void incrementBytes(int size){
+	currentRW.totalBytes.value += size;
+	if(currentRW.totalBytes.value > SRAMTotalSize)
+		currentRW.totalBytes.value %= SRAMTotalSize;
+	currentRW.currentByte.value = currentRW.totalBytes.value % SRAMChipSize;
+	currentRW.currentPage.value = (currentRW.totalBytes.value / SRAMPageSize) % SRAMPageCount;
+	currentRW.currentSram = currentRW.totalBytes.value / SRAMChipSize;
+	currentSRAM = currentRW.currentSram;
+}
 
+void writeSRAM(unsigned char *buf,unsigned int size){
+	unsigned int unaligned = currentRW.currentByte.value % SRAMPageSize; // byte between start and end of page
+	unsigned int remainder = (unaligned > 0?(SRAMPageSize - unaligned):0); // bytes remaining to end of page
+	if(size == 0)
+		return;
+
+	if(size >= SRAMPageSize){
+		if(unaligned == 0){
+			// write page only, pass remaining size to next call
+			SRAMWriteSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,SRAMPageSize);
+			incrementBytes(SRAMPageSize);
+			writeSRAM(buf + SRAMPageSize,size - SRAMPageSize);
+		}
+		else{
+			// write remainder, pass remaining size to next call
+			SRAMWriteSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,remainder);
+			incrementBytes(remainder);
+			writeSRAM(buf + remainder,size - remainder);
+		}
+
+
+	}
+	else{
+
+		if(unaligned > 0){
+			if(size > remainder){
+				size -= remainder;
+				SRAMWriteSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,remainder);
+				incrementBytes(remainder);
+				writeSRAM(buf + remainder,size);
+			}
+			else{
+				SRAMWriteSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,size);
+				incrementBytes(size);
+			}
+
+		}
+		else{
+			SRAMWriteSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,size);
+			incrementBytes(size);
+		}
+	}
+}
+
+
+void readSRAM(unsigned char *buf,unsigned int size){
+	unsigned int unaligned = currentRW.currentByte.value % SRAMPageSize; // byte between start and end of page
+	unsigned int remainder = (unaligned > 0?(SRAMPageSize - unaligned):0); // bytes remaining to end of page
+	if(size == 0)
+		return;
+
+	if(size >= SRAMPageSize){
+		if(unaligned == 0){
+			// read page only, pass remaining size to next call
+			SRAMReadSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,SRAMPageSize);
+			incrementBytes(SRAMPageSize);
+			readSRAM(buf + SRAMPageSize,size - SRAMPageSize);
+		}
+		else{
+			// read remainder, pass remaining size to next call
+			SRAMReadSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,remainder);
+			incrementBytes(remainder);
+			readSRAM(buf + remainder,size - remainder);
+		}
+
+
+	}
+	else{
+
+		if(unaligned > 0){
+			if(size > remainder){
+				size -= remainder;
+				SRAMReadSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,remainder);
+				incrementBytes(remainder);
+				readSRAM(buf + remainder,size);
+			}
+			else{
+				SRAMReadSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,size);
+				incrementBytes(size);
+			}
+
+		}
+		else{
+			SRAMReadSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,size);
+			incrementBytes(size);
+		}
+	}
 }
 
 BOOL checkSRAM(){
@@ -176,6 +275,8 @@ uint8_t SRAMReadByte(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB)
 	SRAMDisable(currentSRAM);
 	return ReadData;
 }
+
+
 
 uint32_t SRAMWritePage(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t *WriteData)
 {

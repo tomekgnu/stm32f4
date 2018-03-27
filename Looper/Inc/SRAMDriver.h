@@ -19,11 +19,32 @@
 #define		SRAMByteMode					0x00
 #define		SRAMPageMode					0x80
 #define		SRAMSeqMode						0x40
+#define		SRAMChips						8
 #define		SRAMPageSize					32
 #define		SRAMPageCount					4096
-#define		SRAMSize						(SRAMPageSize * SRAMPageCount)
+#define		SRAMChipSize					(SRAMPageSize * SRAMPageCount)
+#define		SRAMTotalSize					(SRAMChipSize * SRAMChips)
+#define		SRAMTotalPages					(SRAMPageCount * SRAMChips)
 #define		DummyByte						0xFF
+#define		SRAM_SET						0
+#define		SRAM_END						1
+#define		SRAM_CUR						2
 
+union offset{
+	uint32_t value;
+	uint8_t bytes[4];
+};
+
+typedef struct {
+	union offset currentByte;
+	union offset currentPage;
+	union offset totalBytes;
+	uint8_t currentSram;
+} sramAddress;
+
+extern void SRAM_seek(unsigned int size,unsigned int whence);
+extern void readSRAM(unsigned char *buf,unsigned int size);
+extern void writeSRAM(unsigned char *buf,unsigned int size);
 
 extern BOOL checkSRAM();
 extern void InitSRAM(void);
@@ -36,6 +57,6 @@ extern uint32_t SRAMWritePage(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_
 extern uint32_t SRAMReadPage(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t *ReadData);
 extern uint8_t SRAMWriteSeq(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t *WriteData,uint32_t WriteCnt);
 extern uint8_t SRAMReadSeq(uint8_t AddLB, uint8_t AddMB,uint8_t AddHB, uint8_t *ReadData,uint32_t ReadCnt);
-extern void SRAM_WriteData16b(uint32_t StartAddress,uint16_t * pData,uint32_t DataSize);
-extern void SRAM_ReadData16b(uint32_t StartAddress,uint16_t * pData,uint32_t DataSize);
+extern void SRAM_WriteMultiplePages(uint8_t *data,uint32_t size);
+
 #endif

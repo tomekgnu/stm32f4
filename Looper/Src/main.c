@@ -85,7 +85,7 @@ __IO BOOL StartLooper = FALSE;
 __IO DrumFunction DrumState = DRUM_STOP;
 uint8_t footswitch = 0;
 
-
+extern int16_t audio_buf[];
 extern __IO CHANNEL ch1;
 extern __IO CHANNEL ch2;
 extern uint32_t adc1val;
@@ -120,6 +120,7 @@ int main(void)
 
 	uint32_t data;
 	char lcdline[30];
+
 	uint32_t SF3ID;
 	HAL_StatusTypeDef status;
 	spiffs_file fd1;
@@ -260,12 +261,12 @@ int main(void)
 	                	  TM_HD44780_Puts(0,0,"Single Channel  ");
 	                	  break;
 	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
-//	                	  SPIFFS_unmount(&fs);
-//	                	  TM_HD44780_Puts(0,0,"Formatting SF3..");
-//	                	  SPIFFS_format(&fs);
-//	                	  my_spiffs_mount();
-//	                	  TM_HD44780_Puts(0,0,"Format finished ");
-	                	  data = checkSRAM();
+//	                	  strncpy((char *)sram_buf,"Dante describes acedia as the failure to love God with all one's heart, all one's mind and all o",96);
+//	                	  SRAM_seek(0,SRAM_SET);
+//	                	  writeSRAM((unsigned char *)sram_buf,96);
+//	                	  memset(sram_buf,0,96);
+//	                	  SRAM_seek(0,SRAM_SET);
+//	                	  readSRAM((unsigned char *)sram_buf,96);
 						  break;
 	                  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
 	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
