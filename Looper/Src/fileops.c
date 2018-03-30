@@ -9,6 +9,7 @@
 #include "dma.h"
 #include "tim.h"
 #include "dac.h"
+#include "SRAMDriver.h"
 
 static __IO uint8_t play_buffer = 0;					//Keeps track of which buffer is currently being used
 static __IO BOOL need_new_data = FALSE;
@@ -50,27 +51,87 @@ void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef* hdac){
 	return;
 }
 
-void SRAM_readSingleTrack(){
+void SRAM_readSingleTrack() {
+	HAL_StatusTypeDef stat = HAL_OK;
+	HAL_TIM_Base_Start_IT(&htim8);
+	SRAM_seek(0,SRAM_SET);
+	readSRAM((uint8_t *) audio_buf, WORD_SIZE,&bytes_read);
+	readSRAM((uint8_t *) audio_buf + WORD_SIZE, WORD_SIZE,&bytes_read);
+	signed16_unsigned12(audio_buf, 0, WORD_SIZE);
+	play_buffer = 0;
+	word_count = 0;
 
+	while (function != PLAY_SRAM)	// wait for function switch
+		continue;
+
+	//stat = HAL_TIM_Base_Start(&htim8);
+	stat = HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
+	stat = HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*) audio_buf, WORD_SIZE,DAC_ALIGN_12B_R);
+
+	if(stat != HAL_OK){
+		BSP_LED_On(LED_RED);
+		Error_Handler();
+	}
+
+	while (function == PLAY_SRAM) {
+		while (need_new_data == FALSE) {
+			if (function != PLAY_SRAM) {
+				HAL_DAC_Stop_DMA(&hdac, DAC_CHANNEL_2);
+				HAL_DAC_Stop(&hdac, DAC_CHANNEL_2);
+				HAL_TIM_Base_Stop_IT(&htim8);
+				return;
+			}
+		}
+
+		need_new_data = FALSE;
+		if (play_buffer == 0)//play_buffer indicates which buffer is now empty
+		{
+			readSRAM((uint8_t *) audio_buf + WORD_SIZE, WORD_SIZE,&bytes_read);
+			signed16_unsigned12(audio_buf, WORD_HALF_SIZE, WORD_SIZE);
+		} else {
+			readSRAM((uint8_t *) audio_buf, WORD_SIZE,&bytes_read);
+			signed16_unsigned12(audio_buf, 0, WORD_HALF_SIZE);
+		}//new_buffer_ready flag tells the ISR that the buffer has been filled.
+		//If file_read returns 0 or -1 file is over. Find the next file!
+		if (bytes_read < WORD_SIZE) {
+			HAL_DAC_Stop_DMA(&hdac, DAC_CHANNEL_2);
+			HAL_DAC_Stop(&hdac, DAC_CHANNEL_2);
+			//HAL_TIM_Base_Stop(&htim8);
+			SRAM_seek(0,SRAM_SET);
+			readSRAM((uint8_t *) audio_buf, WORD_SIZE,&bytes_read);
+			readSRAM((uint8_t *) audio_buf + WORD_SIZE, WORD_SIZE,&bytes_read);
+			signed16_unsigned12(audio_buf, 0, WORD_SIZE);
+			need_new_data = FALSE;
+			word_count = 0;
+			play_buffer = 0;
+			//HAL_TIM_Base_Start(&htim8);
+			HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
+			HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*) audio_buf,WORD_SIZE, DAC_ALIGN_12B_R);
+
+		}
+
+	}
+
+	HAL_TIM_Base_Stop_IT(&htim8);
 
 }
 
 void SRAM_writeSingleTrack(__IO CHANNEL *ch){
 	uint32_t allbytes = ch->SamplesWritten * 2;
 	uint32_t remainder = allbytes % BYTE_SIZE;
-
+	SRAM_seek(0,SRAM_SET);
 	sdram_pointer = 0;
 
 	while(allbytes > 0){
 		if(allbytes > remainder){
 			BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *)audio_buf, WORD_SIZE);
-			SRAM_WriteMultiplePages((uint8_t *)audio_buf,BYTE_SIZE);
+			writeSRAM((uint8_t *)audio_buf,BYTE_SIZE);
 			allbytes -= BYTE_SIZE;
 			sdram_pointer += BYTE_SIZE;
 		}
 		else{
 			BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *)audio_buf, remainder / 2);
-			SRAM_WriteMultiplePages((uint8_t *)audio_buf,remainder);
+			writeSRAM((uint8_t *)audio_buf,remainder);
 			allbytes -= remainder;
 			sdram_pointer += remainder;
 		}
@@ -80,6 +141,7 @@ void SRAM_writeSingleTrack(__IO CHANNEL *ch){
 }
 
 void SD_readSingleTrack(FIL *fp){
+	HAL_TIM_Base_Start_IT(&htim8);
 	f_read(fp,(uint8_t *)audio_buf,WORD_SIZE,&bytes_read);
 	f_read(fp,(uint8_t *)audio_buf + WORD_SIZE,WORD_SIZE,&bytes_read);
 	signed16_unsigned12(audio_buf,0,WORD_SIZE);
@@ -89,7 +151,7 @@ void SD_readSingleTrack(FIL *fp){
 	while(function != PLAY_SD)	// wait for function switch
 		 continue;
 
-	HAL_TIM_Base_Start(&htim8);
+
 	HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
 	HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_2,(uint32_t*)audio_buf,WORD_SIZE,DAC_ALIGN_12B_R);
 
@@ -98,7 +160,7 @@ void SD_readSingleTrack(FIL *fp){
 			 if(function != PLAY_SD){
 				 HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_2);
 				 HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
-				 HAL_TIM_Base_Stop(&htim8);
+				 HAL_TIM_Base_Stop_IT(&htim8);
 				 return;
 			 }
 		 }
@@ -119,7 +181,7 @@ void SD_readSingleTrack(FIL *fp){
 	      {
 	    	HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_2);
 	    	HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
-	    	HAL_TIM_Base_Stop(&htim8);
+	    	//HAL_TIM_Base_Stop(&htim8);
 	    	f_lseek(fp,SEEK_SET);
 	    	f_read(fp,(uint8_t *)audio_buf,WORD_SIZE,&bytes_read);
 	    	f_read(fp,(uint8_t *)audio_buf + WORD_SIZE,WORD_SIZE,&bytes_read);
@@ -127,18 +189,19 @@ void SD_readSingleTrack(FIL *fp){
 	        need_new_data = FALSE;
 	        word_count = 0;
 	        play_buffer = 0;
-	        HAL_TIM_Base_Start(&htim8);
+	        //HAL_TIM_Base_Start(&htim8);
 	        HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
 	        HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_2,(uint32_t*)audio_buf,WORD_SIZE,DAC_ALIGN_12B_R);
 
 	      }
 
 	}
-
+	HAL_TIM_Base_Stop_IT(&htim8);
 
 }
 
 void SF3_readSingleTrack(spiffs * fs,spiffs_file fh){
+	HAL_TIM_Base_Start(&htim8);
 		SPIFFS_read(fs,fh,(uint8_t *)audio_buf,WORD_SIZE);
 		SPIFFS_read(fs,fh,(uint8_t *)audio_buf + WORD_SIZE,WORD_SIZE);
 		signed16_unsigned12(audio_buf,0,WORD_SIZE);
@@ -146,7 +209,7 @@ void SF3_readSingleTrack(spiffs * fs,spiffs_file fh){
 		word_count = 0;
 		while(function != PLAY_SF3)
 			continue;
-		HAL_TIM_Base_Start(&htim8);
+
 		HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
 		HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_2,(uint32_t*)audio_buf,WORD_SIZE,DAC_ALIGN_12B_R);
 
@@ -156,7 +219,7 @@ void SF3_readSingleTrack(spiffs * fs,spiffs_file fh){
 				 if(function != PLAY_SF3){
 					 HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_2);
 					 HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
-					 HAL_TIM_Base_Stop(&htim8);
+					// HAL_TIM_Base_Stop(&htim8);
 					 return;
 				 }
 			 }
@@ -177,7 +240,7 @@ void SF3_readSingleTrack(spiffs * fs,spiffs_file fh){
 		      {
 		    	  HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_2);
 		    	  HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
-		    	  HAL_TIM_Base_Stop(&htim8);
+		    	 // HAL_TIM_Base_Stop(&htim8);
 		    	  SPIFFS_lseek(fs,fh,0,SPIFFS_SEEK_SET);
 		    	  SPIFFS_read(fs,fh,(uint8_t *)audio_buf,WORD_SIZE);
 		    	  SPIFFS_read(fs,fh,(uint8_t *)audio_buf + WORD_SIZE,WORD_SIZE);
@@ -191,6 +254,8 @@ void SF3_readSingleTrack(spiffs * fs,spiffs_file fh){
 		      }
 
 		}
+
+		HAL_TIM_Base_Stop(&htim8);
 }
 void SF3_writeSingleTrack(__IO CHANNEL *ch,spiffs * fs,spiffs_file fh){
 

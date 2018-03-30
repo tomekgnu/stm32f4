@@ -2,6 +2,7 @@
 #define _SRAM_H
 
 #include "main.h"
+#include "ff.h"
 
 #define		SRAM_0							0
 #define		SRAM_1							1
@@ -42,8 +43,10 @@ typedef struct {
 	uint8_t currentSram;
 } sramAddress;
 
+extern uint32_t SRAM_read();
+extern uint32_t SRAM_written();
 extern void SRAM_seek(unsigned int size,unsigned int whence);
-extern void readSRAM(unsigned char *buf,unsigned int size);
+extern void readSRAM(unsigned char *buf,unsigned int size,UINT *bytes_read);
 extern void writeSRAM(unsigned char *buf,unsigned int size);
 
 extern BOOL checkSRAM();

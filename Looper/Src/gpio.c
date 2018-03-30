@@ -52,6 +52,7 @@
 #include "drums.h"
 #include "fileops.h"
 #include "tim.h"
+#include "dac.h"
 
 extern uint32_t sdram_pointer;
 extern int16_t sample16s;
@@ -407,9 +408,10 @@ void KeyboardConfig(void){
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 	char keystr[20];
-	if(function == PLAY_SD || function == PLAY_SF3)
-	__HAL_TIM_SET_COUNTER(&htim8,0);
-		switch (GPIO_Pin) {
+	//if(function == PLAY_SD || function == PLAY_SF3)
+	//
+
+	switch (GPIO_Pin) {
 
 	case GPIO_PIN_0:	// user button
 			DrumState = DRUM_STOP;
@@ -427,10 +429,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		break;
 	case ADS1256_DRDY_Pin:
-//		if(function == PLAY_SD){
-//			SD_readSample();
-//			return;
-//		}
+		if(function == PLAY_SD || function == PLAY_SRAM){
+			__HAL_TIM_SET_COUNTER(&htim8,0);
+			//SD_readSample();
+			return;
+		}
 		if(StartLooper == 0)
 			return;
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
@@ -574,12 +577,17 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				break;
 			case PLAY_SD:
 			case PLAY_SF3:
+			case PLAY_SRAM:
 				function = SINGLE_CHANNEL;
 				TM_HD44780_Puts(0,0,"Single Channel  ");
 				break;
 			case READ_SF3:
 				function = PLAY_SF3;
 				TM_HD44780_Puts(0,0,"Playing SF3     ");
+				break;
+			case READ_SRAM:
+				function = PLAY_SRAM;
+				TM_HD44780_Puts(0,0,"Playing SRAM    ");
 				break;
 			default: break;
 

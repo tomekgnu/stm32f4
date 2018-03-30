@@ -117,7 +117,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-
+	char sram_buf[200];
 	uint32_t data;
 	char lcdline[30];
 
@@ -261,12 +261,9 @@ int main(void)
 	                	  TM_HD44780_Puts(0,0,"Single Channel  ");
 	                	  break;
 	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
-//	                	  strncpy((char *)sram_buf,"Dante describes acedia as the failure to love God with all one's heart, all one's mind and all o",96);
-//	                	  SRAM_seek(0,SRAM_SET);
-//	                	  writeSRAM((unsigned char *)sram_buf,96);
-//	                	  memset(sram_buf,0,96);
-//	                	  SRAM_seek(0,SRAM_SET);
-//	                	  readSRAM((unsigned char *)sram_buf,96);
+	                	  BSP_LED_On(LED_RED);
+	                	  SRAM_writeSingleTrack(&ch1);
+	                	  BSP_LED_Off(LED_RED);
 						  break;
 	                  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
 	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
@@ -315,8 +312,10 @@ int main(void)
 						 // }
 	                	  break;
 	                  case TM_KEYPAD_Button_9:        /* Button 9 pressed */
-	                	  sprintf(lcdline,"Button %d pressed",Keypad_Button);
-	                	  TM_ILI9341_Puts(5, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	                	  function = READ_SRAM;
+	                	  BSP_LED_On(LED_GREEN);
+	                	  SRAM_readSingleTrack();
+	                	  BSP_LED_Off(LED_GREEN);
 	                	  break;
 	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
 							  switch(DrumState){

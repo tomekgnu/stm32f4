@@ -1,10 +1,13 @@
 #include "SRAMDriver.h"
 #include "spi.h"
 #include "string.h"
+#include "ff.h"
 
 static uint8_t SRAMBuf[SRAMPageSize];
 static uint8_t currentSRAM = SRAM_0;
 static sramAddress currentRW = {0};
+static uint32_t sram_read = 0;
+static uint32_t sram_written = 0;
 static void incrementBytes(int size);
 static void SRAM_addressReset();
 
@@ -33,6 +36,13 @@ void SRAM_seek(unsigned int size,unsigned int whence){
 		default:	   break;
 
 	}
+
+}
+uint32_t SRAM_written(){
+
+}
+
+uint32_t SRAM_read(){
 
 }
 
@@ -91,9 +101,11 @@ void writeSRAM(unsigned char *buf,unsigned int size){
 }
 
 
-void readSRAM(unsigned char *buf,unsigned int size){
+void readSRAM(unsigned char *buf,unsigned int size,UINT *bytes_read){
 	unsigned int unaligned = currentRW.currentByte.value % SRAMPageSize; // byte between start and end of page
 	unsigned int remainder = (unaligned > 0?(SRAMPageSize - unaligned):0); // bytes remaining to end of page
+	UINT rbytes;	// local bytes read
+
 	if(size == 0)
 		return;
 
@@ -102,13 +114,13 @@ void readSRAM(unsigned char *buf,unsigned int size){
 			// read page only, pass remaining size to next call
 			SRAMReadSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,SRAMPageSize);
 			incrementBytes(SRAMPageSize);
-			readSRAM(buf + SRAMPageSize,size - SRAMPageSize);
+			readSRAM(buf + SRAMPageSize,size - SRAMPageSize,&rbytes);
 		}
 		else{
 			// read remainder, pass remaining size to next call
 			SRAMReadSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,remainder);
 			incrementBytes(remainder);
-			readSRAM(buf + remainder,size - remainder);
+			readSRAM(buf + remainder,size - remainder,&rbytes);
 		}
 
 
@@ -120,7 +132,7 @@ void readSRAM(unsigned char *buf,unsigned int size){
 				size -= remainder;
 				SRAMReadSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,remainder);
 				incrementBytes(remainder);
-				readSRAM(buf + remainder,size);
+				readSRAM(buf + remainder,size,&rbytes);
 			}
 			else{
 				SRAMReadSeq(currentRW.currentByte.bytes[0],currentRW.currentByte.bytes[1],currentRW.currentByte.bytes[2],buf,size);
@@ -133,6 +145,8 @@ void readSRAM(unsigned char *buf,unsigned int size){
 			incrementBytes(size);
 		}
 	}
+
+	*bytes_read += rbytes;
 }
 
 BOOL checkSRAM(){
