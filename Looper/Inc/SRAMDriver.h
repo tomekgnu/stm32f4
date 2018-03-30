@@ -45,8 +45,9 @@ typedef struct {
 
 extern uint32_t SRAM_read();
 extern uint32_t SRAM_written();
-extern void SRAM_seek(unsigned int size,unsigned int whence);
-extern void readSRAM(unsigned char *buf,unsigned int size,UINT *bytes_read);
+extern void SRAM_seekRead(unsigned int size,unsigned int whence);
+extern void SRAM_seekWrite(unsigned int size,unsigned int whence);
+extern void readSRAM(unsigned char *buf,unsigned int size);
 extern void writeSRAM(unsigned char *buf,unsigned int size);
 
 extern BOOL checkSRAM();

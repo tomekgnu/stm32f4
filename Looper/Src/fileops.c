@@ -54,9 +54,9 @@ void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef* hdac){
 void SRAM_readSingleTrack() {
 	HAL_StatusTypeDef stat = HAL_OK;
 	HAL_TIM_Base_Start_IT(&htim8);
-	SRAM_seek(0,SRAM_SET);
-	readSRAM((uint8_t *) audio_buf, WORD_SIZE,&bytes_read);
-	readSRAM((uint8_t *) audio_buf + WORD_SIZE, WORD_SIZE,&bytes_read);
+	SRAM_seekRead(0,SRAM_SET);
+	readSRAM((uint8_t *) audio_buf, WORD_SIZE);
+	readSRAM((uint8_t *) audio_buf + WORD_SIZE, WORD_SIZE);
 	signed16_unsigned12(audio_buf, 0, WORD_SIZE);
 	play_buffer = 0;
 	word_count = 0;
@@ -86,20 +86,20 @@ void SRAM_readSingleTrack() {
 		need_new_data = FALSE;
 		if (play_buffer == 0)//play_buffer indicates which buffer is now empty
 		{
-			readSRAM((uint8_t *) audio_buf + WORD_SIZE, WORD_SIZE,&bytes_read);
+			readSRAM((uint8_t *) audio_buf + WORD_SIZE, WORD_SIZE);
 			signed16_unsigned12(audio_buf, WORD_HALF_SIZE, WORD_SIZE);
 		} else {
-			readSRAM((uint8_t *) audio_buf, WORD_SIZE,&bytes_read);
+			readSRAM((uint8_t *) audio_buf, WORD_SIZE);
 			signed16_unsigned12(audio_buf, 0, WORD_HALF_SIZE);
 		}//new_buffer_ready flag tells the ISR that the buffer has been filled.
 		//If file_read returns 0 or -1 file is over. Find the next file!
-		if (bytes_read < WORD_SIZE) {
+		if (SRAM_read() > SRAM_written()) {
 			HAL_DAC_Stop_DMA(&hdac, DAC_CHANNEL_2);
 			HAL_DAC_Stop(&hdac, DAC_CHANNEL_2);
 			//HAL_TIM_Base_Stop(&htim8);
-			SRAM_seek(0,SRAM_SET);
-			readSRAM((uint8_t *) audio_buf, WORD_SIZE,&bytes_read);
-			readSRAM((uint8_t *) audio_buf + WORD_SIZE, WORD_SIZE,&bytes_read);
+			SRAM_seekRead(0,SRAM_SET);
+			readSRAM((uint8_t *) audio_buf, WORD_SIZE);
+			readSRAM((uint8_t *) audio_buf + WORD_SIZE, WORD_SIZE);
 			signed16_unsigned12(audio_buf, 0, WORD_SIZE);
 			need_new_data = FALSE;
 			word_count = 0;
@@ -119,7 +119,7 @@ void SRAM_readSingleTrack() {
 void SRAM_writeSingleTrack(__IO CHANNEL *ch){
 	uint32_t allbytes = ch->SamplesWritten * 2;
 	uint32_t remainder = allbytes % BYTE_SIZE;
-	SRAM_seek(0,SRAM_SET);
+	SRAM_seekWrite(0,SRAM_SET);
 	sdram_pointer = 0;
 
 	while(allbytes > 0){
