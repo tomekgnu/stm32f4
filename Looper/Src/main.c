@@ -206,8 +206,8 @@ int main(void)
   ADS1256_WriteCmd(CMD_RDATAC);
   //FATFS_UnLinkDriver(SD_Path);
   TM_KEYPAD_Init();
-  setupMidi();
 
+  setupMidi();
   talkMIDI(0xB0, 0, 0x01); //Default bank GM1
 
   TM_HD44780_Init(20, 4);

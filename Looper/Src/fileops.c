@@ -15,6 +15,8 @@ static __IO uint8_t play_buffer = 0;					//Keeps track of which buffer is curren
 static __IO BOOL need_new_data = FALSE;
 static __IO uint32_t word_count = 0;
 int16_t audio_buf[WORD_SIZE];
+uint32_t audio_pointer = 0;
+BOOL audio_finished = FALSE;
 static int16_t * buf_pointer;
 FIL *fil;
 static UINT bytes_read;
@@ -53,7 +55,6 @@ void HAL_DACEx_ConvHalfCpltCallbackCh2(DAC_HandleTypeDef* hdac){
 
 void SRAM_readSingleTrack() {
 	HAL_StatusTypeDef stat = HAL_OK;
-	HAL_TIM_Base_Start_IT(&htim8);
 	SRAM_seekRead(0,SRAM_SET);
 	readSRAM((uint8_t *) audio_buf, WORD_SIZE);
 	readSRAM((uint8_t *) audio_buf + WORD_SIZE, WORD_SIZE);
@@ -65,8 +66,10 @@ void SRAM_readSingleTrack() {
 		continue;
 
 	//stat = HAL_TIM_Base_Start(&htim8);
+	audio_pointer = 0;
 	stat = HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
 	stat = HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*) audio_buf, WORD_SIZE,DAC_ALIGN_12B_R);
+	HAL_TIM_Base_Start_IT(&htim8);
 
 	if(stat != HAL_OK){
 		BSP_LED_On(LED_RED);
@@ -94,6 +97,8 @@ void SRAM_readSingleTrack() {
 		}//new_buffer_ready flag tells the ISR that the buffer has been filled.
 		//If file_read returns 0 or -1 file is over. Find the next file!
 		if (SRAM_read() > SRAM_written()) {
+			while(audio_finished == FALSE)
+				continue;
 			HAL_DAC_Stop_DMA(&hdac, DAC_CHANNEL_2);
 			HAL_DAC_Stop(&hdac, DAC_CHANNEL_2);
 			//HAL_TIM_Base_Stop(&htim8);
@@ -104,6 +109,7 @@ void SRAM_readSingleTrack() {
 			need_new_data = FALSE;
 			word_count = 0;
 			play_buffer = 0;
+			audio_finished = FALSE;
 			//HAL_TIM_Base_Start(&htim8);
 			HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
 			HAL_DAC_Start_DMA(&hdac, DAC_CHANNEL_2, (uint32_t*) audio_buf,WORD_SIZE, DAC_ALIGN_12B_R);
@@ -141,7 +147,7 @@ void SRAM_writeSingleTrack(__IO CHANNEL *ch){
 }
 
 void SD_readSingleTrack(FIL *fp){
-	HAL_TIM_Base_Start_IT(&htim8);
+
 	f_read(fp,(uint8_t *)audio_buf,WORD_SIZE,&bytes_read);
 	f_read(fp,(uint8_t *)audio_buf + WORD_SIZE,WORD_SIZE,&bytes_read);
 	signed16_unsigned12(audio_buf,0,WORD_SIZE);
@@ -154,6 +160,7 @@ void SD_readSingleTrack(FIL *fp){
 
 	HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
 	HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_2,(uint32_t*)audio_buf,WORD_SIZE,DAC_ALIGN_12B_R);
+	HAL_TIM_Base_Start_IT(&htim8);
 
 	while(function == PLAY_SD){
 		 while(need_new_data == FALSE){

@@ -432,13 +432,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		if(function == PLAY_SD || function == PLAY_SRAM){
 			__HAL_TIM_SET_COUNTER(&htim8,0);
 			//SD_readSample();
-			return;
+			//return;
 		}
 		if(StartLooper == 0)
 			return;
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
 		if(Playback == 1){
-			if(function == SINGLE_CHANNEL){
+			if(function == SINGLE_CHANNEL || function == PLAY_SD){
 				read_sample(sample16s,&ch1);
 				play_sample(&ch1);
 			}
@@ -448,7 +448,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			}
 		}
 		if(Recording == 1){
-			if(function == SINGLE_CHANNEL){
+			if(function == SINGLE_CHANNEL || function == PLAY_SD){
 				record_sample(sample16s,&ch1);
 
 			}

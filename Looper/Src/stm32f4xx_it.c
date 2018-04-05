@@ -44,9 +44,13 @@
 #include "midi.h"
 #include "drums.h"
 #include "fileops.h"
+#include "SRAMDriver.h"
+
 extern ADC_HandleTypeDef hadc1;
 extern CHANNEL ch1;
 extern FUNCTION function;
+extern uint32_t audio_pointer;
+extern BOOL audio_finished;
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
@@ -251,7 +255,13 @@ void TIM8_UP_TIM13_IRQHandler(void)
   /* USER CODE END TIM8_UP_TIM13_IRQn 0 */
   HAL_TIM_IRQHandler(&htim8);
   /* USER CODE BEGIN TIM8_UP_TIM13_IRQn 1 */
-
+  if(audio_finished == FALSE){
+	  audio_pointer += 2;
+  	  if((2 * audio_pointer) > SRAM_written()){
+  		  audio_finished = TRUE;
+  		  audio_pointer = 0;
+  	  }
+}
   /* USER CODE END TIM8_UP_TIM13_IRQn 1 */
 }
 

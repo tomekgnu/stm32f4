@@ -10,14 +10,6 @@ __IO uint32_t midiMetronomePointer = 0;
 uint16_t beats_per_minute	= 60;			// 1s = 1 quarter
 uint16_t millis_per_beat = 60000 / 60;
 
-uint8_t midiEvents[MIDI_QUEUE];
-uint16_t midiTimes[MIDI_QUEUE];
-
-
-
-
-
-
 void setupMidi(){
 	//Reset the VS1053
 	  VS1053_LOW();
@@ -27,6 +19,7 @@ void setupMidi(){
 	  talkMIDI(0xB0, 0x07, 120); //0xB0 is channel message, set channel volume to near max (127)
 
 }
+
 void noteOn(byte channel, byte note, byte attack_velocity) {
   talkMIDI( (0x90 | channel), note, attack_velocity);
 }
@@ -57,6 +50,13 @@ void playPercussion(byte onoff,byte instrument){
 }
 
 
-
+void playBass(byte onoff,byte tone){
+	talkMIDI(0xC0,34,0);
+	if(onoff == NOTEON)
+			noteOn(0,tone,60);
+		else
+			//Turn off the note with a given off/release velocity
+			noteOff(0,tone,60);
+}
 
 

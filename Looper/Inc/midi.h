@@ -5,6 +5,7 @@
 #include "main.h"
 #include "stm32f429xx.h"
 #include "tm_stm32f4_keypad.h"
+void playBass(byte onoff,byte tone);
 
 typedef enum{DRUM_START,DRUM_STOP,DRUM_EDIT}DrumFunction;
 
