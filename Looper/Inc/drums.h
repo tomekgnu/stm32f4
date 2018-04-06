@@ -15,12 +15,12 @@ void setBarBeats(uint16_t bar,uint16_t beats);
 #define R_HAND	1
 #define L_FOOT	2
 #define R_FOOT	3
-
+#define BASS	4
 
 typedef struct{
 	uint16_t beats;	// number of beats
 	uint16_t duration; // bar duration
-	uint8_t drumTracks[4][32];	// drum data
+	uint8_t drumTracks[5][32];	// drum data
 }DrumBar;
 
 

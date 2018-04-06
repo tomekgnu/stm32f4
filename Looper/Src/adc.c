@@ -144,7 +144,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		utoa(adc1val,strval,10);
 		TM_HD44780_Puts(0,0,strval);
 		playPercussion(NOTEON,key_to_drum[adc1val - 1]);
-		playBass(NOTEON,30);
+
 	}
 }
 

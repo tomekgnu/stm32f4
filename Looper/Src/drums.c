@@ -94,6 +94,10 @@ void midiDrumHandler(){
 				playPercussion(NOTEON,drumTracksPointer[R_HAND][drumBeatIndex]);
 			if(drumTracksPointer[L_HAND][drumBeatIndex] != 0)
 				playPercussion(NOTEON,drumTracksPointer[L_HAND][drumBeatIndex]);
+			if(drumTracksPointer[BASS][drumBeatIndex] != 0){
+				playBass(NOTEOFF,drumTracksPointer[BASS][drumBeatIndex]);
+				playBass(NOTEON,drumTracksPointer[BASS][drumBeatIndex]);
+			}
 			drumBeatIndex++;
 			ShowBeat = TRUE;
 		}
