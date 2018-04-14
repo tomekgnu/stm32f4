@@ -62,7 +62,7 @@ void EXTI15_10_IRQHandler(void);
 void TIM8_UP_TIM13_IRQHandler(void);
 void DMA2_Stream3_IRQHandler(void);
 void DMA2_Stream4_IRQHandler(void);
-void OTG_FS_IRQHandler(void);
+void OTG_HS_IRQHandler(void);
 
 #ifdef __cplusplus
 }
