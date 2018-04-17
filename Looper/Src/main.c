@@ -101,6 +101,9 @@ extern __IO CHANNEL ch1;
 extern __IO CHANNEL ch2;
 extern uint32_t adc1val;
 extern __IO FUNCTION function;
+extern __IO BOOL usbRecv;
+extern uint8_t UserRxBufferHS[];
+extern uint8_t UserTxBufferHS[];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -128,19 +131,16 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
-	char sram_buf[200];
-	uint32_t data;
-	char lcdline[30];
 
-	uint32_t SF3ID;
+	char lcdline[30];
+	uint32_t data;
 	HAL_StatusTypeDef status;
 	spiffs_file fd1;
 	//Fatfs object
-	    FATFS FatFs;
-	    //File object
-	    FIL fil;
-	    //Free and total space
-	    uint32_t total, free;
+	FATFS FatFs;
+	//File object
+	FIL fil;
+
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
@@ -244,6 +244,12 @@ int main(void)
 		 menuShowTimers(&ch1,&ch2);
 	  }
 
+	  if(usbRecv == TRUE){
+		  itoa(UserRxBufferHS[0],lcdline,10);
+		  TM_HD44780_Puts(0,0,lcdline);
+		  playPercussion(NOTEON,UserRxBufferHS[0]);
+		  usbRecv = FALSE;
+	  }
 	  Keypad_Button = TM_KEYPAD_Read();
 	          /* Keypad was pressed */
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */

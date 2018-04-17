@@ -75,7 +75,7 @@
 #define USBD_LANGID_STRING     1033
 #define USBD_MANUFACTURER_STRING     "STMicroelectronics"
 #define USBD_PID_HS     22336
-#define USBD_PRODUCT_STRING_HS     "STM32 Virtual ComPort"
+#define USBD_PRODUCT_STRING_HS     "STM32 Looper"
 #define USBD_SERIALNUMBER_STRING_HS     "00000000001A"
 #define USBD_CONFIGURATION_STRING_HS     "CDC Config"
 #define USBD_INTERFACE_STRING_HS     "CDC Interface"
