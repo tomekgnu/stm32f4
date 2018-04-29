@@ -62,7 +62,7 @@ USBD_HandleTypeDef hUsbDeviceHS;
 void MX_USB_DEVICE_Init(void)
 {
   /* USER CODE BEGIN USB_DEVICE_Init_PreTreatment */
-  
+
   /* USER CODE END USB_DEVICE_Init_PreTreatment */
   
   /* Init Device Library,Add Supported Class and Start the library*/

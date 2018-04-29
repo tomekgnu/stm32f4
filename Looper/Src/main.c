@@ -80,6 +80,8 @@
 #include "SRAMDriver.h"
 #include "tm_stm32f4_fatfs.h"
 #include "fileops.h"
+#include "usb_device.h"
+#include "usbd_core.h"
 #define pi 3.14159
 #define LOG_PAGE_SIZE       256
 /* USER CODE END Includes */
@@ -102,6 +104,7 @@ extern __IO CHANNEL ch2;
 extern uint32_t adc1val;
 extern __IO FUNCTION function;
 extern __IO BOOL usbRecv;
+extern __IO uint32_t usbBytes;
 extern uint8_t UserRxBufferHS[];
 extern uint8_t UserTxBufferHS[];
 /* USER CODE END PV */
@@ -245,9 +248,12 @@ int main(void)
 	  }
 
 	  if(usbRecv == TRUE){
-		  itoa(UserRxBufferHS[0],lcdline,10);
-		  TM_HD44780_Puts(0,0,lcdline);
-		  playPercussion(NOTEON,UserRxBufferHS[0]);
+		  //itoa(UserRxBufferHS[0],lcdline,10);
+		  //TM_HD44780_Puts(0,0,lcdline);
+		  int i;
+		  for(i = 0; i < 5; i++)
+			  if(UserRxBufferHS[i] != 0)
+				  playPercussion(NOTEON,UserRxBufferHS[i]);
 		  usbRecv = FALSE;
 	  }
 	  Keypad_Button = TM_KEYPAD_Read();

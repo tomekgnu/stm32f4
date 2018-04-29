@@ -120,6 +120,7 @@ uint8_t UserTxBufferHS[APP_TX_DATA_SIZE];
 /* USER CODE BEGIN EXPORTED_VARIABLES */
 __IO BOOL usbRecv = FALSE;
 __IO BOOL usbTran = FALSE;
+__IO uint32_t usbBytes = 0;
 /* USER CODE END EXPORTED_VARIABLES */
 
 /**
@@ -160,7 +161,7 @@ USBD_CDC_ItfTypeDef USBD_Interface_fops_HS =
   */
 static int8_t CDC_Init_HS(void)
 { 
-  /* USER CODE BEGIN 8 */ 
+  /* USER CODE BEGIN 8 */
   /* Set Application Buffers */
   USBD_CDC_SetTxBuffer(&hUsbDeviceHS, UserTxBufferHS, 0);
   USBD_CDC_SetRxBuffer(&hUsbDeviceHS, UserRxBufferHS);
@@ -236,7 +237,10 @@ static int8_t CDC_Control_HS  (uint8_t cmd, uint8_t* pbuf, uint16_t length)
     break;
 
   case CDC_GET_LINE_CODING:     
-
+	*((uint32_t *)(pbuf + 0)) = 9600;
+	*((uint8_t *)(pbuf + 4)) = 0;
+	*((uint8_t *)(pbuf + 5)) = 0;
+	*((uint8_t *)(pbuf + 6)) = 8;
     break;
 
   case CDC_SET_CONTROL_LINE_STATE:
@@ -276,6 +280,7 @@ static int8_t CDC_Receive_HS (uint8_t* Buf, uint32_t *Len)
   USBD_CDC_SetRxBuffer(&hUsbDeviceHS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceHS);
   usbRecv = TRUE;
+  usbBytes = *Len;
   return (USBD_OK);
   /* USER CODE END 11 */ 
 }
