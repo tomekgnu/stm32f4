@@ -251,9 +251,11 @@ int main(void)
 		  //itoa(UserRxBufferHS[0],lcdline,10);
 		  //TM_HD44780_Puts(0,0,lcdline);
 		  int i;
-		  for(i = 0; i < 5; i++)
-			  if(UserRxBufferHS[i] != 0)
-				  playPercussion(NOTEON,UserRxBufferHS[i]);
+		  for(i = 0; i < 4; i++)
+		    if(UserRxBufferHS[i] != 0)
+		    	playPercussion(NOTEON,UserRxBufferHS[i]);
+		  	if(UserRxBufferHS[4] != 0)
+		  		playBass(NOTEON,UserRxBufferHS[4]);
 		  usbRecv = FALSE;
 	  }
 	  Keypad_Button = TM_KEYPAD_Read();
