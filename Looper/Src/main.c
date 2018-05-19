@@ -243,7 +243,6 @@ int main(void)
   {
 
 	  if(DrumState == DRUM_EDIT && adc1val > 0){
-		  placeDrumFromKeyboard(adc1val);
 		  adc1val = 0;
 	  }
 	  if(StartLooper == TRUE){
@@ -253,13 +252,13 @@ int main(void)
 	  if(usbRecv == TRUE){
 		  //itoa(UserRxBufferHS[0],lcdline,10);
 		  //TM_HD44780_Puts(0,0,lcdline);
-		  int i;
-		  for(i = 0; i < 4; i++){
-		    if(UserRxBufferHS[i] != 0)
-		     playPercussion(NOTEON,UserRxBufferHS[i]);
-		  }
-		  if(UserRxBufferHS[4] != 0)
-		  	playBass(NOTEON,UserRxBufferHS[4]);
+//		  int i;
+//		  for(i = 0; i < 4; i++){
+//		    if(UserRxBufferHS[i] != 0)
+//		     playPercussion(NOTEON,UserRxBufferHS[i]);
+//		  }
+//		  if(UserRxBufferHS[4] != 0)
+//		  	playBass(NOTEON,UserRxBufferHS[4]);
 		  usbRecv = FALSE;
 	  }
 	  Keypad_Button = TM_KEYPAD_Read();
@@ -268,7 +267,6 @@ int main(void)
 	        	  switch (Keypad_Button) {
 	                  case TM_KEYPAD_Button_0:        /* Button 0 pressed */
 	                	  if(DrumState == DRUM_EDIT){
-	                		  clearDrumSymbol();
 	                		  break;
 	                	  }
 //	                	  HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_SET);
@@ -311,12 +309,10 @@ int main(void)
 							 }
 	                	   	  break;
 	                  case TM_KEYPAD_Button_4:        /* Button 4 pressed */
-	                	  	  moveBeatBack();
 	                	  	  break;
 	                  case TM_KEYPAD_Button_5:        /* Button 5 pressed */
 	                	 	  break;
 	                  case TM_KEYPAD_Button_6:        /* Button 6 pressed */
-	                	  	  moveBeatForward();
 	                	  	  break;
 	                  case TM_KEYPAD_Button_7:        /* Button 7 pressed */
 	                	  fd1 = SPIFFS_open(&fs, "audio_file", SPIFFS_CREAT | SPIFFS_TRUNC | SPIFFS_RDWR, 0);
@@ -371,8 +367,7 @@ int main(void)
 							  	 case DRUM_STOP: DrumState = DRUM_EDIT;
 							  	 	 	 	 	 adc1val = 0;
 							  	 	 	 	 	 TM_HD44780_Puts(0,0,"  Drums edited  ");
-							  	 	 	 	 	 menuDrumEdit();
-											  	 break;
+							  	 	 	 	 	 break;
 							  }
 							  break;
 	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
@@ -395,20 +390,16 @@ int main(void)
 
 	                	  break;
 	                  case TM_KEYPAD_Button_A:        /* Button A pressed, only on large keyboard */
-	                	 if(DrumState == DRUM_EDIT)
-	                		 setDrumPart(R_HAND);
+
 	                	 break;
 	                  case TM_KEYPAD_Button_B:        /* Button B pressed, only on large keyboard */
-	                	  if(DrumState == DRUM_EDIT)
-	                	  	setDrumPart(L_HAND);
+
 	                      break;
 	                  case TM_KEYPAD_Button_C:        /* Button C pressed, only on large keyboard */
-	                	  if(DrumState == DRUM_EDIT)
-	                		  setDrumPart(R_FOOT);
+
 	                      break;
 	                  case TM_KEYPAD_Button_D:        /* Button D pressed, only on large keyboard */
-	                	  if(DrumState == DRUM_EDIT)
-	                		  setDrumPart(L_FOOT);
+
 	                      break;
 	                  default:
 	                      break;

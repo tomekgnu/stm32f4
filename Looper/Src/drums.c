@@ -1,18 +1,11 @@
 #include "drums.h"
 #include "midi.h"
 #include "ff.h"
+#include "stdlib.h"
 
-
-DrumBar bar1,bar2;
-uint8_t (*drumTracksPointer)[32];
 uint32_t drumBeatIndex;
-static uint16_t barDuration = 0;
-static uint16_t numberOfBeats = 0;
-static uint16_t beatDuration = 0;
-static uint8_t remainder = 0;
 static __IO BOOL switch_buff;
 static __IO BOOL first_beat;
-__IO BOOL ShowBeat = FALSE;
 
 uint8_t key_to_drum[16] = {
 		Acoustic_Bass_Drum,
@@ -33,19 +26,34 @@ uint8_t key_to_drum[16] = {
 		Chinese_Cymbal
 };
 
+uint8_t *drumbuf1;
+uint8_t *drumbuf2;
+uint8_t * drumpointer;
+Pattern pat1,pat2;
+DrumTimes times1,times2,*timepointer;
+
 void readDrums(FIL *fil){
-
 	uint32_t bytesRead;
-
 	switch_buff = TRUE;
 	first_beat = FALSE;
+
+	drumbuf1 = (uint8_t *)malloc(12 + 5 * 120);
+	drumbuf2 = (uint8_t *)malloc(12 + 5 * 120);
+
 	if(f_eof(fil))
 		return;
-	f_read(fil,&bar1,sizeof(DrumBar),(UINT *)&bytesRead);
-	f_read(fil,&bar2,sizeof(DrumBar),(UINT *)&bytesRead);
+
+	f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
+	setPatternTime(&pat1,&times1);
+	f_read(fil,drumbuf1,times1.numberOfBeats * 5,(UINT *)&bytesRead);
+
+	f_read(fil,&pat2,sizeof(Pattern),(UINT *)&bytesRead);
+	setPatternTime(&pat2,&times2);
+	f_read(fil,drumbuf2,times2.numberOfBeats * 5,(UINT *)&bytesRead);
+
 	resetDrums();
-	setBarBeats(bar1.duration,bar1.beats);
-	drumTracksPointer = bar1.drumTracks;
+	drumpointer = drumbuf1;
+	timepointer = &times1;
 	DrumState = DRUM_START;
 
 	while(bytesRead > 0 && DrumState == DRUM_START){
@@ -53,74 +61,72 @@ void readDrums(FIL *fil){
 			continue;
 		first_beat = FALSE;
 		if(switch_buff == FALSE){
-			setBarBeats(bar1.duration,bar1.beats);
-			drumTracksPointer = bar1.drumTracks;
+			drumpointer = drumbuf1;
+			timepointer = &times1;
 			if(f_eof(fil))
 				f_lseek(fil,SEEK_SET);
-			f_read(fil,&bar2,sizeof(DrumBar),(UINT *)&bytesRead);
+			f_read(fil,&pat2,sizeof(Pattern),(UINT *)&bytesRead);
+			setPatternTime(&pat2,&times2);
+			f_read(fil,drumbuf2,times2.numberOfBeats * 5,(UINT *)&bytesRead);
 			switch_buff = TRUE;
 		}
 		else{
-			setBarBeats(bar2.duration,bar2.beats);
-			drumTracksPointer = bar2.drumTracks;
+			drumpointer = drumbuf2;
+			timepointer = &times2;
 			if(f_eof(fil))
 				f_lseek(fil,SEEK_SET);
-			f_read(fil,&bar1,sizeof(DrumBar),(UINT *)&bytesRead);
+			f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
+			setPatternTime(&pat1,&times1);
+			f_read(fil,drumbuf1,times1.numberOfBeats * 5,(UINT *)&bytesRead);
 			switch_buff = FALSE;
-
 		}
 
 	}
 
+	while(DrumState == DRUM_START)
+		continue;
+	free(drumbuf1);
+	free(drumbuf2);
+
 }
 
-
-void setBarBeats(uint16_t bar,uint16_t beats){
-	numberOfBeats = beats;
-	barDuration = bar;
-	remainder = barDuration % numberOfBeats;
-	beatDuration = barDuration / numberOfBeats;
+void setPatternTime(Pattern *p,DrumTimes *t){
+	int beatTimeMillis = (60000 / p->beattime) / p->division;
+	t->numberOfBeats = p->beats * p->division;
+	t->barDuration = t->numberOfBeats * beatTimeMillis;
+	t->remainder = t->barDuration % t->numberOfBeats;
+	t->beatDuration = t->barDuration / t->numberOfBeats;
 }
+
 
 void midiDrumHandler(){
-
-	if(midiDrumClock < barDuration){
-		if(midiDrumClock % ((remainder > 0 && drumBeatIndex == 0)?(beatDuration + remainder):beatDuration) == 0){
-			if(drumTracksPointer[R_FOOT][drumBeatIndex] != 0)
-				playPercussion(NOTEON,drumTracksPointer[R_FOOT][drumBeatIndex]);
-			if(drumTracksPointer[L_FOOT][drumBeatIndex] != 0)
-				playPercussion(NOTEON,drumTracksPointer[L_FOOT][drumBeatIndex]);
-			if(drumTracksPointer[R_HAND][drumBeatIndex] != 0)
-				playPercussion(NOTEON,drumTracksPointer[R_HAND][drumBeatIndex]);
-			if(drumTracksPointer[L_HAND][drumBeatIndex] != 0)
-				playPercussion(NOTEON,drumTracksPointer[L_HAND][drumBeatIndex]);
-			if(drumTracksPointer[BASS][drumBeatIndex] != 0){
-				playBass(NOTEOFF,drumTracksPointer[BASS][drumBeatIndex]);
-				playBass(NOTEON,drumTracksPointer[BASS][drumBeatIndex]);
+	uint32_t i;
+	if(midiDrumClock < timepointer->barDuration){
+		if(midiDrumClock % ((timepointer->remainder > 0 && drumBeatIndex == 0)?(timepointer->beatDuration + timepointer->remainder):timepointer->beatDuration) == 0){
+			for(i = drumBeatIndex; i < drumBeatIndex + 4; i++){
+				if(drumpointer[i] != 0)
+					playPercussion(NOTEON,drumpointer[i]);
 			}
-			drumBeatIndex++;
-			ShowBeat = TRUE;
+
+			if(drumpointer[i] != 0)
+				playBass(NOTEON,drumpointer[i]);
+
+			drumBeatIndex += 5;
+
 		}
+
 		midiDrumClock++;
 	}
-	else
-	{
-		first_beat = TRUE;
-		midiDrumClock = 0;
-		drumBeatIndex = 0;
+	else{
+			first_beat = TRUE;
+			midiDrumClock = 0;
+			drumBeatIndex = 0;
 	}
-
-}
-
-
-void initDrumBeats(){
 
 }
 
 void resetDrums(){
-
 	midiDrumClock = 0;
 	drumBeatIndex = 0;
-
 }
 

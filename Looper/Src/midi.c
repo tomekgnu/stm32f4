@@ -9,6 +9,7 @@ __IO uint32_t midiMetronomePointer = 0;
 
 uint16_t beats_per_minute	= 60;			// 1s = 1 quarter
 uint16_t millis_per_beat = 60000 / 60;
+extern uint8_t UserRxBufferHS[];
 
 void setupMidi(){
 	//Reset the VS1053
@@ -59,4 +60,12 @@ void playBass(byte onoff,byte tone){
 			noteOff(0,tone,60);
 }
 
-
+void playUsbDrums(){
+int i;
+  for(i = 0; i < 4; i++){
+	if(UserRxBufferHS[i] != 0)
+	 playPercussion(NOTEON,UserRxBufferHS[i]);
+  }
+  if(UserRxBufferHS[4] != 0)
+	playBass(NOTEON,UserRxBufferHS[4]);
+}

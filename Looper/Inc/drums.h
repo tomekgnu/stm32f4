@@ -4,12 +4,27 @@
 #include "stm32f429xx.h"
 #include "ff.h"
 
+typedef struct{
+	uint32_t beats;	// number of beats
+	uint32_t division; // number of smaller parts in single beat
+	uint32_t beattime;	// beat time e.g. 60..120
+}Pattern;
+
+typedef struct{
+	uint32_t numberOfBeats;
+	uint32_t barDuration;
+	uint32_t remainder;
+	uint32_t beatDuration;
+
+}DrumTimes;
+
 void readDrums(FIL *fil);
 void resetDrums();
 void playDrums();
 void midiDrumHandler();
 void initDrumBeats();
 void setBarBeats(uint16_t bar,uint16_t beats);
+void setPatternTime(Pattern *p,DrumTimes *t);
 
 #define L_HAND	0
 #define R_HAND	1
@@ -17,16 +32,7 @@ void setBarBeats(uint16_t bar,uint16_t beats);
 #define R_FOOT	3
 #define BASS	4
 
-typedef struct{
-	uint16_t beats;	// number of beats
-	uint16_t duration; // bar duration
-	uint8_t drumTracks[5][32];	// drum data
-}DrumBar;
 
-
-extern DrumBar bar1;
-extern DrumBar bar2;
-extern uint8_t (*drumTracksPointer)[32];
 extern uint32_t drumBeatIndex;
 extern uint8_t key_to_drum[];
 #endif

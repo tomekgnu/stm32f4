@@ -53,6 +53,7 @@
 /* USER CODE BEGIN INCLUDE */
 #include "main.h"
 #include "tm_stm32_hd44780.h"
+#include "midi.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -300,6 +301,7 @@ static int8_t CDC_Receive_HS(uint8_t* Buf, uint32_t *Len)
   USBD_CDC_ReceivePacket(&hUsbDeviceHS);
   usbRecv = TRUE;
   usbBytes = *Len;
+  playUsbDrums();
   return (USBD_OK);
   /* USER CODE END 11 */
 }

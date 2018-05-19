@@ -23,6 +23,7 @@ void noteOn(byte channel, byte note, byte attack_velocity);
 void noteOff(byte channel, byte note, byte release_velocity);
 void talkMIDI(byte cmd, byte data1, byte data2);
 void playPercussion(byte onoff,byte instrument);
+void playUsbDrums();
 
 #define	VS1053_LOW()	HAL_GPIO_WritePin(VS1053_RESET_GPIO_Port,VS1053_RESET_Pin,GPIO_PIN_RESET);
 #define	VS1053_HIGH()	HAL_GPIO_WritePin(VS1053_RESET_GPIO_Port,VS1053_RESET_Pin,GPIO_PIN_SET);
