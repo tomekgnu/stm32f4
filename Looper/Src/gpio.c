@@ -60,7 +60,7 @@
 #include "adc.h"
 #include "midi.h"
 #include "drums.h"
-#include "fileops.h"
+#include "memops.h"
 #include "tim.h"
 #include "dac.h"
 

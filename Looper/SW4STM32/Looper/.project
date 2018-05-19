@@ -161,11 +161,6 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/drums.c</locationURI>
 		</link>
 		<link>
-			<name>Application/User/fileops.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/fileops.c</locationURI>
-		</link>
-		<link>
 			<name>Application/User/fmc.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Src/fmc.c</locationURI>
@@ -181,9 +176,14 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Src/main.c</locationURI>
 		</link>
 		<link>
+			<name>Application/User/memops.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/memops.c</locationURI>
+		</link>
+		<link>
 			<name>Application/User/menu.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Src/drummenu.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Src/menu.c</locationURI>
 		</link>
 		<link>
 			<name>Application/User/midi.c</name>

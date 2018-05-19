@@ -26,34 +26,34 @@ uint8_t key_to_drum[16] = {
 		Chinese_Cymbal
 };
 
-uint8_t *drumbuf1;
-uint8_t *drumbuf2;
-uint8_t * drumpointer;
-Pattern pat1,pat2;
-DrumTimes times1,times2,*timepointer;
+uint8_t *dbufa;
+uint8_t *dbufb;
+uint8_t * dbufp;
+Pattern pa,pb;
+DrumTimes ta,tb,*tptr;
 
 void readDrums(FIL *fil){
 	uint32_t bytesRead;
 	switch_buff = TRUE;
 	first_beat = FALSE;
 
-	drumbuf1 = (uint8_t *)malloc(12 + 5 * 120);
-	drumbuf2 = (uint8_t *)malloc(12 + 5 * 120);
+	dbufa = (uint8_t *)malloc(12 + 5 * 120);
+	dbufb = (uint8_t *)malloc(12 + 5 * 120);
 
 	if(f_eof(fil))
 		return;
 
-	f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
-	setPatternTime(&pat1,&times1);
-	f_read(fil,drumbuf1,times1.numberOfBeats * 5,(UINT *)&bytesRead);
+	f_read(fil,&pa,sizeof(Pattern),(UINT *)&bytesRead);
+	setPatternTime(&pa,&ta);
+	f_read(fil,dbufa,ta.numberOfBeats * 5,(UINT *)&bytesRead);
 
-	f_read(fil,&pat2,sizeof(Pattern),(UINT *)&bytesRead);
-	setPatternTime(&pat2,&times2);
-	f_read(fil,drumbuf2,times2.numberOfBeats * 5,(UINT *)&bytesRead);
+	f_read(fil,&pb,sizeof(Pattern),(UINT *)&bytesRead);
+	setPatternTime(&pb,&tb);
+	f_read(fil,dbufb,tb.numberOfBeats * 5,(UINT *)&bytesRead);
 
 	resetDrums();
-	drumpointer = drumbuf1;
-	timepointer = &times1;
+	dbufp = dbufa;
+	tptr = &ta;
 	DrumState = DRUM_START;
 
 	while(bytesRead > 0 && DrumState == DRUM_START){
@@ -61,23 +61,23 @@ void readDrums(FIL *fil){
 			continue;
 		first_beat = FALSE;
 		if(switch_buff == FALSE){
-			drumpointer = drumbuf1;
-			timepointer = &times1;
+			dbufp = dbufa;
+			tptr = &ta;
 			if(f_eof(fil))
 				f_lseek(fil,SEEK_SET);
-			f_read(fil,&pat2,sizeof(Pattern),(UINT *)&bytesRead);
-			setPatternTime(&pat2,&times2);
-			f_read(fil,drumbuf2,times2.numberOfBeats * 5,(UINT *)&bytesRead);
+			f_read(fil,&pb,sizeof(Pattern),(UINT *)&bytesRead);
+			setPatternTime(&pb,&tb);
+			f_read(fil,dbufb,tb.numberOfBeats * 5,(UINT *)&bytesRead);
 			switch_buff = TRUE;
 		}
 		else{
-			drumpointer = drumbuf2;
-			timepointer = &times2;
+			dbufp = dbufb;
+			tptr = &tb;
 			if(f_eof(fil))
 				f_lseek(fil,SEEK_SET);
-			f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
-			setPatternTime(&pat1,&times1);
-			f_read(fil,drumbuf1,times1.numberOfBeats * 5,(UINT *)&bytesRead);
+			f_read(fil,&pa,sizeof(Pattern),(UINT *)&bytesRead);
+			setPatternTime(&pa,&ta);
+			f_read(fil,dbufa,ta.numberOfBeats * 5,(UINT *)&bytesRead);
 			switch_buff = FALSE;
 		}
 
@@ -85,8 +85,8 @@ void readDrums(FIL *fil){
 
 	while(DrumState == DRUM_START)
 		continue;
-	free(drumbuf1);
-	free(drumbuf2);
+	free(dbufa);
+	free(dbufb);
 
 }
 
@@ -101,15 +101,15 @@ void setPatternTime(Pattern *p,DrumTimes *t){
 
 void midiDrumHandler(){
 	uint32_t i;
-	if(midiDrumClock < timepointer->barDuration){
-		if(midiDrumClock % ((timepointer->remainder > 0 && drumBeatIndex == 0)?(timepointer->beatDuration + timepointer->remainder):timepointer->beatDuration) == 0){
+	if(midiDrumClock < tptr->barDuration){
+		if(midiDrumClock % ((tptr->remainder > 0 && drumBeatIndex == 0)?(tptr->beatDuration + tptr->remainder):tptr->beatDuration) == 0){
 			for(i = drumBeatIndex; i < drumBeatIndex + 4; i++){
-				if(drumpointer[i] != 0)
-					playPercussion(NOTEON,drumpointer[i]);
+				if(dbufp[i] != 0)
+					playPercussion(NOTEON,dbufp[i]);
 			}
 
-			if(drumpointer[i] != 0)
-				playBass(NOTEON,drumpointer[i]);
+			if(dbufp[i] != 0)
+				playBass(NOTEON,dbufp[i]);
 
 			drumBeatIndex += 5;
 

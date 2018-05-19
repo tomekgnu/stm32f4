@@ -43,7 +43,7 @@
 #include "audio.h"
 #include "midi.h"
 #include "drums.h"
-#include "fileops.h"
+#include "memops.h"
 #include "SRAMDriver.h"
 
 extern ADC_HandleTypeDef hadc1;

@@ -79,7 +79,7 @@
 #include "spiffs.h"
 #include "SRAMDriver.h"
 #include "tm_stm32f4_fatfs.h"
-#include "fileops.h"
+#include "memops.h"
 #include "usb_device.h"
 #include "usbd_core.h"
 #define pi 3.14159
