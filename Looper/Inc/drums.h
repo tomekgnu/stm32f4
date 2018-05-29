@@ -8,6 +8,7 @@ typedef struct{
 	uint32_t beats;	// number of beats
 	uint32_t division; // number of smaller parts in single beat
 	uint32_t beattime;	// beat time e.g. 60..120
+	uint32_t repeat;
 }Pattern;
 
 typedef struct{
@@ -24,8 +25,10 @@ void playDrums();
 void midiDrumHandler();
 void initDrumBeats();
 void setBarBeats(uint16_t bar,uint16_t beats);
-void setPatternTime(Pattern *p,DrumTimes *t);
+void setPatternTime(__IO Pattern *p,__IO DrumTimes *t);
 
+#define DRUM_TIM_HDR_SIZE	16	// beats,division,beattime,repeat: each 4 bytes
+#define DRUM_INSTR			5	// 4 drums + bass
 #define L_HAND	0
 #define R_HAND	1
 #define L_FOOT	2

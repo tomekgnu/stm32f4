@@ -62,6 +62,7 @@ extern DMA_HandleTypeDef hdma_spi5_tx;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim8;
+extern TIM_HandleTypeDef htim9;
 
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
@@ -202,6 +203,20 @@ void EXTI9_5_IRQHandler(void)
 }
 
 /**
+* @brief This function handles TIM1 break interrupt and TIM9 global interrupt.
+*/
+void TIM1_BRK_TIM9_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM1_BRK_TIM9_IRQn 0 */
+
+  /* USER CODE END TIM1_BRK_TIM9_IRQn 0 */
+  HAL_TIM_IRQHandler(&htim9);
+  /* USER CODE BEGIN TIM1_BRK_TIM9_IRQn 1 */
+  TM_KEYPAD_Update();
+  /* USER CODE END TIM1_BRK_TIM9_IRQn 1 */
+}
+
+/**
 * @brief This function handles TIM2 global interrupt.
 */
 void TIM2_IRQHandler(void)
@@ -211,8 +226,8 @@ void TIM2_IRQHandler(void)
   /* USER CODE END TIM2_IRQn 0 */
   HAL_TIM_IRQHandler(&htim2);
   /* USER CODE BEGIN TIM2_IRQn 1 */
-  TM_KEYPAD_Update();
-  if(DrumState == DRUM_START)
+
+  //if(DrumState == DRUMS_STARTED)
 	  midiDrumHandler();
   /* USER CODE END TIM2_IRQn 1 */
 }

@@ -70,6 +70,7 @@ uint8_t displayTime[16];
 __IO CHANNEL ch1;
 __IO CHANNEL ch2;
 __IO FUNCTION function;
+
 /* USER CODE END 0 */
 
 /*----------------------------------------------------------------------------*/
@@ -407,7 +408,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	switch (GPIO_Pin) {
 
 	case GPIO_PIN_0:	// user button
-			DrumState = DRUM_STOP;
+			DrumState = DRUMS_STOPPED;
 			resetDrums();
 			resetChannels(&ch1,&ch2);
 
@@ -415,7 +416,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			Recording = FALSE;
 			Playback = FALSE;
 			StartLooper = FALSE;
-			DrumState = DRUM_STOP;
+			DrumState = DRUMS_STOPPED;
 			BSP_LED_Off(LED_RED);
 			BSP_LED_Off(LED_GREEN);
 		}
@@ -427,7 +428,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 //			//SD_readSample();
 //			//return;
 //		}
-		if(StartLooper == 0)
+		if(StartLooper == FALSE)
 			return;
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
 		if(Playback == 1){
@@ -486,6 +487,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		//midiDrumPointer = 0;
 		//midiDrumClock = 0;
+		if(DrumState == DRUMS_READY)
+			DrumState = DRUMS_STARTED;
 		Recording = 1;
 		Playback = 0;
 		StartLooper = 1;
@@ -500,6 +503,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		BUT_DOWN(BUT_PLAY);
 		sdram_pointer = 0;
 		resetDrums();
+		if(DrumState == DRUMS_STARTED){
+			DrumState = DRUMS_STOPPED;
+			StartLooper = 0;
+			return;
+		}
+		if(DrumState == DRUMS_READY)
+			DrumState = DRUMS_STARTED;
 		StartLooper = 0;
 		ch1.SamplesRead = 0;
 		ch2.SamplesRead = 0;

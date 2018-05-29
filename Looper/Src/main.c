@@ -95,7 +95,8 @@ __IO BOOL Recording = FALSE;
 __IO BOOL Playback = FALSE;
 __IO BOOL Overdubbing = FALSE;
 __IO BOOL StartLooper = FALSE;
-__IO DrumFunction DrumState = DRUM_STOP;
+__IO DrumFunction DrumState = DRUMS_STOPPED;
+
 uint8_t footswitch = 0;
 
 extern int16_t audio_buf[];
@@ -189,6 +190,7 @@ int main(void)
   MX_DAC_Init();
   MX_TIM8_Init();
   MX_USB_DEVICE_Init();
+  MX_TIM9_Init();
   /* USER CODE BEGIN 2 */
 
   sFLASH_Init();
@@ -202,7 +204,7 @@ int main(void)
   //FIll lcd with color
   TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
 
-  status = HAL_TIM_Base_Start_IT(&htim2);
+  status = HAL_TIM_Base_Start_IT(&htim9);
 
   BSP_LED_Init(LED_GREEN);
   BSP_LED_Init(LED_RED);
@@ -242,7 +244,7 @@ int main(void)
   while (1)
   {
 
-	  if(DrumState == DRUM_EDIT && adc1val > 0){
+	  if(DrumState == DRUMS_READY && adc1val > 0){
 		  adc1val = 0;
 	  }
 	  if(StartLooper == TRUE){
@@ -266,7 +268,7 @@ int main(void)
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
 	        	  switch (Keypad_Button) {
 	                  case TM_KEYPAD_Button_0:        /* Button 0 pressed */
-	                	  if(DrumState == DRUM_EDIT){
+	                	  if(DrumState == DRUMS_READY){
 	                		  break;
 	                	  }
 //	                	  HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_SET);
@@ -345,8 +347,8 @@ int main(void)
 	                	  break;
 	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
 							  switch(DrumState){
-							  	 case DRUM_EDIT: resetDrums();
-											  	 TM_HD44780_Puts(0,0,"  Drums started ");
+							  	 case DRUMS_READY: resetDrums();
+											  	 TM_HD44780_Puts(0,0,"  Drums ready ");
 											  	 if (f_mount(&FatFs, "", 1) == FR_OK) {
 											  		//Mounted OK, turn on RED LED
 											  		BSP_LED_On(LED_RED);
@@ -361,10 +363,10 @@ int main(void)
 											  		}
 											  	 }
 											  	 break;
-							  	 case DRUM_START: DrumState = DRUM_STOP;
+							  	 case DRUMS_STARTED: DrumState = DRUMS_STOPPED;
 							  	 	 	 	 	 TM_HD44780_Puts(0,0,"  Drums stopped ");
 											  	 break;
-							  	 case DRUM_STOP: DrumState = DRUM_EDIT;
+							  	 case DRUMS_STOPPED: DrumState = DRUMS_READY;
 							  	 	 	 	 	 adc1val = 0;
 							  	 	 	 	 	 TM_HD44780_Puts(0,0,"  Drums edited  ");
 							  	 	 	 	 	 break;

@@ -7,7 +7,7 @@
 #include "tm_stm32f4_keypad.h"
 void playBass(byte onoff,byte tone);
 
-typedef enum{DRUM_START,DRUM_STOP,DRUM_EDIT}DrumFunction;
+typedef enum{DRUMS_STARTED,DRUMS_STOPPED,DRUMS_READY}DrumFunction;
 
 extern __IO DrumFunction DrumState;
 extern __IO uint16_t midiDrumClock;
