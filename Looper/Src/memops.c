@@ -20,26 +20,12 @@ BOOL audio_finished = FALSE;
 static int16_t * buf_pointer;
 FIL *fil;
 static UINT bytes_read;
+static UINT bytes_written;
 __IO int16_t note;
 extern uint32_t sdram_pointer;
 extern __IO FUNCTION function;
 extern __IO CHANNEL ch1;
-
-
-void SD_readSample(){
-
-	if(word_count < WORD_SIZE){
-		ch1.CurrentSample = audio_buf[word_count * 2 + WORD_SIZE * play_buffer];
-		play_sample(&ch1);
-		word_count += 1;
-		return;
-	}
-
-	need_new_data = TRUE;
-	word_count = 0;		//Reset the count
-
-
-}
+extern __IO CHANNEL ch2;
 
 void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef* hdac){
 	need_new_data = TRUE;
@@ -311,45 +297,46 @@ void SF3_readSample(){
 //	return sample;
 //}
 
-//void readSingleTrackSD(FIL *fp){
-//	buff_switch = 1;
-//	data_ready = FALSE;
-//	buffer_index = 0;
-//	sdram_pointer = 0;
-//	fil = fp;
-//
-//	while(1){
-//		f_read(fp,file_buf1,BUFF_SIZE,&bytes);
-//		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t*)file_buf1,bytes / 2);
-//		sdram_pointer += bytes;
-//		if(f_eof(fp))
-//			break;
-//	}
-//
-//	sdram_pointer = 0;
-//	function = PLAY_SD;
-//
-//}
+void SD_readToSDRAM(FIL *fp){
+	uint8_t *_buf;
+	fil = fp;
+	resetChannels(&ch1,&ch2);
+	_buf = (uint8_t *)malloc(8192);
+	bytes_read = 0;
+	sdram_pointer = 0;
+	while(1){
+		f_read(fp,(uint8_t *)_buf,8192,&bytes_read);
+		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t*)_buf,bytes_read / 2);
+		ch1.SamplesWritten += (bytes_read / 2);
+		sdram_pointer += bytes_read;
+		if(f_eof(fp))
+			break;
+	}
+	free(_buf);
+	sdram_pointer = 0;
+
+}
 
 void SD_writeSingleTrack(__IO CHANNEL *ch,FIL *fp){
-	uint32_t allbytes = ch->SamplesWritten * 2;
-	uint32_t remainder = allbytes % BYTE_SIZE;
+	uint8_t *_buf;
+	uint32_t bytesRemaining = ch->SamplesWritten * 2;
+	_buf = (uint8_t *)malloc(8192);
+	bytes_written = 0;
 	sdram_pointer = 0;
 	f_truncate(fp);
-	while(allbytes > 0){
-		if(allbytes > remainder){
-			BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) audio_buf, WORD_SIZE);
-			f_write(fp,audio_buf,BYTE_SIZE,&bytes_read);
-			allbytes -= BYTE_SIZE;
-			sdram_pointer += BYTE_SIZE;
+	while(bytesRemaining > 0){
+		if(bytesRemaining >= 8192){
+			BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) _buf, 4096);
+			f_write(fp,_buf,8192,&bytes_written);
 		}
 		else{
-			BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) audio_buf, remainder / 2);
-			f_write(fp,audio_buf,remainder,&bytes_read);
-			allbytes -= remainder;
-			sdram_pointer += remainder;
+			BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) _buf, bytesRemaining / 2);
+			f_write(fp,_buf,bytesRemaining,&bytes_written);
 		}
-
+		bytesRemaining -= bytes_written;
+		sdram_pointer += bytes_written;
 	}
+
+	free(_buf);
 
 }

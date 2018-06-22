@@ -54,6 +54,7 @@
 #include "main.h"
 #include "tm_stm32_hd44780.h"
 #include "midi.h"
+#include "ff.h"
 /* USER CODE END INCLUDE */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -94,8 +95,8 @@
 /* USER CODE BEGIN PRIVATE_DEFINES */
 /* Define size for the receive and transmit buffer over CDC */
 /* It's up to user to redefine and/or remove those define */
-#define APP_RX_DATA_SIZE  128
-#define APP_TX_DATA_SIZE  128
+#define APP_RX_DATA_SIZE  64
+#define APP_TX_DATA_SIZE  64
 /* USER CODE END PRIVATE_DEFINES */
 
 /**
@@ -142,9 +143,12 @@ uint8_t UserTxBufferHS[APP_TX_DATA_SIZE];
 extern USBD_HandleTypeDef hUsbDeviceHS;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
-__IO BOOL usbRecv = FALSE;
-__IO BOOL usbTran = FALSE;
-__IO uint32_t usbBytes = 0;
+extern __IO BOOL usbRecv;
+extern __IO uint32_t usbBytes;
+extern __IO BOOL usbWritten;
+extern USBD_HandleTypeDef hUsbDeviceHS;
+extern uint32_t adc1val;
+
 /* USER CODE END EXPORTED_VARIABLES */
 
 /**
@@ -299,9 +303,15 @@ static int8_t CDC_Receive_HS(uint8_t* Buf, uint32_t *Len)
   /* USER CODE BEGIN 11 */
   USBD_CDC_SetRxBuffer(&hUsbDeviceHS, &Buf[0]);
   USBD_CDC_ReceivePacket(&hUsbDeviceHS);
+  memcpy(UserTxBufferHS,Buf,*Len);
   usbRecv = TRUE;
   usbBytes = *Len;
-  playUsbDrums();
+  if(function != DOWNLOAD_SRAM)
+	  playUsbDrums();
+
+
+
+
   return (USBD_OK);
   /* USER CODE END 11 */
 }

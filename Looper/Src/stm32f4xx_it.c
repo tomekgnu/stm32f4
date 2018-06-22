@@ -48,7 +48,6 @@
 
 extern ADC_HandleTypeDef hadc1;
 extern CHANNEL ch1;
-extern FUNCTION function;
 extern uint32_t audio_pointer;
 extern BOOL audio_finished;
 /* USER CODE END 0 */

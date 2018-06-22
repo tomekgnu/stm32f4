@@ -67,7 +67,7 @@
 
 typedef enum {FALSE,TRUE} BOOL;
 typedef enum{BUT_UP,BUT_DOWN} BUTTON ;
-typedef enum{NONE,SINGLE_CHANNEL,CHANNEL_A,CHANNEL_B,READ_SD,PLAY_SD,READ_SF3,PLAY_SF3,READ_SRAM,PLAY_SRAM} FUNCTION;
+typedef enum{NONE,SINGLE_CHANNEL,CHANNEL_A,CHANNEL_B,READ_SD,PLAY_SD,READ_SF3,PLAY_SF3,READ_SRAM,PLAY_SRAM,DOWNLOAD_SRAM} FUNCTION;
 typedef uint8_t byte;
 
 void play_record();
@@ -82,6 +82,7 @@ extern __IO BOOL Playback;
 extern __IO BOOL Overdubbing;
 extern __IO BOOL StartLooper;
 extern __IO BOOL StartDrums;
+extern __IO FUNCTION function;
 extern uint8_t footswitch;
 
 #define delayUS_ASM(us) do {\

@@ -5,6 +5,9 @@
 #include "ads1256_test.h"
 #include "tim.h"
 #include "string.h"
+#include "audio.h"
+#include "SRAMDriver.h"
+
 uint32_t drumBeatIndex;
 __IO BOOL switch_buff;
 __IO BOOL first_beat;
@@ -39,27 +42,45 @@ __IO DrumTimes tim2;
 __IO DrumTimes *timptr;
 __IO Pattern *patptr;
 
+extern __IO CHANNEL ch1;
+extern __IO CHANNEL ch2;
+
 
 void readDrums(FIL *fil){
 
-	uint32_t bytesRead;
+	uint32_t bytesRead = 0;
+	uint32_t numOfPatterns;
+	uint32_t numOfBytes;
+	uint32_t maxResolution;
+	uint32_t header[3];		// number of patterns, number of bytes, max. resolution
+	uint32_t currByte;
+	uint32_t currPat;
+	uint32_t (*map)[2];
 	switch_buff = FALSE;
 	first_beat = FALSE;
 
+	//f_read(fil,header,sizeof(header),&bytesRead);
+	SRAM_seekRead(0,SRAM_SET);
+	readSRAM((uint8_t *)header,sizeof(header));
+	numOfPatterns = header[NUM_OF_PATTERNS];
+	numOfBytes = header[NUM_OF_BYTES];
+	maxResolution = header[MAX_RESOLUTION];
+	map = malloc(numOfPatterns * 2);
+	drumBuffA = (uint8_t *)malloc(DRUM_TIM_HDR_SIZE + DRUM_INSTR * maxResolution);
+	drumBuffB = (uint8_t *)malloc(DRUM_TIM_HDR_SIZE + DRUM_INSTR * maxResolution);
 
-	drumBuffA = (uint8_t *)malloc(DRUM_TIM_HDR_SIZE + DRUM_INSTR * 120);
-	drumBuffB = (uint8_t *)malloc(DRUM_TIM_HDR_SIZE + DRUM_INSTR * 120);
+	//if(f_eof(fil))
+		//return;
 
-	if(f_eof(fil))
-		return;
-
-	f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
+	currByte = 0;
+	currPat = 0;
+	map[currPat][0] = 0;
+	map[currPat][1] = 0;
+	readSRAM((uint8_t *)&pat1,sizeof(Pattern));
+	//f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
 	setPatternTime(&pat1,&tim1);
-	f_read(fil,drumBuffA,tim1.numberOfBeats * 5,(UINT *)&bytesRead);
-
-	//f_read(fil,&pat2,sizeof(Pattern),(UINT *)&bytesRead);
-	//setPatternTime(&pat2,&tim2);
-	//f_read(fil,drumBuffB,tim2.numberOfBeats * 5,(UINT *)&bytesRead);
+	readSRAM((uint8_t *)drumBuffA,tim1.numberOfBeats * 5);
+	//f_read(fil,drumBuffA,tim1.numberOfBeats * 5,(UINT *)&bytesRead);
 
 	resetDrums();
 	HAL_TIM_Base_Start_IT(&htim2);
@@ -67,37 +88,47 @@ void readDrums(FIL *fil){
 		continue;
 	}
 
-	do{
-
+	while(DrumState == DRUMS_STARTED && currPat < numOfPatterns){
+		//currByte = f_tell(fil);
+		++currPat;
+		//if(currPat < numOfPatterns)
+			//map[currPat][0] = currByte;
 
 		if(switch_buff == FALSE){
 				timptr = &tim1;
 				patptr = &pat1;
 				drumBuffPtr = drumBuffA;
-				f_read(fil,&pat2,sizeof(Pattern),(UINT *)&bytesRead);
+				readSRAM((uint8_t *)&pat2,sizeof(Pattern));
+				//f_read(fil,&pat2,sizeof(Pattern),(UINT *)&bytesRead);
 				setPatternTime(&pat2,&tim2);
-				f_read(fil,drumBuffB,tim2.numberOfBeats * 5,(UINT *)&bytesRead);
+				readSRAM((uint8_t *)drumBuffB,tim2.numberOfBeats * 5);
+				//f_read(fil,drumBuffB,tim2.numberOfBeats * 5,(UINT *)&bytesRead);
 				switch_buff = TRUE;
 			}
 			else{
 				timptr = &tim2;
 				patptr = &pat2;
 				drumBuffPtr = drumBuffB;
-				f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
+				readSRAM((uint8_t *)&pat1,sizeof(Pattern));
+				//f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
 				setPatternTime(&pat1,&tim1);
-				f_read(fil,drumBuffA,tim1.numberOfBeats * 5,(UINT *)&bytesRead);
+				readSRAM((uint8_t *)drumBuffA,tim1.numberOfBeats * 5);
+				//f_read(fil,drumBuffA,tim1.numberOfBeats * 5,(UINT *)&bytesRead);
 				switch_buff = FALSE;
 			}
 
-			while(first_beat == FALSE)
+			while(DrumState == DRUMS_STARTED && first_beat == FALSE){
 				continue;
+			}
 			first_beat = FALSE;
-			if(bytesRead == 0){
-				HAL_TIM_Base_Stop_IT(&htim2);
-				HAL_Delay(100);
+			//if(currPat < numOfPatterns)
+				//map[currPat][1] = ch1.SamplesWritten;
+
+			if(currPat == numOfPatterns){
+				stopDrums();
 			}
 
-	}while(bytesRead > 0);
+	}
 
 
 	DrumState = DRUMS_STOPPED;
@@ -107,6 +138,13 @@ void readDrums(FIL *fil){
 
 	free(drumBuffA);
 	free(drumBuffB);
+	free(map);
+}
+
+void stopDrums(){
+	DrumState = DRUMS_STOPPED;
+	HAL_TIM_Base_Stop_IT(&htim2);
+	HAL_Delay(100);
 
 }
 

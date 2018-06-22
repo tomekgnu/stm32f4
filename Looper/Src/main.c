@@ -82,6 +82,7 @@
 #include "memops.h"
 #include "usb_device.h"
 #include "usbd_core.h"
+#include "usbd_cdc_if.h"
 #define pi 3.14159
 #define LOG_PAGE_SIZE       256
 /* USER CODE END Includes */
@@ -104,10 +105,14 @@ extern __IO CHANNEL ch1;
 extern __IO CHANNEL ch2;
 extern uint32_t adc1val;
 extern __IO FUNCTION function;
-extern __IO BOOL usbRecv;
-extern __IO uint32_t usbBytes;
+
+//usb stuff
+extern USBD_HandleTypeDef hUsbDeviceHS;
 extern uint8_t UserRxBufferHS[];
 extern uint8_t UserTxBufferHS[];
+__IO BOOL usbRecv = FALSE;
+__IO BOOL usbTran = FALSE;
+__IO uint32_t usbBytes = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -141,14 +146,17 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
 	char lcdline[30];
-	uint32_t data;
+	uint32_t data = 0,bytesWritten = 0;
 	HAL_StatusTypeDef status;
 	spiffs_file fd1;
 	//Fatfs object
 	FATFS FatFs;
 	//File object
 	FIL fil;
-
+	FRESULT fres;
+	usbRecv = FALSE;
+	usbBytes = 0;
+	adc1val = 0;
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
@@ -244,6 +252,7 @@ int main(void)
   while (1)
   {
 
+
 	  if(DrumState == DRUMS_READY && adc1val > 0){
 		  adc1val = 0;
 	  }
@@ -251,18 +260,6 @@ int main(void)
 		 menuShowTimers(&ch1,&ch2);
 	  }
 
-	  if(usbRecv == TRUE){
-		  //itoa(UserRxBufferHS[0],lcdline,10);
-		  //TM_HD44780_Puts(0,0,lcdline);
-//		  int i;
-//		  for(i = 0; i < 4; i++){
-//		    if(UserRxBufferHS[i] != 0)
-//		     playPercussion(NOTEON,UserRxBufferHS[i]);
-//		  }
-//		  if(UserRxBufferHS[4] != 0)
-//		  	playBass(NOTEON,UserRxBufferHS[4]);
-		  usbRecv = FALSE;
-	  }
 	  Keypad_Button = TM_KEYPAD_Read();
 	          /* Keypad was pressed */
 	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
@@ -340,36 +337,57 @@ int main(void)
 						 // }
 	                	  break;
 	                  case TM_KEYPAD_Button_9:        /* Button 9 pressed */
-	                	  function = READ_SRAM;
-	                	  BSP_LED_On(LED_GREEN);
-	                	  SRAM_readSingleTrack();
-	                	  BSP_LED_Off(LED_GREEN);
+	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
+							//Mounted OK, turn on RED LED
+							BSP_LED_On(LED_GREEN);
+							if (f_open(&fil, "single.bin", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
+								SD_readToSDRAM(&fil);
+								f_close(&fil);
+
+							}
+							//Unmount drive, don't forget this!
+								f_mount(0, "", 1);
+								BSP_LED_Off(LED_GREEN);
+	                	  }
 	                	  break;
 	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
+
 							  switch(DrumState){
-							  	 case DRUMS_READY: resetDrums();
-											  	 TM_HD44780_Puts(0,0,"  Drums ready ");
-											  	 if (f_mount(&FatFs, "", 1) == FR_OK) {
-											  		//Mounted OK, turn on RED LED
-											  		BSP_LED_On(LED_RED);
-											  		if (f_open(&fil, "plik.bin", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
-											  			BSP_LED_On(LED_GREEN);
-											  			readDrums(&fil);
-											  			f_close(&fil);
-											  			BSP_LED_Off(LED_GREEN);
-											  			//Unmount drive, don't forget this!
-											  			f_mount(0, "", 1);
-											  			BSP_LED_Off(LED_RED);
-											  		}
-											  	 }
+							  	  case DRUMS_STOPPED: DrumState = DRUMS_READY;
+										  bytesWritten = 0;
+										  data = 0;
+										  TM_HD44780_Puts(0,0,"  Download start ");
+										  BSP_LED_On(LED_GREEN);
+										  SRAM_seekWrite(0,SRAM_SET);
+											while(function == DOWNLOAD_SRAM){
+												if(usbRecv == TRUE){
+													usbRecv = FALSE;
+													writeSRAM(UserTxBufferHS,usbBytes);
+													adc1val += usbBytes;
+													USBD_CDC_ReceivePacket(&hUsbDeviceHS);
+												}
+
+											}
+
+											utoa(adc1val,lcdline,10);
+											TM_HD44780_Puts(0,0,"Download stopped");
+											TM_HD44780_Puts(0,1,lcdline);
+											adc1val = 0;
+											DrumState = DRUMS_READY;
+											BSP_LED_Off(LED_GREEN);
+											BSP_LED_Off(LED_RED);
+							  	  	  	  	break;
+							  	  case DRUMS_READY: resetDrums();
+											  	 	 TM_HD44780_Puts(0,0,"  Drums playing ");
+											  	 	 BSP_LED_On(LED_GREEN);
+											  	 	 readDrums(&fil);
+											  	 	 BSP_LED_Off(LED_GREEN);
+											  	 	 BSP_LED_Off(LED_RED);
 											  	 break;
 							  	 case DRUMS_STARTED: DrumState = DRUMS_STOPPED;
 							  	 	 	 	 	 TM_HD44780_Puts(0,0,"  Drums stopped ");
 											  	 break;
-							  	 case DRUMS_STOPPED: DrumState = DRUMS_READY;
-							  	 	 	 	 	 adc1val = 0;
-							  	 	 	 	 	 TM_HD44780_Puts(0,0,"  Drums edited  ");
-							  	 	 	 	 	 break;
+
 							  }
 							  break;
 	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
@@ -392,7 +410,8 @@ int main(void)
 
 	                	  break;
 	                  case TM_KEYPAD_Button_A:        /* Button A pressed, only on large keyboard */
-
+	                	 TM_HD44780_Puts(0,0,"  Drums download ");
+	                	 function = DOWNLOAD_SRAM;
 	                	 break;
 	                  case TM_KEYPAD_Button_B:        /* Button B pressed, only on large keyboard */
 

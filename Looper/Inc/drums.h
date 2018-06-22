@@ -21,6 +21,7 @@ typedef struct{
 
 void readDrums(FIL *fil);
 void resetDrums();
+void stopDrums();
 void playDrums();
 void midiDrumHandler();
 void initDrumBeats();
@@ -35,6 +36,10 @@ void setPatternTime(__IO Pattern *p,__IO DrumTimes *t);
 #define R_FOOT	3
 #define BASS	4
 
+// index constants for drum file header
+#define NUM_OF_PATTERNS		0
+#define NUM_OF_BYTES		1
+#define MAX_RESOLUTION		2
 
 extern uint32_t drumBeatIndex;
 extern uint8_t key_to_drum[];

@@ -409,6 +409,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 	case GPIO_PIN_0:	// user button
 			DrumState = DRUMS_STOPPED;
+			function = NONE;
 			resetDrums();
 			resetChannels(&ch1,&ch2);
 
@@ -417,6 +418,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			Playback = FALSE;
 			StartLooper = FALSE;
 			DrumState = DRUMS_STOPPED;
+			stopDrums();
 			BSP_LED_Off(LED_RED);
 			BSP_LED_Off(LED_GREEN);
 		}
@@ -463,6 +465,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		StartLooper = 0;
 		sdram_pointer = 0;
 		resetDrums();
+		resetChannels(&ch1,&ch2);
 		if(ch1.Active == TRUE){
 			ch1.Clipping = FALSE;
 			ch1.Overdub = FALSE;
