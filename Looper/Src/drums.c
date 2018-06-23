@@ -98,6 +98,8 @@ void readDrums(FIL *fil){
 				timptr = &tim1;
 				patptr = &pat1;
 				drumBuffPtr = drumBuffA;
+				if(currPat == numOfPatterns)
+					goto wait_first_beat;
 				readSRAM((uint8_t *)&pat2,sizeof(Pattern));
 				//f_read(fil,&pat2,sizeof(Pattern),(UINT *)&bytesRead);
 				setPatternTime(&pat2,&tim2);
@@ -109,6 +111,8 @@ void readDrums(FIL *fil){
 				timptr = &tim2;
 				patptr = &pat2;
 				drumBuffPtr = drumBuffB;
+				if(currPat == numOfPatterns)
+					goto wait_first_beat;
 				readSRAM((uint8_t *)&pat1,sizeof(Pattern));
 				//f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
 				setPatternTime(&pat1,&tim1);
@@ -117,6 +121,7 @@ void readDrums(FIL *fil){
 				switch_buff = FALSE;
 			}
 
+			wait_first_beat:
 			while(DrumState == DRUMS_STARTED && first_beat == FALSE){
 				continue;
 			}

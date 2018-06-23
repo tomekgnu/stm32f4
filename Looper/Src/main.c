@@ -107,12 +107,11 @@ extern uint32_t adc1val;
 extern __IO FUNCTION function;
 
 //usb stuff
-extern USBD_HandleTypeDef hUsbDeviceHS;
-extern uint8_t UserRxBufferHS[];
-extern uint8_t UserTxBufferHS[];
-__IO BOOL usbRecv = FALSE;
-__IO BOOL usbTran = FALSE;
-__IO uint32_t usbBytes = 0;
+extern uint8_t UserWorkBufferHS[];
+extern uint8_t UserReadPtr,UserWritePtr;
+extern __IO BOOL usbRecv = FALSE;
+extern __IO BOOL usbTran = FALSE;
+extern __IO uint32_t usbBytes = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -356,17 +355,21 @@ int main(void)
 							  	  case DRUMS_STOPPED: DrumState = DRUMS_READY;
 										  bytesWritten = 0;
 										  data = 0;
+										  UserWritePtr = 0;
+										  UserReadPtr = 0;
 										  TM_HD44780_Puts(0,0,"  Download start ");
 										  BSP_LED_On(LED_GREEN);
 										  SRAM_seekWrite(0,SRAM_SET);
-											while(function == DOWNLOAD_SRAM){
+										  while(function == DOWNLOAD_SRAM){
 												if(usbRecv == TRUE){
 													usbRecv = FALSE;
-													writeSRAM(UserTxBufferHS,usbBytes);
+													writeSRAM(&UserWorkBufferHS[UserReadPtr],usbBytes);
 													adc1val += usbBytes;
-													USBD_CDC_ReceivePacket(&hUsbDeviceHS);
+													UserReadPtr += 64;
+													if(UserReadPtr == 128)
+														UserReadPtr = 0;
+													//USBD_CDC_ReceivePacket(&hUsbDeviceHS);
 												}
-
 											}
 
 											utoa(adc1val,lcdline,10);

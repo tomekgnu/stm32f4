@@ -129,6 +129,8 @@ uint8_t UserRxBufferHS[APP_RX_DATA_SIZE];
 uint8_t UserTxBufferHS[APP_TX_DATA_SIZE];
 
 /* USER CODE BEGIN PRIVATE_VARIABLES */
+uint8_t UserWorkBufferHS[APP_RX_DATA_SIZE * 2];
+
 /* USER CODE END PRIVATE_VARIABLES */
 
 /**
@@ -140,15 +142,14 @@ uint8_t UserTxBufferHS[APP_TX_DATA_SIZE];
   * @{
   */
 
-extern USBD_HandleTypeDef hUsbDeviceHS;
+
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
-extern __IO BOOL usbRecv;
-extern __IO uint32_t usbBytes;
-extern __IO BOOL usbWritten;
+__IO BOOL usbRecv;
+__IO uint32_t usbBytes;
+USBD_HandleTypeDef hUsbDeviceHS;
+uint8_t UserReadPtr,UserWritePtr;
 extern USBD_HandleTypeDef hUsbDeviceHS;
-extern uint32_t adc1val;
-
 /* USER CODE END EXPORTED_VARIABLES */
 
 /**
@@ -298,22 +299,27 @@ static int8_t CDC_Control_HS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
   * @param  Len: Number of data received (in bytes)
   * @retval USBD_OK if all operations are OK else USBD_FAIL
   */
-static int8_t CDC_Receive_HS(uint8_t* Buf, uint32_t *Len)
-{
-  /* USER CODE BEGIN 11 */
-  USBD_CDC_SetRxBuffer(&hUsbDeviceHS, &Buf[0]);
-  USBD_CDC_ReceivePacket(&hUsbDeviceHS);
-  memcpy(UserTxBufferHS,Buf,*Len);
-  usbRecv = TRUE;
-  usbBytes = *Len;
-  if(function != DOWNLOAD_SRAM)
-	  playUsbDrums();
+static int8_t CDC_Receive_HS(uint8_t* Buf, uint32_t *Len) {
+	/* USER CODE BEGIN 11 */
+	USBD_CDC_SetRxBuffer(&hUsbDeviceHS, &Buf[0]);
+	USBD_CDC_ReceivePacket(&hUsbDeviceHS);
+	if (function != DOWNLOAD_SRAM)
+		playUsbDrums();
+	else {
+			memcpy(&UserWorkBufferHS[UserWritePtr], Buf, *Len);
+			UserWritePtr += 64;
+			if (UserWritePtr == 128) {
+				UserWritePtr = 0;
+			}
+
+			usbRecv = TRUE;
+			usbBytes = *Len;
+	}
 
 
-
-
-  return (USBD_OK);
-  /* USER CODE END 11 */
+	USBD_CDC_ReceivePacket(&hUsbDeviceHS);
+	return (USBD_OK);
+	/* USER CODE END 11 */
 }
 
 /**
