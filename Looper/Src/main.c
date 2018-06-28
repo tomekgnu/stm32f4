@@ -119,7 +119,6 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
 static void my_spiffs_mount();
 
 
@@ -260,176 +259,178 @@ int main(void)
 	  }
 
 	  Keypad_Button = TM_KEYPAD_Read();
-	          /* Keypad was pressed */
-	          if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
-	        	  switch (Keypad_Button) {
-	                  case TM_KEYPAD_Button_0:        /* Button 0 pressed */
-	                	  if(DrumState == DRUMS_READY){
-	                		  break;
-	                	  }
+	  /* Keypad was pressed */
+	  if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
+		  switch (Keypad_Button) {
+			  case TM_KEYPAD_Button_0:        /* Button 0 pressed */
+				  if(DrumState == DRUMS_READY){
+					  break;
+				  }
 //	                	  HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_SET);
 //	                	  SF3ID = sFLASH_ReadID();
 //	                	  sprintf(lcdline,"SF3 manufacturer: 0x%x",(unsigned int)SF3ID);
 //	                	  TM_ILI9341_Puts(0, 24, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 //	                	  TM_ILI9341_Puts(0, 5, (data == 3?"ADS1256 OK\n":"ADS1256 failure\n"), &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	                	  if(StartLooper == FALSE){
-	                		  StartLooper = TRUE;
-	                		  TM_HD44780_Puts(7,0,"started");
-	                	  }
-	                	  else{
-	                		  StartLooper = FALSE;
-	                		  TM_HD44780_Puts(7,0,"stopped");
-	                	  }
-	                	  break;
-	                  case TM_KEYPAD_Button_1:        /* Button 1 pressed */
-	                	  ADS1256_SetDiffChannel(0);
-	                	  function = SINGLE_CHANNEL;
-	                	  TM_HD44780_Puts(0,0,"Single Channel  ");
-	                	  break;
-	                  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
-	                	  BSP_LED_On(LED_RED);
-	                	  SRAM_writeSingleTrack(&ch1);
-	                	  BSP_LED_Off(LED_RED);
-						  break;
-	                  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
-	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
-	                	  		//Mounted OK, turn on RED LED
-	                	  		BSP_LED_On(LED_RED);
-	                	  		if (f_open(&fil, "single.bin", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
-									BSP_LED_On(LED_GREEN);
-									SD_writeSingleTrack(&ch1,&fil);
-									f_close(&fil);
-									BSP_LED_Off(LED_GREEN);
-									//Unmount drive, don't forget this!
-									f_mount(0, "", 1);
-									BSP_LED_Off(LED_RED);
-								}
-							 }
-	                	   	  break;
-	                  case TM_KEYPAD_Button_4:        /* Button 4 pressed */
-	                	  	  break;
-	                  case TM_KEYPAD_Button_5:        /* Button 5 pressed */
-	                	 	  break;
-	                  case TM_KEYPAD_Button_6:        /* Button 6 pressed */
-	                	  	  break;
-	                  case TM_KEYPAD_Button_7:        /* Button 7 pressed */
-	                	  fd1 = SPIFFS_open(&fs, "audio_file", SPIFFS_CREAT | SPIFFS_TRUNC | SPIFFS_RDWR, 0);
-						  data = SPIFFS_errno(&fs);
-						  //if(data == 0){
-						  	BSP_LED_On(LED_RED);
+				  if(StartLooper == FALSE){
+					  StartLooper = TRUE;
+					  TM_HD44780_Puts(7,0,"started");
+				  }
+				  else{
+					  StartLooper = FALSE;
+					  TM_HD44780_Puts(7,0,"stopped");
+				  }
+				  break;
+			  case TM_KEYPAD_Button_1:        /* Button 1 pressed */
+				  ADS1256_SetDiffChannel(0);
+				  function = SINGLE_CHANNEL;
+				  TM_HD44780_Puts(0,0,"Single Channel  ");
+				  break;
+			  case TM_KEYPAD_Button_2:        /* Button 2 pressed */
+				  BSP_LED_On(LED_RED);
+				  SRAM_writeSingleTrack(&ch1);
+				  BSP_LED_Off(LED_RED);
+				  break;
+			  case TM_KEYPAD_Button_3:        /* Button 3 pressed */
+				  if (f_mount(&FatFs, "", 1) == FR_OK) {
+						//Mounted OK, turn on RED LED
+						BSP_LED_On(LED_RED);
+						if (f_open(&fil, "single.bin", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
 							BSP_LED_On(LED_GREEN);
-							SF3_writeSingleTrack(&ch1,&fs,fd1);
-							SPIFFS_close(&fs, fd1);
-							BSP_LED_Off(LED_RED);
+							SD_writeSingleTrack(&ch1,&fil);
+							f_close(&fil);
 							BSP_LED_Off(LED_GREEN);
-						  //}
-						  break;
-	                  case TM_KEYPAD_Button_8:        /* Button 8 pressed */
-	                	  fd1 = SPIFFS_open(&fs, "audio_file", SPIFFS_RDONLY, 0);
-						  data = SPIFFS_errno(&fs);
-						  function = READ_SF3;
-						  //if(data == 0){
-							BSP_LED_On(LED_GREEN);
-							SF3_readSingleTrack(&fs,fd1);
-							SPIFFS_close(&fs, fd1);
-							BSP_LED_Off(LED_GREEN);
-						 // }
-	                	  break;
-	                  case TM_KEYPAD_Button_9:        /* Button 9 pressed */
-	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
-							//Mounted OK, turn on RED LED
-							BSP_LED_On(LED_GREEN);
-							if (f_open(&fil, "single.bin", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
-								SD_readToSDRAM(&fil);
-								f_close(&fil);
-
-							}
 							//Unmount drive, don't forget this!
-								f_mount(0, "", 1);
-								BSP_LED_Off(LED_GREEN);
-	                	  }
-	                	  break;
-	                  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
+							f_mount(0, "", 1);
+							BSP_LED_Off(LED_RED);
+						}
+					 }
+					  break;
+			  case TM_KEYPAD_Button_4:        /* Button 4 pressed */
+					  break;
+			  case TM_KEYPAD_Button_5:        /* Button 5 pressed */
+					  break;
+			  case TM_KEYPAD_Button_6:        /* Button 6 pressed */
+					  break;
+			  case TM_KEYPAD_Button_7:        /* Button 7 pressed */
+				  fd1 = SPIFFS_open(&fs, "audio_file", SPIFFS_CREAT | SPIFFS_TRUNC | SPIFFS_RDWR, 0);
+				  data = SPIFFS_errno(&fs);
+				  //if(data == 0){
+					BSP_LED_On(LED_RED);
+					BSP_LED_On(LED_GREEN);
+					SF3_writeSingleTrack(&ch1,&fs,fd1);
+					SPIFFS_close(&fs, fd1);
+					BSP_LED_Off(LED_RED);
+					BSP_LED_Off(LED_GREEN);
+				  //}
+				  break;
+			  case TM_KEYPAD_Button_8:        /* Button 8 pressed */
+				  fd1 = SPIFFS_open(&fs, "audio_file", SPIFFS_RDONLY, 0);
+				  data = SPIFFS_errno(&fs);
+				  function = READ_SF3;
+				  //if(data == 0){
+					BSP_LED_On(LED_GREEN);
+					SF3_readSingleTrack(&fs,fd1);
+					SPIFFS_close(&fs, fd1);
+					BSP_LED_Off(LED_GREEN);
+				 // }
+				  break;
+			  case TM_KEYPAD_Button_9:        /* Button 9 pressed */
+				  if (f_mount(&FatFs, "", 1) == FR_OK) {
+					//Mounted OK, turn on RED LED
+					BSP_LED_On(LED_GREEN);
+					if (f_open(&fil, "single.bin", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
+						SD_readToSDRAM(&fil);
+						f_close(&fil);
 
-							  switch(DrumState){
-							  	  case DRUMS_STOPPED: DrumState = DRUMS_READY;
-										  bytesWritten = 0;
-										  data = 0;
-										  UserWritePtr = 0;
-										  UserReadPtr = 0;
-										  TM_HD44780_Puts(0,0,"  Download start ");
-										  BSP_LED_On(LED_GREEN);
-										  SRAM_seekWrite(0,SRAM_SET);
-										  while(function == DOWNLOAD_SRAM){
-												if(usbRecv == TRUE){
-													usbRecv = FALSE;
-													writeSRAM(&UserWorkBufferHS[UserReadPtr],usbBytes);
-													adc1val += usbBytes;
-													UserReadPtr += 64;
-													if(UserReadPtr == 128)
-														UserReadPtr = 0;
-													//USBD_CDC_ReceivePacket(&hUsbDeviceHS);
-												}
-											}
+					}
+					//Unmount drive, don't forget this!
+						f_mount(0, "", 1);
+						BSP_LED_Off(LED_GREEN);
+				  }
+				  break;
+			  case TM_KEYPAD_Button_STAR:        /* Button STAR pressed */
 
-											utoa(adc1val,lcdline,10);
-											TM_HD44780_Puts(0,0,"Download stopped");
-											TM_HD44780_Puts(0,1,lcdline);
-											adc1val = 0;
-											DrumState = DRUMS_READY;
-											BSP_LED_Off(LED_GREEN);
-											BSP_LED_Off(LED_RED);
-							  	  	  	  	break;
-							  	  case DRUMS_READY: resetDrums();
-											  	 	 TM_HD44780_Puts(0,0,"  Drums playing ");
-											  	 	 BSP_LED_On(LED_GREEN);
-											  	 	 readDrums(&fil);
-											  	 	 BSP_LED_Off(LED_GREEN);
-											  	 	 BSP_LED_Off(LED_RED);
-											  	 break;
-							  	 case DRUMS_STARTED: DrumState = DRUMS_STOPPED;
-							  	 	 	 	 	 TM_HD44780_Puts(0,0,"  Drums stopped ");
-											  	 break;
+					  switch(DrumState){
+						  case DRUMS_STOPPED: DrumState = DRUMS_READY;
+								  bytesWritten = 0;
+								  data = 0;
+								  UserWritePtr = 0;
+								  UserReadPtr = 0;
+								  TM_HD44780_Puts(0,0,"  Download start ");
+								  BSP_LED_On(LED_GREEN);
+								  SRAM_seekWrite(0,SRAM_SET);
+								  USBD_CDC_ReceivePacket(&hUsbDeviceHS);
+								  while(function == DOWNLOAD_SRAM){
+										if(usbRecv == TRUE){
+											usbRecv = FALSE;
+											printf("%d\n",usbBytes);
+											writeSRAM(&UserWorkBufferHS[UserReadPtr],usbBytes);
+											bytesWritten += usbBytes;
+											UserReadPtr += 64;
+											if(UserReadPtr == 128)
+												UserReadPtr = 0;
+											//
+										}
+									}
 
-							  }
-							  break;
-	                  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
-	                	  if (f_mount(&FatFs, "", 1) == FR_OK) {
-							//Mounted OK, turn on RED LED
-							BSP_LED_On(LED_RED);
-							if (f_open(&fil, "single.bin", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
-								function = READ_SD;
-								BSP_LED_On(LED_GREEN);
-								SD_readSingleTrack(&fil);
-								f_close(&fil);
-								BSP_LED_Off(LED_GREEN);
-								//Unmount drive, don't forget this!
-								f_mount(0, "", 1);
-								BSP_LED_Off(LED_RED);
-							}
-						 }
+									utoa(bytesWritten,lcdline,10);
+									TM_HD44780_Puts(0,0,"Download stopped");
+									TM_HD44780_Puts(0,1,lcdline);
+									adc1val = 0;
+									DrumState = DRUMS_READY;
+									BSP_LED_Off(LED_GREEN);
+									BSP_LED_Off(LED_RED);
+									break;
+						  case DRUMS_READY: resetDrums();
+											 TM_HD44780_Puts(0,0,"  Drums playing ");
+											 BSP_LED_On(LED_GREEN);
+											 readDrums(&fil);
+											 BSP_LED_Off(LED_GREEN);
+											 BSP_LED_Off(LED_RED);
+										 break;
+						 case DRUMS_STARTED: DrumState = DRUMS_STOPPED;
+										 TM_HD44780_Puts(0,0,"  Drums stopped ");
+										 break;
+
+					  }
+					  break;
+			  case TM_KEYPAD_Button_HASH:        /* Button HASH pressed */
+				  if (f_mount(&FatFs, "", 1) == FR_OK) {
+					//Mounted OK, turn on RED LED
+					BSP_LED_On(LED_RED);
+					if (f_open(&fil, "single.bin", FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
+						function = READ_SD;
+						BSP_LED_On(LED_GREEN);
+						SD_readSingleTrack(&fil);
+						f_close(&fil);
+						BSP_LED_Off(LED_GREEN);
+						//Unmount drive, don't forget this!
+						f_mount(0, "", 1);
+						BSP_LED_Off(LED_RED);
+					}
+				 }
 
 
 
-	                	  break;
-	                  case TM_KEYPAD_Button_A:        /* Button A pressed, only on large keyboard */
-	                	 TM_HD44780_Puts(0,0,"  Drums download ");
-	                	 function = DOWNLOAD_SRAM;
-	                	 break;
-	                  case TM_KEYPAD_Button_B:        /* Button B pressed, only on large keyboard */
+				  break;
+			  case TM_KEYPAD_Button_A:        /* Button A pressed, only on large keyboard */
+				 TM_HD44780_Puts(0,0,"  Drums download ");
+				 function = DOWNLOAD_SRAM;
+				 break;
+			  case TM_KEYPAD_Button_B:        /* Button B pressed, only on large keyboard */
 
-	                      break;
-	                  case TM_KEYPAD_Button_C:        /* Button C pressed, only on large keyboard */
+				  break;
+			  case TM_KEYPAD_Button_C:        /* Button C pressed, only on large keyboard */
 
-	                      break;
-	                  case TM_KEYPAD_Button_D:        /* Button D pressed, only on large keyboard */
+				  break;
+			  case TM_KEYPAD_Button_D:        /* Button D pressed, only on large keyboard */
 
-	                      break;
-	                  default:
-	                      break;
-	              } // end of switch
+				  break;
+			  default:
+				  break;
+		  } // end of switch
 
-	        	  }// end of key pressed
+		  }// end of key pressed
 
 
 
