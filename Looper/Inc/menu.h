@@ -14,8 +14,7 @@ typedef struct {
 	char *title;
 	uint8_t numOpts;
 	uint8_t options[16];
-	uint8_t back;
-} menuScreen;
+} menuNodeType;
 
 void menuShowTimers(__IO CHANNEL *ch1,__IO CHANNEL *ch2);
 void menuShow(TM_KEYPAD_Button_t);

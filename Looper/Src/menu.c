@@ -4,26 +4,28 @@
 
 static char lcdline[30];
 
-static menuScreen menu_screens[8];
-static uint8_t option = 0;	// current option
+static menuNodeType menu_nodes[8];
+static uint8_t current_node;	// current option
 
 /**
  * which node,number of options,title,return node
  */
 static void initNode(uint8_t nod,uint8_t n_opts,char * tit,uint8_t bk){
-	menu_screens[nod].numOpts = n_opts;
-	menu_screens[nod].title = tit;
-	menu_screens[nod].back = bk;
+	menu_nodes[nod].numOpts = n_opts;
+	menu_nodes[nod].title = tit;
+	menu_nodes[nod].options[0] = bk;
 }
 
 /**
  * parent node,which parent option,child node
  */
 static void connectNodes(uint8_t par_node,uint8_t par_opt,uint8_t chd_node){
-	menu_screens[par_node].options[par_opt] = chd_node;
+	menu_nodes[par_node].options[par_opt] = chd_node;
 }
 
 void menuInit(){
+	current_node = MAIN_MENU;
+
 	initNode(MAIN_MENU,3,"Main menu",MAIN_MENU);
 	initNode(NODE1,2,"Option_0_1",MAIN_MENU);
 	initNode(NODE2,1,"Option_0_2",MAIN_MENU);
@@ -47,13 +49,10 @@ void menuInit(){
 
 void menuShow(TM_KEYPAD_Button_t key){
 
-	if(key > menu_screens[option].numOpts)
+	if(key > menu_nodes[current_node].numOpts)
 		return;
-	if(key == TM_KEYPAD_Button_0)
-		option = menu_screens[option].back;
-	else
-		option = menu_screens[option].options[key];
-	sprintf(lcdline,"%s",menu_screens[option].title);
+	current_node = menu_nodes[current_node].options[key];
+	sprintf(lcdline,"%s",menu_nodes[current_node].title);
 	TM_HD44780_Puts(0,0,lcdline);
 	return;
 }
