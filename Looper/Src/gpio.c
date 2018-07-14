@@ -67,9 +67,7 @@
 extern uint32_t sdram_pointer;
 extern int16_t sample16s;
 uint8_t displayTime[16];
-__IO CHANNEL ch1;
-__IO CHANNEL ch2;
-__IO FUNCTION function;
+
 
 /* USER CODE END 0 */
 
@@ -408,16 +406,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	switch (GPIO_Pin) {
 
 	case GPIO_PIN_0:	// user button
-			DrumState = DRUMS_STOPPED;
-			function = NONE;
+			looper.DrumState = DRUMS_STOPPED;
+			looper.Function = NONE;
 			resetDrums();
-			resetChannels(&ch1,&ch2);
+			resetChannels(&looper.ch1,&looper.ch2);
 
-		if(Recording == 1 || Playback == 1){
-			Recording = FALSE;
-			Playback = FALSE;
-			StartLooper = FALSE;
-			DrumState = DRUMS_STOPPED;
+		if(looper.Recording == 1 || looper.Playback == 1){
+			looper.Recording = FALSE;
+			looper.Playback = FALSE;
+			looper.StartLooper = FALSE;
+			looper.DrumState = DRUMS_STOPPED;
 			stopDrums();
 			BSP_LED_Off(LED_RED);
 			BSP_LED_Off(LED_GREEN);
@@ -430,59 +428,59 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 //			//SD_readSample();
 //			//return;
 //		}
-		if(StartLooper == FALSE)
+		if(looper.StartLooper == FALSE)
 			return;
 		sample16s = (int16_t)(ADS1256_ReadData() >> 8);
-		if(Playback == 1){
-			if(function == SINGLE_CHANNEL || function == PLAY_SD){
-				read_sample(sample16s,&ch1);
-				play_sample(&ch1);
+		if(looper.Playback == 1){
+			if(looper.Function == SINGLE_CHANNEL || looper.Function == PLAY_SD){
+				read_sample(sample16s,&looper.ch1);
+				play_sample(&looper.ch1);
 			}
-			else if(function == CHANNEL_A || function == CHANNEL_B){
-				read_samples(sample16s,&ch1,&ch2);
-				play_samples(&ch1,&ch2);
+			else if(looper.Function == CHANNEL_A || looper.Function == CHANNEL_B){
+				read_samples(sample16s,&looper.ch1,&looper.ch2);
+				play_samples(&looper.ch1,&looper.ch2);
 			}
 		}
-		if(Recording == 1){
-			if(function == SINGLE_CHANNEL || function == PLAY_SD){
-				record_sample(sample16s,&ch1);
+		if(looper.Recording == 1){
+			if(looper.Function == SINGLE_CHANNEL || looper.Function == PLAY_SD){
+				record_sample(sample16s,&looper.ch1);
 
 			}
-			else if(function == CHANNEL_A || function == CHANNEL_B){
-				record_samples(sample16s,&ch1,&ch2);
-				play_samples(&ch1,&ch2);
+			else if(looper.Function == CHANNEL_A || looper.Function == CHANNEL_B){
+				record_samples(sample16s,&looper.ch1,&looper.ch2);
+				play_samples(&looper.ch1,&looper.ch2);
 			}
 
 		}
 		break;
 
 	case Recording_Pin:
-		if(Recording == TRUE)
+		if(looper.Recording == TRUE)
 			return;
 		if(IS_BUT_DOWN(BUT_REC) == TRUE)
 			return;
 		BUT_DOWN(BUT_REC);
-		StartLooper = 0;
+		looper.StartLooper = FALSE;
 		sdram_pointer = 0;
 		resetDrums();
-		resetChannels(&ch1,&ch2);
-		if(ch1.Active == TRUE){
-			ch1.Clipping = FALSE;
-			ch1.Overdub = FALSE;
-			ch1.mix32Max = 16383;
-			ch1.gain = 1.0;
-			ch1.SamplesRead = 0;
-			ch1.SamplesWritten = 0;
-			ch1.CurrentSample = 0;
+		resetChannels(&looper.ch1,&looper.ch2);
+		if(looper.ch1.Active == TRUE){
+			looper.ch1.Clipping = FALSE;
+			looper.ch1.Overdub = FALSE;
+			looper.ch1.mix32Max = 16383;
+			looper.ch1.gain = 1.0;
+			looper.ch1.SamplesRead = 0;
+			looper.ch1.SamplesWritten = 0;
+			looper.ch1.CurrentSample = 0;
 		}
 		else{
-			ch2.Clipping = FALSE;
-			ch2.Overdub = FALSE;
-			ch2.mix32Max = 16383;
-			ch2.gain = 1.0;
-			ch2.SamplesRead = 0;
-			ch2.SamplesWritten = 0;
-			ch2.CurrentSample = 0;
+			looper.ch2.Clipping = FALSE;
+			looper.ch2.Overdub = FALSE;
+			looper.ch2.mix32Max = 16383;
+			looper.ch2.gain = 1.0;
+			looper.ch2.SamplesRead = 0;
+			looper.ch2.SamplesWritten = 0;
+			looper.ch2.CurrentSample = 0;
 		}
 
 		BSP_LED_On(LED_RED);
@@ -490,109 +488,109 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 		//midiDrumPointer = 0;
 		//midiDrumClock = 0;
-		if(DrumState == DRUMS_READY)
-			DrumState = DRUMS_STARTED;
-		Recording = 1;
-		Playback = 0;
-		StartLooper = 1;
+		if(looper.DrumState == DRUMS_READY)
+			looper.DrumState = DRUMS_STARTED;
+		looper.Recording = 1;
+		looper.Playback = 0;
+		looper.StartLooper = 1;
 		break;
 	case Playback_Pin:
-		if(Playback == TRUE)
+		if(looper.Playback == TRUE)
 			return;
-		if(ch1.SamplesWritten == 0 && ch2.SamplesWritten == 0)
+		if(looper.ch1.SamplesWritten == 0 && looper.ch2.SamplesWritten == 0)
 			return;
 		if(IS_BUT_DOWN(BUT_PLAY) == TRUE)
 			return;
 		BUT_DOWN(BUT_PLAY);
 		sdram_pointer = 0;
 		resetDrums();
-		if(DrumState == DRUMS_STARTED){
-			DrumState = DRUMS_STOPPED;
-			StartLooper = 0;
-			return;
+//		if(looper.DrumState == DRUMS_STARTED){
+//			looper.DrumState = DRUMS_STOPPED;
+//			looper.StartLooper = 0;
+//			return;
+//		}
+		if(looper.DrumState == DRUMS_READY)
+			looper.DrumState = DRUMS_STARTED;
+		looper.StartLooper = 0;
+		looper.ch1.SamplesRead = 0;
+		looper.ch2.SamplesRead = 0;
+		if(looper.ch1.Active == TRUE){
+			looper.ch1.Clipping = FALSE;
+			looper.ch1.Overdub = FALSE;
+			looper.ch1.CurrentSample = 0;
 		}
-		if(DrumState == DRUMS_READY)
-			DrumState = DRUMS_STARTED;
-		StartLooper = 0;
-		ch1.SamplesRead = 0;
-		ch2.SamplesRead = 0;
-		if(ch1.Active == TRUE){
-			ch1.Clipping = FALSE;
-			ch1.Overdub = FALSE;
-			ch1.CurrentSample = 0;
-		}
-		if(ch2.Active == TRUE){
-			ch2.Clipping = FALSE;
-			ch2.Overdub = FALSE;
-			ch2.CurrentSample = 0;
+		if(looper.ch2.Active == TRUE){
+			looper.ch2.Clipping = FALSE;
+			looper.ch2.Overdub = FALSE;
+			looper.ch2.CurrentSample = 0;
 		}
 
 		BSP_LED_On(LED_GREEN);
 		BSP_LED_Off(LED_RED);
 		//midiDrumPointer = 0;
 		//midiDrumClock = 0;
-		Recording = 0;
-		Playback = 1;
-		StartLooper = 1;
+		looper.Recording = 0;
+		looper.Playback = 1;
+		looper.StartLooper = 1;
 		break;
 	case Overdubbing_Pin:
 		if(IS_BUT_DOWN(BUT_OVERDUB) == TRUE)
 			return;
 		BUT_DOWN(BUT_OVERDUB);
-		if(ch1.Active == TRUE){
-			if(ch1.Overdub == FALSE)
-				ch1.Overdub = TRUE;
+		if(looper.ch1.Active == TRUE){
+			if(looper.ch1.Overdub == FALSE)
+				looper.ch1.Overdub = TRUE;
 			else
-				ch1.Overdub = FALSE;
+				looper.ch1.Overdub = FALSE;
 		}
-		else if(ch2.Active == TRUE){
-			if(ch2.Overdub == FALSE)
-				ch2.Overdub = TRUE;
+		else if(looper.ch2.Active == TRUE){
+			if(looper.ch2.Overdub == FALSE)
+				looper.ch2.Overdub = TRUE;
 			else
-				ch2.Overdub = FALSE;
+				looper.ch2.Overdub = FALSE;
 		}
 		break;
 	case ToggleFunction_Pin:
 		if(IS_BUT_DOWN(BUT_TOGFUN) == TRUE)
 			return;
 		BUT_DOWN(BUT_TOGFUN);
-		StartLooper = FALSE;
-		switch(function){
+		looper.StartLooper = FALSE;
+		switch(looper.Function){
 			case SINGLE_CHANNEL:
 			case CHANNEL_B:
-				function = CHANNEL_A;
-				ch1.Active = TRUE;
-				ch2.Active = FALSE;
-				ch1.Monitor = TRUE;
-				ch2.Monitor = FALSE;
+				looper.Function = CHANNEL_A;
+				looper.ch1.Active = TRUE;
+				looper.ch2.Active = FALSE;
+				looper.ch1.Monitor = TRUE;
+				looper.ch2.Monitor = FALSE;
 				ADS1256_SetDiffChannel(0);
 				TM_HD44780_Puts(0,0,"Channel 1       ");
 				break;
 			case CHANNEL_A:
-				function = CHANNEL_B;
-				ch1.Active = FALSE;
-				ch2.Active = TRUE;
-				ch1.Monitor = FALSE;
-				ch2.Monitor = TRUE;
+				looper.Function = CHANNEL_B;
+				looper.ch1.Active = FALSE;
+				looper.ch2.Active = TRUE;
+				looper.ch1.Monitor = FALSE;
+				looper.ch2.Monitor = TRUE;
 				ADS1256_SetDiffChannel(1);
 				TM_HD44780_Puts(0,0,"Channel 2       ");
 				break;
 			case READ_SD:
-				function = PLAY_SD;
+				looper.Function = PLAY_SD;
 				TM_HD44780_Puts(0,0,"Playing SD      ");
 				break;
 			case PLAY_SD:
 			case PLAY_SF3:
 			case PLAY_SRAM:
-				function = SINGLE_CHANNEL;
+				looper.Function = SINGLE_CHANNEL;
 				TM_HD44780_Puts(0,0,"Single Channel  ");
 				break;
 			case READ_SF3:
-				function = PLAY_SF3;
+				looper.Function = PLAY_SF3;
 				TM_HD44780_Puts(0,0,"Playing SF3     ");
 				break;
 			case READ_SRAM:
-				function = PLAY_SRAM;
+				looper.Function = PLAY_SRAM;
 				TM_HD44780_Puts(0,0,"Playing SRAM    ");
 				break;
 			default: break;

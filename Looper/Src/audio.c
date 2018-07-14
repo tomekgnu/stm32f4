@@ -23,7 +23,7 @@ void signed16_unsigned12(int16_t *buf,int32_t start,int32_t stop){
 }
 
 void record_sample(int16_t swrite,__IO CHANNEL *cha){
-	if(StartLooper == FALSE ){
+	if(looper.StartLooper == FALSE ){
 		return;
 	}
 	BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) &swrite, 1);
@@ -38,7 +38,7 @@ void record_sample(int16_t swrite,__IO CHANNEL *cha){
 
 void read_sample(int16_t swrite,__IO CHANNEL *cha){
 	int16_t sread;
-	if(StartLooper == FALSE ){
+	if(looper.StartLooper == FALSE ){
 			return;
 	}
 	BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) &sread, 1);
@@ -90,7 +90,7 @@ void play_sample_dac(__IO CHANNEL *cha){
 
 void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 	int16_t sread;
-	if(StartLooper == FALSE ){
+	if(looper.StartLooper == FALSE ){
 		return;
 	}
 	if(cha->Active == TRUE){
@@ -109,16 +109,16 @@ void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 
 	sdram_pointer += 4;
 	if(cha->SamplesWritten == chb->SamplesWritten){
-		StartLooper = FALSE;
+		looper.StartLooper = FALSE;
 		BSP_LED_On(LED_GREEN);
 		BSP_LED_Off(LED_RED);
-		Playback = TRUE;
-		Recording = FALSE;
+		looper.Playback = TRUE;
+		looper.Recording = FALSE;
 		cha->SamplesRead = 0;
 		chb->SamplesRead = 0;
 		sdram_pointer = 0;
 		resetDrums();
-		StartLooper = TRUE;
+		looper.StartLooper = TRUE;
 		return;
 	}
 	if(sdram_pointer == SDRAM_SIZE){
@@ -145,7 +145,7 @@ void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 	__IO CHANNEL *other;	// other channel
 	int16_t sread[2];
 
-	if(StartLooper == FALSE ){
+	if(looper.StartLooper == FALSE ){
 		return;
 	}
 

@@ -84,11 +84,11 @@ void readDrums(FIL *fil){
 
 	resetDrums();
 	HAL_TIM_Base_Start_IT(&htim2);
-	while(DrumState == DRUMS_READY){
+	while(looper.DrumState == DRUMS_READY){
 		continue;
 	}
 
-	while(DrumState == DRUMS_STARTED && currPat < numOfPatterns){
+	while(looper.DrumState == DRUMS_STARTED && currPat < numOfPatterns){
 		//currByte = f_tell(fil);
 		++currPat;
 		//if(currPat < numOfPatterns)
@@ -122,7 +122,7 @@ void readDrums(FIL *fil){
 			}
 
 			wait_first_beat:
-			while(DrumState == DRUMS_STARTED && first_beat == FALSE){
+			while(looper.DrumState == DRUMS_STARTED && first_beat == FALSE){
 				continue;
 			}
 			first_beat = FALSE;
@@ -136,7 +136,7 @@ void readDrums(FIL *fil){
 	}
 
 
-	DrumState = DRUMS_STOPPED;
+	looper.DrumState = DRUMS_STOPPED;
 	StartLooper = FALSE;
 	Playback = FALSE;
 	Recording = FALSE;
@@ -147,7 +147,7 @@ void readDrums(FIL *fil){
 }
 
 void stopDrums(){
-	DrumState = DRUMS_STOPPED;
+	looper.DrumState = DRUMS_STOPPED;
 	HAL_TIM_Base_Stop_IT(&htim2);
 	HAL_Delay(100);
 
@@ -164,7 +164,7 @@ void setPatternTime(__IO Pattern *p,__IO DrumTimes *t){
 
 void midiDrumHandler(){
 	uint32_t i;
-	if(DrumState != DRUMS_STARTED)
+	if(looper.DrumState != DRUMS_STARTED)
 		return;
 	if(midiDrumClock < timptr->barDuration){
 		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == 0)?(timptr->beatDuration + timptr->remainder):timptr->beatDuration) == 0){

@@ -1,6 +1,7 @@
 #ifndef __AUDIO_H__
 #define __AUDIO_H__
-#include "main.h"
+
+#include "stm32f429xx.h"
 
 #define	SIGNED16_UNSIGNED12(x)		((x / 4) + 2048)
 enum { ONE,TWO,THREE,FOUR };

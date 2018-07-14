@@ -48,12 +48,13 @@ void menuInit(){
 }
 
 void menuShow(TM_KEYPAD_Button_t key){
-
 	if(key > menu_nodes[current_node].numOpts)
 		return;
+
 	current_node = menu_nodes[current_node].options[key];
 	sprintf(lcdline,"%s",menu_nodes[current_node].title);
 	TM_HD44780_Puts(0,0,lcdline);
+
 	return;
 }
 

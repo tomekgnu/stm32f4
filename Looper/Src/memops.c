@@ -23,7 +23,7 @@ static UINT bytes_read;
 static UINT bytes_written;
 __IO int16_t note;
 extern uint32_t sdram_pointer;
-extern __IO FUNCTION function;
+extern __IO FUNCTION LooperFunction;
 extern __IO CHANNEL ch1;
 extern __IO CHANNEL ch2;
 
@@ -48,7 +48,7 @@ void SRAM_readSingleTrack() {
 	play_buffer = 0;
 	word_count = 0;
 
-	while (function != PLAY_SRAM)	// wait for function switch
+	while (LooperFunction != PLAY_SRAM)	// wait for function switch
 		continue;
 
 	//stat = HAL_TIM_Base_Start(&htim8);
@@ -62,9 +62,9 @@ void SRAM_readSingleTrack() {
 		Error_Handler();
 	}
 
-	while (function == PLAY_SRAM) {
+	while (LooperFunction == PLAY_SRAM) {
 		while (need_new_data == FALSE) {
-			if (function != PLAY_SRAM) {
+			if (LooperFunction != PLAY_SRAM) {
 				HAL_DAC_Stop_DMA(&hdac, DAC_CHANNEL_2);
 				HAL_DAC_Stop(&hdac, DAC_CHANNEL_2);
 				HAL_TIM_Base_Stop_IT(&htim8);
@@ -140,7 +140,7 @@ void SD_readSingleTrack(FIL *fp){
 	play_buffer = 0;
 	word_count = 0;
 
-	while(function != PLAY_SD)	// wait for function switch
+	while(LooperFunction != PLAY_SD)	// wait for function switch
 		 continue;
 
 
@@ -148,9 +148,9 @@ void SD_readSingleTrack(FIL *fp){
 	HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_2,(uint32_t*)audio_buf,WORD_SIZE,DAC_ALIGN_12B_R);
 	HAL_TIM_Base_Start_IT(&htim8);
 
-	while(function == PLAY_SD){
+	while(LooperFunction == PLAY_SD){
 		 while(need_new_data == FALSE){
-			 if(function != PLAY_SD){
+			 if(LooperFunction != PLAY_SD){
 				 HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_2);
 				 HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
 				 HAL_TIM_Base_Stop_IT(&htim8);
@@ -200,16 +200,16 @@ void SF3_readSingleTrack(spiffs * fs,spiffs_file fh){
 		signed16_unsigned12(audio_buf,0,WORD_SIZE);
 		play_buffer = 0;
 		word_count = 0;
-		while(function != PLAY_SF3)
+		while(LooperFunction != PLAY_SF3)
 			continue;
 
 		HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
 		HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_2,(uint32_t*)audio_buf,WORD_SIZE,DAC_ALIGN_12B_R);
 
-		while(function == PLAY_SF3){
+		while(LooperFunction == PLAY_SF3){
 
 			 while(need_new_data == FALSE){
-				 if(function != PLAY_SF3){
+				 if(LooperFunction != PLAY_SF3){
 					 HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_2);
 					 HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
 					// HAL_TIM_Base_Stop(&htim8);

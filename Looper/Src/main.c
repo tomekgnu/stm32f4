@@ -91,25 +91,15 @@
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+LooperApplication looper;
 
-__IO BOOL Recording = FALSE;
-__IO BOOL Playback = FALSE;
-__IO BOOL Overdubbing = FALSE;
-__IO BOOL StartLooper = FALSE;
-__IO DrumFunction DrumState = DRUMS_STOPPED;
+
 
 uint8_t footswitch = 0;
 
-extern __IO CHANNEL ch1;
-extern __IO CHANNEL ch2;
 extern uint32_t adc1val;
-extern __IO FUNCTION function;
 
-//usb stuff
-extern uint8_t UserWorkBufferHS[];
-extern uint8_t UserReadPtr,UserWritePtr;
-extern __IO BOOL usbRecv;
-extern __IO uint32_t usbBytes;
+
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -150,13 +140,12 @@ int main(void)
 	//File object
 	FIL fil;
 	FRESULT fres;
-	usbRecv = FALSE;
-	usbBytes = 0;
+
 	adc1val = 0;
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-	function = SINGLE_CHANNEL;
+	looper.Function = SINGLE_CHANNEL;
 
   /* USER CODE END 1 */
 
@@ -166,12 +155,12 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  ch1.Active = TRUE;
-  ch1.Monitor = TRUE;
-  ch2.Active = FALSE;
-  ch2.Monitor = TRUE;
-  ch1.Number = ONE;
-  ch2.Number = TWO;
+  looper.ch1.Active = TRUE;
+  looper.ch1.Monitor = TRUE;
+  looper.ch2.Active = FALSE;
+  looper.ch2.Monitor = TRUE;
+  looper.ch1.Number = ONE;
+  looper.ch2.Number = TWO;
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -254,10 +243,7 @@ int main(void)
 	  /* Keypad was pressed */
 	  if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
 		  menuShow(Keypad_Button);
-
-
-
-		  }// end of key pressed
+	  }// end of key pressed
 
 
 
