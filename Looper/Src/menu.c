@@ -1,57 +1,71 @@
 #include "menu.h"
 #include "tm_stm32f4_ili9341.h"
 #include "tm_stm32_hd44780.h"
+#include "string.h"
 
 static char lcdline[30];
 
-static menuNodeType menu_nodes[8];
+static menuNodeType menu_nodes[TOTAL_MENU_NODES];
 static uint8_t current_node;	// current option
 
 /**
  * which node,number of options,title,return node
  */
-static void initNode(uint8_t nod,uint8_t n_opts,char * tit,uint8_t bk){
-	menu_nodes[nod].numOpts = n_opts;
-	menu_nodes[nod].title = tit;
-	menu_nodes[nod].options[0] = bk;
+static void initParentNode(uint8_t node_index,char * tit){
+	if(node_index >= TOTAL_MENU_NODES)
+		return;
+	menu_nodes[node_index].title = tit;
+	menu_nodes[node_index].options[TM_KEYPAD_Button_0] = node_index;	// return to itself by default
+
 }
 
 /**
  * parent node,which parent option,child node
  */
-static void connectNodes(uint8_t par_node,uint8_t par_opt,uint8_t chd_node){
-	menu_nodes[par_node].options[par_opt] = chd_node;
+static void connectChildNode(uint8_t parent,uint8_t opt_key,uint8_t child){
+	if(child >= TOTAL_MENU_NODES)
+		return;
+	if(opt_key == TM_KEYPAD_Button_0)	// option "0" will be connected to par_node later
+		return;
+	if(opt_key > TM_KEYPAD_Button_D)
+		return;
+	menu_nodes[child].options[TM_KEYPAD_Button_0] = parent;
+	menu_nodes[parent].options[opt_key] = child;
+
 }
 
 void menuInit(){
+	memset(menu_nodes,(int)NODE_EMPTY,sizeof(menu_nodes));
 	current_node = MAIN_MENU;
 
-	initNode(MAIN_MENU,3,"Main menu",MAIN_MENU);
-	initNode(NODE1,2,"Option_0_1",MAIN_MENU);
-	initNode(NODE2,1,"Option_0_2",MAIN_MENU);
-	initNode(NODE3,1,"Option_0_3",MAIN_MENU);
+	initParentNode(MAIN_MENU,"Main menu");
+	initParentNode(NODE1,"Option_0_1");
+	initParentNode(NODE2,"Option_0_2");
+	initParentNode(NODE3,"Option_0_3");
 
-	initNode(NODE4,0,"Option_1_1",NODE1);
-	initNode(NODE5,0,"Option_1_2",NODE1);
-	initNode(NODE6,0,"Option_2_1",NODE2);
-	initNode(NODE7,0,"Option_3_1",NODE3);
+	initParentNode(NODE4,"Option_1_1");
+	initParentNode(NODE5,"Option_1_2");
+	initParentNode(NODE6,"Option_2_1");
+	initParentNode(NODE7,"Option_3_1");
 
-	connectNodes(MAIN_MENU,1,NODE1);
-	connectNodes(MAIN_MENU,2,NODE2);
-	connectNodes(MAIN_MENU,3,NODE3);
+	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,NODE1);
+	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,NODE2);
+	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_7,NODE3);
 
-	connectNodes(NODE1,1,NODE4);
-	connectNodes(NODE1,2,NODE5);
-	connectNodes(NODE2,1,NODE6);
-	connectNodes(NODE3,1,NODE7);
+	connectChildNode(NODE1,TM_KEYPAD_Button_1,NODE4);
+	connectChildNode(NODE1,TM_KEYPAD_Button_2,NODE5);
+	connectChildNode(NODE2,TM_KEYPAD_Button_1,NODE6);
+	connectChildNode(NODE3,TM_KEYPAD_Button_1,NODE7);
 
 }
 
-void menuShow(TM_KEYPAD_Button_t key){
-	if(key > menu_nodes[current_node].numOpts)
+void menuShow(TM_KEYPAD_Button_t opt_key){
+	if(opt_key > TM_KEYPAD_Button_D)
+		return;
+	if(menu_nodes[current_node].options[opt_key] == NODE_EMPTY)
 		return;
 
-	current_node = menu_nodes[current_node].options[key];
+	current_node = menu_nodes[current_node].options[opt_key];
 	sprintf(lcdline,"%s",menu_nodes[current_node].title);
 	TM_HD44780_Puts(0,0,lcdline);
 

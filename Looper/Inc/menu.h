@@ -6,14 +6,16 @@
 #include "stm32f429xx.h"
 #include "tm_stm32f4_keypad.h"
 
-enum {MAIN_MENU,NODE1,NODE2,NODE3,NODE4,NODE5,NODE6,NODE7};
+#define TOTAL_MENU_NODES	8
+#define MAX_NUM_OPTS		16
+
+enum {NODE_EMPTY=-1,MAIN_MENU,NODE1,NODE2,NODE3,NODE4,NODE5,NODE6,NODE7};
 
 
 
 typedef struct {
 	char *title;
-	uint8_t numOpts;
-	uint8_t options[16];
+	int8_t options[MAX_NUM_OPTS];
 } menuNodeType;
 
 void menuShowTimers(__IO CHANNEL *ch1,__IO CHANNEL *ch2);

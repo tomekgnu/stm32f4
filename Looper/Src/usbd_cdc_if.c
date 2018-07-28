@@ -142,7 +142,7 @@ uint8_t UserWorkBufferHS[APP_RX_DATA_SIZE * 2];
   * @{
   */
 
-
+extern USBD_HandleTypeDef hUsbDeviceHS;
 
 /* USER CODE BEGIN EXPORTED_VARIABLES */
 __IO BOOL usbRecv;
@@ -299,8 +299,9 @@ static int8_t CDC_Control_HS(uint8_t cmd, uint8_t* pbuf, uint16_t length)
   * @param  Len: Number of data received (in bytes)
   * @retval USBD_OK if all operations are OK else USBD_FAIL
   */
-static int8_t CDC_Receive_HS(uint8_t* Buf, uint32_t *Len) {
-	/* USER CODE BEGIN 11 */
+static int8_t CDC_Receive_HS(uint8_t* Buf, uint32_t *Len)
+{
+  /* USER CODE BEGIN 11 */
 	USBD_CDC_SetRxBuffer(&hUsbDeviceHS, &Buf[0]);
 	USBD_CDC_ReceivePacket(&hUsbDeviceHS);
 	if (looper.Function != DOWNLOAD_SRAM)
@@ -319,7 +320,7 @@ static int8_t CDC_Receive_HS(uint8_t* Buf, uint32_t *Len) {
 
 	USBD_CDC_ReceivePacket(&hUsbDeviceHS);
 	return (USBD_OK);
-	/* USER CODE END 11 */
+  /* USER CODE END 11 */
 }
 
 /**
