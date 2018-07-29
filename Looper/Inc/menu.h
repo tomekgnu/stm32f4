@@ -16,6 +16,7 @@ enum {NODE_EMPTY=-1,MAIN_MENU,NODE1,NODE2,NODE3,NODE4,NODE5,NODE6,NODE7};
 typedef struct {
 	char *title;
 	int8_t options[MAX_NUM_OPTS];
+	void (*callback)(void);
 } menuNodeType;
 
 void menuShowTimers(__IO CHANNEL *ch1,__IO CHANNEL *ch2);

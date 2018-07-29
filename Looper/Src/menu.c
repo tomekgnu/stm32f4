@@ -11,12 +11,12 @@ static uint8_t current_node;	// current option
 /**
  * which node,number of options,title,return node
  */
-static void initParentNode(uint8_t node_index,char * tit){
+static void initParentNode(uint8_t node_index,char * tit,void (*fun)(void)){
 	if(node_index >= TOTAL_MENU_NODES)
 		return;
 	menu_nodes[node_index].title = tit;
 	menu_nodes[node_index].options[TM_KEYPAD_Button_0] = node_index;	// return to itself by default
-
+	menu_nodes[node_index].callback = fun;
 }
 
 /**
@@ -39,14 +39,14 @@ void menuInit(){
 	current_node = MAIN_MENU;
 
 	initParentNode(MAIN_MENU,"Main menu");
-	initParentNode(NODE1,"Option_0_1");
-	initParentNode(NODE2,"Option_0_2");
-	initParentNode(NODE3,"Option_0_3");
+	initParentNode(NODE1,"Option_0_1",NULL);
+	initParentNode(NODE2,"Option_0_2",NULL);
+	initParentNode(NODE3,"Option_0_3",NULL);
 
-	initParentNode(NODE4,"Option_1_1");
-	initParentNode(NODE5,"Option_1_2");
-	initParentNode(NODE6,"Option_2_1");
-	initParentNode(NODE7,"Option_3_1");
+	initParentNode(NODE4,"Option_1_1",NULL);
+	initParentNode(NODE5,"Option_1_2",NULL);
+	initParentNode(NODE6,"Option_2_1",NULL);
+	initParentNode(NODE7,"Option_3_1",NULL);
 
 	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,NODE1);
 	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,NODE2);
