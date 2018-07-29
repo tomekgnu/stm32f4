@@ -1,12 +1,15 @@
+#include "stdio.h"
 #include "menu.h"
 #include "tm_stm32f4_ili9341.h"
 #include "tm_stm32_hd44780.h"
 #include "string.h"
+#include "menu_callback.h"
+
 
 static char lcdline[30];
 
 static menuNodeType menu_nodes[TOTAL_MENU_NODES];
-static uint8_t current_node;	// current option
+static uint8_t current_node_index;	// current option
 
 /**
  * which node,number of options,title,return node
@@ -36,10 +39,10 @@ static void connectChildNode(uint8_t parent,uint8_t opt_key,uint8_t child){
 
 void menuInit(){
 	memset(menu_nodes,(int)NODE_EMPTY,sizeof(menu_nodes));
-	current_node = MAIN_MENU;
+	current_node_index = MAIN_MENU;
 
-	initParentNode(MAIN_MENU,"Main menu");
-	initParentNode(NODE1,"Option_0_1",NULL);
+	initParentNode(MAIN_MENU,"Main menu",NULL);
+	initParentNode(NODE1,"Option_0_1",print_letters);
 	initParentNode(NODE2,"Option_0_2",NULL);
 	initParentNode(NODE3,"Option_0_3",NULL);
 
@@ -62,13 +65,14 @@ void menuInit(){
 void menuShow(TM_KEYPAD_Button_t opt_key){
 	if(opt_key > TM_KEYPAD_Button_D)
 		return;
-	if(menu_nodes[current_node].options[opt_key] == NODE_EMPTY)
+	if(menu_nodes[current_node_index].options[opt_key] == NODE_EMPTY)
 		return;
 
-	current_node = menu_nodes[current_node].options[opt_key];
-	sprintf(lcdline,"%s",menu_nodes[current_node].title);
+	current_node_index = menu_nodes[current_node_index].options[opt_key];
+	sprintf(lcdline,"%s",menu_nodes[current_node_index].title);
 	TM_HD44780_Puts(0,0,lcdline);
-
+	if(menu_nodes[current_node_index].callback != NULL)
+		menu_nodes[current_node_index].callback();
 	return;
 }
 

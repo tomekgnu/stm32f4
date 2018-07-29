@@ -119,7 +119,7 @@ static u8_t spiffs_cache_buf[(LOG_PAGE_SIZE+32)*4];
 static spiffs fs;
 
 TM_KEYPAD_Button_t Keypad_Button;
-
+BOOL Skip_Read_Button = FALSE;
 /* USER CODE END 0 */
 
 /**
@@ -239,10 +239,13 @@ int main(void)
   while (1)
   {
 
-	  Keypad_Button = TM_KEYPAD_Read();
+	  if(Skip_Read_Button == FALSE)
+		  Keypad_Button = TM_KEYPAD_Read();
+	  Skip_Read_Button = FALSE;
 	  /* Keypad was pressed */
 	  if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {/* Keypad is pressed */
 		  menuShow(Keypad_Button);
+
 	  }// end of key pressed
 
 
