@@ -11,6 +11,30 @@ static char lcdline[30];
 static menuNodeType menu_nodes[TOTAL_MENU_NODES];
 static uint8_t current_node_index;	// current option
 
+static void menuShowOptions(){
+	TM_KEYPAD_Button_t option_index;
+	NODE_TYPE node_index;
+	uint16_t offset = 10;
+	char *tit;
+
+	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
+
+	for(option_index = TM_KEYPAD_Button_0; option_index < MAX_NUM_OPTS; option_index++){
+		node_index = menu_nodes[current_node_index].options[option_index];
+		if(node_index == NODE_EMPTY)
+			continue;
+		if(option_index == TM_KEYPAD_Button_0)
+			tit = "Return";
+		else
+			tit = menu_nodes[node_index].title;
+
+		sprintf(lcdline,"[%c] %s",TM_KEYPAD_GetChar(option_index),tit);
+
+		TM_ILI9341_Puts(10, offset, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+		offset += 20;
+	}
+
+}
 /**
  * which node,number of options,title,return node
  */
@@ -71,10 +95,13 @@ void menuShow(TM_KEYPAD_Button_t opt_key){
 	current_node_index = menu_nodes[current_node_index].options[opt_key];
 	sprintf(lcdline,"%s",menu_nodes[current_node_index].title);
 	TM_HD44780_Puts(0,0,lcdline);
+	menuShowOptions();
 	if(menu_nodes[current_node_index].callback != NULL)
 		menu_nodes[current_node_index].callback();
 	return;
 }
+
+
 
 void menuShowTimers(__IO CHANNEL *ch1,__IO CHANNEL *ch2){
 	uint16_t seconds;

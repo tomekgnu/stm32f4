@@ -204,9 +204,7 @@ TM_KEYPAD_Button_t TM_KEYPAD_Read(void);
  * @retval None
  */
 void TM_KEYPAD_Update(void);
-void buttonTimesUpdate();
-void setActiveButton(TM_KEYPAD_Button_t but);
-void sendNotesOff();
+char TM_KEYPAD_GetChar(TM_KEYPAD_Button_t key);
 
 /**
  * @}

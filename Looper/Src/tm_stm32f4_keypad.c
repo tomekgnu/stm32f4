@@ -45,6 +45,8 @@ uint8_t KEYPAD_INT_Buttons[4][4] = {
 	{0x0A, 0x00, 0x0B, 0x0F},
 };
 
+uint8_t KEYPAD_INT_Chars[16] = {'0','1', '2','3','4', '5','6','7','8','9','*','#','A','B','C','D'};
+
 /* Private functions */
 void TM_KEYPAD_INT_SetColumn(uint8_t column);
 uint8_t TM_KEYPAD_INT_CheckRow(uint8_t column);
@@ -60,6 +62,10 @@ static uint16_t millis = 0;
 void TM_KEYPAD_Init() {
 	
 	TM_KEYPAD_INT_SetColumn(0);
+}
+
+char TM_KEYPAD_GetChar(TM_KEYPAD_Button_t key){
+	return KEYPAD_INT_Chars[key];
 }
 
 TM_KEYPAD_Button_t TM_KEYPAD_Read(void) {

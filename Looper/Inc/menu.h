@@ -9,13 +9,13 @@
 #define TOTAL_MENU_NODES	8
 #define MAX_NUM_OPTS		16
 
-enum {NODE_EMPTY=-1,MAIN_MENU,NODE1,NODE2,NODE3,NODE4,NODE5,NODE6,NODE7};
+typedef enum {NODE_EMPTY=-1,MAIN_MENU,NODE1,NODE2,NODE3,NODE4,NODE5,NODE6,NODE7} NODE_TYPE;
 
 
 
 typedef struct {
 	char *title;
-	int8_t options[MAX_NUM_OPTS];
+	NODE_TYPE options[MAX_NUM_OPTS];
 	void (*callback)(void);
 } menuNodeType;
 
