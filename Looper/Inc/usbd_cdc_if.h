@@ -76,6 +76,11 @@
   * @{
   */
 /* USER CODE BEGIN EXPORTED_DEFINES */
+ extern __IO BOOL usbRecv;
+ extern __IO uint32_t usbBytes;
+ extern USBD_HandleTypeDef hUsbDeviceHS;
+ extern uint8_t UserReadPtr,UserWritePtr;
+ extern uint8_t UserWorkBufferHS[];
 /* USER CODE END EXPORTED_DEFINES */
 
 /**

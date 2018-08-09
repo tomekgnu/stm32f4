@@ -101,7 +101,7 @@ extern __IO BOOL StartLooper;
 extern __IO BOOL StartDrums;
 extern __IO FUNCTION function;
 extern uint8_t footswitch;
-
+extern char lcdline[];
 
 #define delayUS_ASM(us) do {\
 	asm volatile (	"MOV R0,%[loops]\n\t"\

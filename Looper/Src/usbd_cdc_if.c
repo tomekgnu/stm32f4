@@ -149,7 +149,6 @@ __IO BOOL usbRecv;
 __IO uint32_t usbBytes;
 USBD_HandleTypeDef hUsbDeviceHS;
 uint8_t UserReadPtr,UserWritePtr;
-extern USBD_HandleTypeDef hUsbDeviceHS;
 /* USER CODE END EXPORTED_VARIABLES */
 
 /**

@@ -2,6 +2,7 @@
 #include "memops.h"
 #include "main.h"
 #include "stm32f429i_discovery_sdram.h"
+#include "tm_stm32f4_keypad.h"
 #include "tm_stm32_hd44780.h"
 #include "spiffs.h"
 #include "spiffs_nucleus.h"
@@ -10,6 +11,8 @@
 #include "tim.h"
 #include "dac.h"
 #include "SRAMDriver.h"
+#include "usbd_cdc_if.h"
+#include "stdlib.h"
 
 static __IO uint8_t play_buffer = 0;					//Keeps track of which buffer is currently being used
 static __IO BOOL need_new_data = FALSE;
@@ -26,6 +29,7 @@ extern uint32_t sdram_pointer;
 extern __IO FUNCTION LooperFunction;
 extern __IO CHANNEL ch1;
 extern __IO CHANNEL ch2;
+extern TM_KEYPAD_Button_t Keypad_Button;
 
 void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef* hdac){
 	need_new_data = TRUE;
@@ -338,5 +342,44 @@ void SD_writeSingleTrack(__IO CHANNEL *ch,FIL *fp){
 	}
 
 	free(_buf);
+
+}
+
+void SRAM_download_rhythm(void){
+	BOOL header_received = FALSE;
+	uint32_t bytes_total = 0;
+	bytes_written = 0;
+	UserWritePtr = 0;
+	UserReadPtr = 0;
+	TM_HD44780_Puts(0, 1, "Download start ");
+	SRAM_seekWrite(0, SRAM_SET);
+	looper.Function = DOWNLOAD_SRAM;
+	BSP_LED_On(LED_GREEN);
+	while ((Keypad_Button = TM_KEYPAD_Read()) != TM_KEYPAD_Button_0) {
+		if (usbRecv == TRUE) {
+			if(header_received == FALSE){
+				bytes_total = *((uint32_t *)&UserWorkBufferHS[0]);	// read first int: number of bytes
+				header_received = TRUE;
+			}
+
+			usbRecv = FALSE;
+			writeSRAM(&UserWorkBufferHS[UserReadPtr], usbBytes);
+			bytes_written += usbBytes;
+			if(bytes_written >= bytes_total)
+				break;
+			UserReadPtr += 64;
+			if (UserReadPtr == 128)
+				UserReadPtr = 0;
+
+		}
+	}
+
+	BSP_LED_Off(LED_GREEN);
+	looper.Function = NONE;
+	utoa(bytes_written, lcdline, 10);
+	if(bytes_written == bytes_total)
+		TM_HD44780_Puts(0, 1, "Download OK     ");
+	else
+		TM_HD44780_Puts(0, 1, "Download error  ");
 
 }

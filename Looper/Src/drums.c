@@ -62,8 +62,8 @@ void readDrums(FIL *fil){
 	//f_read(fil,header,sizeof(header),&bytesRead);
 	SRAM_seekRead(0,SRAM_SET);
 	readSRAM((uint8_t *)header,sizeof(header));
-	numOfPatterns = header[NUM_OF_PATTERNS];
 	numOfBytes = header[NUM_OF_BYTES];
+	numOfPatterns = header[NUM_OF_PATTERNS];
 	maxResolution = header[MAX_RESOLUTION];
 	map = malloc(numOfPatterns * 2);
 	drumBuffA = (uint8_t *)malloc(DRUM_TIM_HDR_SIZE + DRUM_INSTR * maxResolution);

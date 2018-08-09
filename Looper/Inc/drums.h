@@ -39,8 +39,8 @@ void setPatternTime(__IO Pattern *p,__IO DrumTimes *t);
 #define BASS	4
 
 // index constants for drum file header
-#define NUM_OF_PATTERNS		0
-#define NUM_OF_BYTES		1
+#define NUM_OF_BYTES		0
+#define NUM_OF_PATTERNS		1
 #define MAX_RESOLUTION		2
 
 extern uint32_t drumBeatIndex;

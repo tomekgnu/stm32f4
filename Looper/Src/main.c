@@ -92,14 +92,8 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 LooperApplication looper;
-
-
-
 uint8_t footswitch = 0;
-
-extern uint32_t adc1val;
-
-
+char lcdline[30];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -131,7 +125,7 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 
-	char lcdline[30];
+
 	uint32_t data = 0,bytesWritten = 0;
 	HAL_StatusTypeDef status;
 	spiffs_file fd1;
@@ -141,7 +135,7 @@ int main(void)
 	FIL fil;
 	FRESULT fres;
 
-	adc1val = 0;
+
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;

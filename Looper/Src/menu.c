@@ -1,12 +1,10 @@
 #include "stdio.h"
+#include "main.h"
 #include "menu.h"
 #include "tm_stm32f4_ili9341.h"
 #include "tm_stm32_hd44780.h"
 #include "string.h"
 #include "menu_callback.h"
-
-
-static char lcdline[30];
 
 static menuNodeType menu_nodes[TOTAL_MENU_NODES];
 static uint8_t current_node_index;	// current option
@@ -24,7 +22,7 @@ static void menuShowOptions(){
 		if(node_index == NODE_EMPTY)
 			continue;
 		if(option_index == TM_KEYPAD_Button_0)
-			tit = "Return";
+			tit = "Go back";
 		else
 			tit = menu_nodes[node_index].title;
 
@@ -66,7 +64,7 @@ void menuInit(){
 	current_node_index = MAIN_MENU;
 
 	initParentNode(MAIN_MENU,"Main menu",NULL);
-	initParentNode(NODE1,"Option_0_1",print_letters);
+	initParentNode(NODE1,"Download rhythm",download_rhythm);
 	initParentNode(NODE2,"Option_0_2",NULL);
 	initParentNode(NODE3,"Option_0_3",NULL);
 

@@ -19,5 +19,6 @@ void SF3_readSample();
 
 void SRAM_readSingleTrack();
 void SRAM_writeSingleTrack(__IO CHANNEL *ch);
+void SRAM_download_rhythm(void);
 
 #endif
