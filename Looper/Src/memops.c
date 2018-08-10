@@ -2,6 +2,7 @@
 #include "memops.h"
 #include "main.h"
 #include "stm32f429i_discovery_sdram.h"
+#include "tm_stm32f4_ili9341.h"
 #include "tm_stm32f4_keypad.h"
 #include "tm_stm32_hd44780.h"
 #include "spiffs.h"
@@ -13,6 +14,7 @@
 #include "SRAMDriver.h"
 #include "usbd_cdc_if.h"
 #include "stdlib.h"
+#include "string.h"
 
 static __IO uint8_t play_buffer = 0;					//Keeps track of which buffer is currently being used
 static __IO BOOL need_new_data = FALSE;
@@ -351,7 +353,7 @@ void SRAM_download_rhythm(void){
 	bytes_written = 0;
 	UserWritePtr = 0;
 	UserReadPtr = 0;
-	TM_HD44780_Puts(0, 1, "Download start ");
+	TM_HD44780_Puts(0, 1, "Download ready ");
 	SRAM_seekWrite(0, SRAM_SET);
 	looper.Function = DOWNLOAD_SRAM;
 	BSP_LED_On(LED_GREEN);
@@ -360,11 +362,16 @@ void SRAM_download_rhythm(void){
 			if(header_received == FALSE){
 				bytes_total = *((uint32_t *)&UserWorkBufferHS[0]);	// read first int: number of bytes
 				header_received = TRUE;
+				TM_HD44780_Puts(0, 1, "Download started");
 			}
 
 			usbRecv = FALSE;
+			if(strncmp((char *)&UserWorkBufferHS[UserReadPtr],"STOP",4) == 0)
+				break;
 			writeSRAM(&UserWorkBufferHS[UserReadPtr], usbBytes);
 			bytes_written += usbBytes;
+			sprintf(lcdline,"%u/%u",(unsigned int)bytes_written,(unsigned int)bytes_total);
+			TM_ILI9341_Puts(10, 80, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 			if(bytes_written >= bytes_total)
 				break;
 			UserReadPtr += 64;
