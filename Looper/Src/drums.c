@@ -1,4 +1,5 @@
 #include "drums.h"
+#include "main.h"
 #include "midi.h"
 #include "ff.h"
 #include "stdlib.h"
@@ -7,6 +8,7 @@
 #include "string.h"
 #include "audio.h"
 #include "SRAMDriver.h"
+#include "tm_stm32f4_ili9341.h"
 
 uint32_t drumBeatIndex;
 __IO BOOL switch_buff;
@@ -42,8 +44,7 @@ __IO DrumTimes tim2;
 __IO DrumTimes *timptr;
 __IO Pattern *patptr;
 
-extern __IO CHANNEL ch1;
-extern __IO CHANNEL ch2;
+extern TM_KEYPAD_Button_t Keypad_Button;
 
 
 void readDrums(FIL *fil){
@@ -84,15 +85,18 @@ void readDrums(FIL *fil){
 
 	resetDrums();
 	HAL_TIM_Base_Start_IT(&htim2);
-	while(looper.DrumState == DRUMS_READY){
+	while ((Keypad_Button = TM_KEYPAD_Read()) != TM_KEYPAD_Button_STAR && Keypad_Button != TM_KEYPAD_Button_0)
 		continue;
-	}
+	if(Keypad_Button == TM_KEYPAD_Button_0)
+		return;
 
+	looper.DrumState = DRUMS_STARTED;
 	while(looper.DrumState == DRUMS_STARTED && currPat < numOfPatterns){
 		//currByte = f_tell(fil);
 		++currPat;
 		//if(currPat < numOfPatterns)
 			//map[currPat][0] = currByte;
+
 
 		if(switch_buff == FALSE){
 				timptr = &tim1;
@@ -121,7 +125,10 @@ void readDrums(FIL *fil){
 				switch_buff = FALSE;
 			}
 
+
 			wait_first_beat:
+			sprintf(lcdline,"%u bar",(unsigned int)currPat);
+			TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 			while(looper.DrumState == DRUMS_STARTED && first_beat == FALSE){
 				continue;
 			}
@@ -135,11 +142,9 @@ void readDrums(FIL *fil){
 
 	}
 
-
-	looper.DrumState = DRUMS_STOPPED;
-	StartLooper = FALSE;
-	Playback = FALSE;
-	Recording = FALSE;
+	looper.StartLooper = FALSE;
+	looper.Playback = FALSE;
+	looper.Recording = FALSE;
 
 	free(drumBuffA);
 	free(drumBuffB);

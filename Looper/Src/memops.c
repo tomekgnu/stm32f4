@@ -28,9 +28,6 @@ static UINT bytes_read;
 static UINT bytes_written;
 __IO int16_t note;
 extern uint32_t sdram_pointer;
-extern __IO FUNCTION LooperFunction;
-extern __IO CHANNEL ch1;
-extern __IO CHANNEL ch2;
 extern TM_KEYPAD_Button_t Keypad_Button;
 
 void HAL_DACEx_ConvCpltCallbackCh2(DAC_HandleTypeDef* hdac){
@@ -54,7 +51,7 @@ void SRAM_readSingleTrack() {
 	play_buffer = 0;
 	word_count = 0;
 
-	while (LooperFunction != PLAY_SRAM)	// wait for function switch
+	while (looper.Function != PLAY_SRAM)	// wait for function switch
 		continue;
 
 	//stat = HAL_TIM_Base_Start(&htim8);
@@ -68,9 +65,9 @@ void SRAM_readSingleTrack() {
 		Error_Handler();
 	}
 
-	while (LooperFunction == PLAY_SRAM) {
+	while (looper.Function == PLAY_SRAM) {
 		while (need_new_data == FALSE) {
-			if (LooperFunction != PLAY_SRAM) {
+			if (looper.Function != PLAY_SRAM) {
 				HAL_DAC_Stop_DMA(&hdac, DAC_CHANNEL_2);
 				HAL_DAC_Stop(&hdac, DAC_CHANNEL_2);
 				HAL_TIM_Base_Stop_IT(&htim8);
@@ -146,7 +143,7 @@ void SD_readSingleTrack(FIL *fp){
 	play_buffer = 0;
 	word_count = 0;
 
-	while(LooperFunction != PLAY_SD)	// wait for function switch
+	while(looper.Function != PLAY_SD)	// wait for function switch
 		 continue;
 
 
@@ -154,9 +151,9 @@ void SD_readSingleTrack(FIL *fp){
 	HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_2,(uint32_t*)audio_buf,WORD_SIZE,DAC_ALIGN_12B_R);
 	HAL_TIM_Base_Start_IT(&htim8);
 
-	while(LooperFunction == PLAY_SD){
+	while(looper.Function == PLAY_SD){
 		 while(need_new_data == FALSE){
-			 if(LooperFunction != PLAY_SD){
+			 if(looper.Function != PLAY_SD){
 				 HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_2);
 				 HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
 				 HAL_TIM_Base_Stop_IT(&htim8);
@@ -206,16 +203,16 @@ void SF3_readSingleTrack(spiffs * fs,spiffs_file fh){
 		signed16_unsigned12(audio_buf,0,WORD_SIZE);
 		play_buffer = 0;
 		word_count = 0;
-		while(LooperFunction != PLAY_SF3)
+		while(looper.Function != PLAY_SF3)
 			continue;
 
 		HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
 		HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_2,(uint32_t*)audio_buf,WORD_SIZE,DAC_ALIGN_12B_R);
 
-		while(LooperFunction == PLAY_SF3){
+		while(looper.Function == PLAY_SF3){
 
 			 while(need_new_data == FALSE){
-				 if(LooperFunction != PLAY_SF3){
+				 if(looper.Function != PLAY_SF3){
 					 HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_2);
 					 HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
 					// HAL_TIM_Base_Stop(&htim8);
@@ -287,8 +284,8 @@ void SF3_readSample(){
 		word_count = 0;		//Reset the count
 		need_new_data = TRUE;
 	}
-	ch1.CurrentSample = buf_pointer[word_count];
-	play_sample(&ch1);
+	looper.ch1.CurrentSample = buf_pointer[word_count];
+	play_sample(&looper.ch1);
 	word_count += 1;
 }
 //int16_t readSampleSD(){
@@ -306,14 +303,14 @@ void SF3_readSample(){
 void SD_readToSDRAM(FIL *fp){
 	uint8_t *_buf;
 	fil = fp;
-	resetChannels(&ch1,&ch2);
+	resetChannels();
 	_buf = (uint8_t *)malloc(8192);
 	bytes_read = 0;
 	sdram_pointer = 0;
 	while(1){
 		f_read(fp,(uint8_t *)_buf,8192,&bytes_read);
 		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t*)_buf,bytes_read / 2);
-		ch1.SamplesWritten += (bytes_read / 2);
+		looper.ch1.SamplesWritten += (bytes_read / 2);
 		sdram_pointer += bytes_read;
 		if(f_eof(fp))
 			break;
@@ -355,7 +352,6 @@ void SRAM_download_rhythm(void){
 	UserReadPtr = 0;
 	TM_HD44780_Puts(0, 1, "Download ready ");
 	SRAM_seekWrite(0, SRAM_SET);
-	looper.Function = DOWNLOAD_SRAM;
 	BSP_LED_On(LED_GREEN);
 	while ((Keypad_Button = TM_KEYPAD_Read()) != TM_KEYPAD_Button_0) {
 		if (usbRecv == TRUE) {
@@ -382,7 +378,6 @@ void SRAM_download_rhythm(void){
 	}
 
 	BSP_LED_Off(LED_GREEN);
-	looper.Function = NONE;
 	utoa(bytes_written, lcdline, 10);
 	if(bytes_written == bytes_total)
 		TM_HD44780_Puts(0, 1, "Download OK     ");

@@ -5,8 +5,10 @@
  *      Author: Tomek
  */
 #include "stdio.h"
+#include "ff.h"
 #include "main.h"
 #include "memops.h"
+#include "drums.h"
 #include "tm_stm32f4_keypad.h"
 #include "tm_stm32f4_ili9341.h"
 #include "tm_stm32_hd44780.h"
@@ -36,6 +38,18 @@ void print_letters(void) {
 }
 
 void download_rhythm(void) {
+	looper.Function = DOWNLOAD_SRAM;
 	SRAM_download_rhythm();
+	looper.Function = NONE;
+	Skip_Read_Button = TRUE;
+}
 
+void play_rhythm(void) {
+	FIL fil;
+	looper.DrumState = DRUMS_READY;
+	TM_ILI9341_Puts(10, 80,"[*] start, [User] stop", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	readDrums(&fil);
+	looper.DrumState = DRUMS_STOPPED;
+	Keypad_Button = TM_KEYPAD_Button_0;
+	Skip_Read_Button = TRUE;
 }

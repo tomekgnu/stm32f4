@@ -409,7 +409,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			looper.DrumState = DRUMS_STOPPED;
 			looper.Function = NONE;
 			resetDrums();
-			resetChannels(&looper.ch1,&looper.ch2);
+			resetChannels();
 
 		if(looper.Recording == 1 || looper.Playback == 1){
 			looper.Recording = FALSE;

@@ -59,6 +59,7 @@
 #include "stdint.h"
 #include "drums.h"
 #include "audio.h"
+#include "tm_stm32f4_keypad.h"
 
 #define SAMPLE_SIZE			4
 #define SAMPLE_ARRAY		1024
@@ -94,14 +95,9 @@ void SystemClock_Config(void);
 void Error_Handler(void);
 
 extern LooperApplication looper;
-extern __IO BOOL Recording;
-extern __IO BOOL Playback;
-extern __IO BOOL Overdubbing;
-extern __IO BOOL StartLooper;
-extern __IO BOOL StartDrums;
-extern __IO FUNCTION function;
 extern uint8_t footswitch;
 extern char lcdline[];
+
 
 #define delayUS_ASM(us) do {\
 	asm volatile (	"MOV R0,%[loops]\n\t"\

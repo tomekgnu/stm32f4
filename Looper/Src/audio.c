@@ -205,21 +205,21 @@ void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 
 }
 
-void resetChannels(__IO CHANNEL *ch1,__IO CHANNEL *ch2){
-	ch1->Clipping = FALSE;
-	ch2->Clipping = FALSE;
-	ch1->Overdub = FALSE;
-	ch2->Overdub = FALSE;
-	ch1->mix32Max = 16383;
-	ch2->mix32Max = 16383;
-	ch1->gain = 1.0;
-	ch2->gain = 1.0;
-	ch1->SamplesRead = 0;
-	ch2->SamplesRead = 0;
-	ch1->SamplesWritten = 0;
-	ch2->SamplesWritten = 0;
-	ch1->CurrentSample = 0;
-	ch2->CurrentSample = 0;
+void resetChannels(){
+	looper.ch1.Clipping = FALSE;
+	looper.ch2.Clipping = FALSE;
+	looper.ch1.Overdub = FALSE;
+	looper.ch2.Overdub = FALSE;
+	looper.ch1.mix32Max = 16383;
+	looper.ch2.mix32Max = 16383;
+	looper.ch1.gain = 1.0;
+	looper.ch2.gain = 1.0;
+	looper.ch1.SamplesRead = 0;
+	looper.ch2.SamplesRead = 0;
+	looper.ch1.SamplesWritten = 0;
+	looper.ch2.SamplesWritten = 0;
+	looper.ch1.CurrentSample = 0;
+	looper.ch2.CurrentSample = 0;
 }
 
 void showMinMaxSamples(int32_t max,int32_t min){

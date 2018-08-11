@@ -65,7 +65,7 @@ void menuInit(){
 
 	initParentNode(MAIN_MENU,"Main menu",NULL);
 	initParentNode(NODE1,"Download rhythm",download_rhythm);
-	initParentNode(NODE2,"Option_0_2",NULL);
+	initParentNode(NODE2,"Play rhythm",play_rhythm);
 	initParentNode(NODE3,"Option_0_3",NULL);
 
 	initParentNode(NODE4,"Option_1_1",NULL);
@@ -92,6 +92,7 @@ void menuShow(TM_KEYPAD_Button_t opt_key){
 
 	current_node_index = menu_nodes[current_node_index].options[opt_key];
 	sprintf(lcdline,"%s",menu_nodes[current_node_index].title);
+	TM_HD44780_Clear();
 	TM_HD44780_Puts(0,0,lcdline);
 	menuShowOptions();
 	if(menu_nodes[current_node_index].callback != NULL)
@@ -101,19 +102,19 @@ void menuShow(TM_KEYPAD_Button_t opt_key){
 
 
 
-void menuShowTimers(__IO CHANNEL *ch1,__IO CHANNEL *ch2){
+void menuShowTimers(){
 	uint16_t seconds;
 	uint8_t cs;	// centiseconds
 
-	if(Recording == TRUE && ch1->SamplesWritten % 150 == 0){
-		seconds = ch1->SamplesWritten / 15000;
-		cs = ((float)((ch1->SamplesWritten % 15000) / 15000.00)) * 100;
+	if(looper.Recording == TRUE && looper.ch1.SamplesWritten % 150 == 0){
+		seconds = looper.ch1.SamplesWritten / 15000;
+		cs = ((float)((looper.ch1.SamplesWritten % 15000) / 15000.00)) * 100;
 		sprintf(lcdline,"Rec:  %02u:%02u:%02u sec.",(unsigned int)(seconds / 60),(unsigned int)seconds,(unsigned int)cs);
 		TM_ILI9341_Puts(10, 10, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	}
-	else if(Playback == TRUE && ch1->SamplesRead % 150 == 0){
-		seconds = ch1->SamplesRead / 15000;
-		cs = ((float)((ch1->SamplesRead % 15000) / 15000.00)) * 100;
+	else if(looper.Playback == TRUE && looper.ch1.SamplesRead % 150 == 0){
+		seconds = looper.ch1.SamplesRead / 15000;
+		cs = ((float)((looper.ch1.SamplesRead % 15000) / 15000.00)) * 100;
 		sprintf(lcdline,"Play: %02u:%02u:%02u sec.",(unsigned int)(seconds / 60),(unsigned int)seconds,(unsigned int)cs);
 		TM_ILI9341_Puts(10, 10, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	}

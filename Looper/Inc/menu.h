@@ -19,7 +19,7 @@ typedef struct {
 	void (*callback)(void);
 } menuNodeType;
 
-void menuShowTimers(__IO CHANNEL *ch1,__IO CHANNEL *ch2);
+void menuShowTimers();
 void menuShow(TM_KEYPAD_Button_t);
 void menuInit();
 
