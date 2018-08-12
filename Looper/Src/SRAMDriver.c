@@ -7,8 +7,6 @@ static uint8_t SRAMBuf[SRAMPageSize];
 static uint8_t currentSRAM = SRAM_0;
 static sramAddress currentReader = {0};
 static sramAddress currentWriter = {0};
-static uint32_t sram_read = 0;
-static uint32_t sram_written = 0;
 static void incrementReader(int size);
 static void incrementWriter(int size);
 static void SRAM_resetReader();
@@ -19,8 +17,6 @@ static void SRAM_resetReader(){
 	currentReader.currentByte.value = 0;
 	currentReader.currentPage.value = 0;
 	currentReader.totalBytes.value = 0;
-	currentReader.currentPage.value = 0;
-	currentReader.currentByte.value = 0;
 	currentSRAM = 0;
 }
 
@@ -28,11 +24,16 @@ static void SRAM_resetWriter(){
 	currentWriter.currentByte.value = 0;
 	currentWriter.currentPage.value = 0;
 	currentWriter.totalBytes.value = 0;
-	currentWriter.currentPage.value = 0;
-	currentWriter.currentByte.value = 0;
 	currentSRAM = 0;
 }
 
+uint32_t SRAM_writerPosition(){
+	return currentWriter.totalBytes.value;
+}
+
+uint32_t SRAM_readerPosition(){
+	return currentReader.totalBytes.value;
+}
 
 void SRAM_seekRead(unsigned int size,unsigned int whence){
 	switch(whence){
@@ -76,7 +77,7 @@ uint32_t SRAM_read(){
 
 static void incrementReader(int size){
 	currentReader.totalBytes.value += size;
-	if(currentReader.totalBytes.value > SRAMTotalSize)
+	if(currentReader.totalBytes.value >= SRAMTotalSize)
 		currentReader.totalBytes.value %= SRAMTotalSize;
 	currentReader.currentByte.value = currentReader.totalBytes.value % SRAMChipSize;
 	currentReader.currentPage.value = (currentReader.totalBytes.value / SRAMPageSize) % SRAMPageCount;
@@ -86,7 +87,7 @@ static void incrementReader(int size){
 
 static void incrementWriter(int size){
 	currentWriter.totalBytes.value += size;
-	if(currentWriter.totalBytes.value > SRAMTotalSize)
+	if(currentWriter.totalBytes.value >= SRAMTotalSize)
 		currentWriter.totalBytes.value %= SRAMTotalSize;
 	currentWriter.currentByte.value = currentWriter.totalBytes.value % SRAMChipSize;
 	currentWriter.currentPage.value = (currentWriter.totalBytes.value / SRAMPageSize) % SRAMPageCount;

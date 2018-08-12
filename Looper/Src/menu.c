@@ -93,10 +93,12 @@ void menuShow(TM_KEYPAD_Button_t opt_key){
 	current_node_index = menu_nodes[current_node_index].options[opt_key];
 	sprintf(lcdline,"%s",menu_nodes[current_node_index].title);
 	TM_HD44780_Clear();
+	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
 	TM_HD44780_Puts(0,0,lcdline);
-	menuShowOptions();
 	if(menu_nodes[current_node_index].callback != NULL)
 		menu_nodes[current_node_index].callback();
+	else
+		menuShowOptions();
 	return;
 }
 

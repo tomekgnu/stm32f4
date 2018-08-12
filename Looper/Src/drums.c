@@ -49,14 +49,13 @@ extern TM_KEYPAD_Button_t Keypad_Button;
 
 void readDrums(FIL *fil){
 
-	uint32_t bytesRead = 0;
 	uint32_t numOfPatterns;
 	uint32_t numOfBytes;
 	uint32_t maxResolution;
 	uint32_t header[3];		// number of patterns, number of bytes, max. resolution
-	uint32_t currByte;
 	uint32_t currPat;
 	uint32_t (*map)[2];
+	BOOL start = FALSE;
 	switch_buff = FALSE;
 	first_beat = FALSE;
 
@@ -66,17 +65,46 @@ void readDrums(FIL *fil){
 	numOfBytes = header[NUM_OF_BYTES];
 	numOfPatterns = header[NUM_OF_PATTERNS];
 	maxResolution = header[MAX_RESOLUTION];
+
 	map = malloc(numOfPatterns * 2);
+
+	// create memory map
+	for(currPat = 0; currPat < numOfPatterns; currPat++){
+		map[currPat][0] = SRAM_readerPosition();
+		readSRAM((uint8_t *)&pat1,sizeof(Pattern));
+		readSRAM((uint8_t *)drumBuffA,pat1.beats * pat1.division * 5);
+	}
+
+	// buffers to store data read from memory
 	drumBuffA = (uint8_t *)malloc(DRUM_TIM_HDR_SIZE + DRUM_INSTR * maxResolution);
 	drumBuffB = (uint8_t *)malloc(DRUM_TIM_HDR_SIZE + DRUM_INSTR * maxResolution);
 
 	//if(f_eof(fil))
 		//return;
-
-	currByte = 0;
 	currPat = 0;
-	map[currPat][0] = 0;
-	map[currPat][1] = 0;
+	SRAM_seekRead(map[currPat][0],SRAM_SET);
+
+
+	while (start == FALSE){
+		Keypad_Button = TM_KEYPAD_Read();
+		switch(Keypad_Button){
+			case TM_KEYPAD_Button_5:	start = TRUE; break;
+			case TM_KEYPAD_Button_0:	return;
+			case TM_KEYPAD_Button_6:	if(currPat < (numOfPatterns - 1))
+											currPat++;
+										SRAM_seekRead(map[currPat][0],SRAM_SET);
+										sprintf(lcdline,"%u bar",(unsigned int)(currPat + 1));
+										TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+										break;
+			case TM_KEYPAD_Button_4:	if(currPat > 0)
+											currPat--;
+										SRAM_seekRead(map[currPat][0],SRAM_SET);
+										sprintf(lcdline,"%u bar",(unsigned int)(currPat + 1));
+										TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+										break;
+
+		}
+	}
 	readSRAM((uint8_t *)&pat1,sizeof(Pattern));
 	//f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
 	setPatternTime(&pat1,&tim1);
@@ -85,11 +113,9 @@ void readDrums(FIL *fil){
 
 	resetDrums();
 	HAL_TIM_Base_Start_IT(&htim2);
-	while ((Keypad_Button = TM_KEYPAD_Read()) != TM_KEYPAD_Button_STAR && Keypad_Button != TM_KEYPAD_Button_0)
-		continue;
-	if(Keypad_Button == TM_KEYPAD_Button_0)
-		return;
 
+	TM_ILI9341_DrawFilledRectangle(10,10,480,48,ILI9341_COLOR_MAGENTA);
+	TM_ILI9341_Puts(10, 10,"[User button] Stop", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	looper.DrumState = DRUMS_STARTED;
 	while(looper.DrumState == DRUMS_STARTED && currPat < numOfPatterns){
 		//currByte = f_tell(fil);

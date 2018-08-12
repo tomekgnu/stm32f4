@@ -47,7 +47,10 @@ void download_rhythm(void) {
 void play_rhythm(void) {
 	FIL fil;
 	looper.DrumState = DRUMS_READY;
-	TM_ILI9341_Puts(10, 80,"[*] start, [User] stop", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	TM_ILI9341_Puts(10, 10,"[4] Go one bar back", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	TM_ILI9341_Puts(10, 30,"[5] Start", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	TM_ILI9341_Puts(10, 50,"[6] Go one bar forward", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	TM_ILI9341_Puts(10, 70,"[0] Return", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	readDrums(&fil);
 	looper.DrumState = DRUMS_STOPPED;
 	Keypad_Button = TM_KEYPAD_Button_0;
