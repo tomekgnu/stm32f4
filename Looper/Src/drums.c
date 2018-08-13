@@ -117,6 +117,8 @@ void readDrums(FIL *fil){
 	TM_ILI9341_DrawFilledRectangle(10,10,480,48,ILI9341_COLOR_MAGENTA);
 	TM_ILI9341_Puts(10, 10,"[User button] Stop", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	looper.DrumState = DRUMS_STARTED;
+
+
 	while(looper.DrumState == DRUMS_STARTED && currPat < numOfPatterns){
 		//currByte = f_tell(fil);
 		++currPat;
@@ -163,11 +165,19 @@ void readDrums(FIL *fil){
 				//map[currPat][1] = ch1.SamplesWritten;
 
 			if(currPat == numOfPatterns){
-				stopDrums();
+				currPat = 0;
+				switch_buff = FALSE;
+				first_beat = FALSE;
+				SRAM_seekRead(map[currPat][0],SRAM_SET);
+				readSRAM((uint8_t *)&pat1,sizeof(Pattern));
+				//f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
+				setPatternTime(&pat1,&tim1);
+				readSRAM((uint8_t *)drumBuffA,tim1.numberOfBeats * 5);
 			}
 
 	}
 
+	stopDrums();
 	looper.StartLooper = FALSE;
 	looper.Playback = FALSE;
 	looper.Recording = FALSE;

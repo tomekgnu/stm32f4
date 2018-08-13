@@ -4,7 +4,7 @@
 #include "stm32f429xx.h"
 #include "ff.h"
 
-typedef enum{DRUMS_STOPPED,DRUMS_STARTED,DRUMS_READY}DrumFunction;
+typedef enum{DRUMS_STOPPED,DRUMS_STARTED,DRUMS_READY,DRUMS_PAUSED}DrumFunction;
 
 typedef struct{
 	uint32_t beats;	// number of beats
