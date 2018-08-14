@@ -30,6 +30,8 @@ void initDrumBeats();
 void setBarBeats(uint16_t bar,uint16_t beats);
 void setPatternTime(__IO Pattern *p,__IO DrumTimes *t);
 
+#define NUM_DRUM_TRACKS	4
+#define NUM_ALL_TRACKS		5
 #define DRUM_TIM_HDR_SIZE	16	// beats,division,beattime,repeat: each 4 bytes
 #define DRUM_INSTR			5	// 4 drums + bass
 #define L_HAND	0

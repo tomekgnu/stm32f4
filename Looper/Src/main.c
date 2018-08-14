@@ -155,6 +155,7 @@ int main(void)
   looper.ch2.Monitor = TRUE;
   looper.ch1.Number = ONE;
   looper.ch2.Number = TWO;
+  looper.timeIncrement = 0;
   /* USER CODE END Init */
 
   /* Configure the system clock */

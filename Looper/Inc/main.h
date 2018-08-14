@@ -85,6 +85,7 @@ __IO DrumFunction DrumState;
 __IO FUNCTION Function;
 __IO CHANNEL ch1;
 __IO CHANNEL ch2;
+__IO int32_t timeIncrement;	// if negative - plays faster, positive - slower
 } LooperApplication;
 
 void play_record();

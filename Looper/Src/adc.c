@@ -139,9 +139,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 				break;
 		case 57:
 		case 58:adc1val = 13;
+				looper.timeIncrement += 10;
 				break;
 		case 59:
 		case 60:adc1val = 14;
+				looper.timeIncrement -= 10;
 				break;
 		case 61: adc1val = 15;
 				break;
@@ -153,7 +155,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		TM_HD44780_Clear();
 		utoa(adc1val,strval,10);
 		TM_HD44780_Puts(0,0,strval);
-		playPercussion(NOTEON,key_to_drum[adc1val - 1]);
+		//playPercussion(NOTEON,key_to_drum[adc1val - 1]);
 
 	}
 }

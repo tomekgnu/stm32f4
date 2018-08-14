@@ -119,7 +119,8 @@ void readDrums(FIL *fil){
 	looper.DrumState = DRUMS_STARTED;
 
 
-	while(looper.DrumState == DRUMS_STARTED && currPat < numOfPatterns){
+	while((looper.DrumState == DRUMS_STARTED || looper.DrumState == DRUMS_PAUSED) && currPat < numOfPatterns){
+
 		//currByte = f_tell(fil);
 		++currPat;
 		//if(currPat < numOfPatterns)
@@ -157,7 +158,7 @@ void readDrums(FIL *fil){
 			wait_first_beat:
 			sprintf(lcdline,"%u bar",(unsigned int)currPat);
 			TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-			while(looper.DrumState == DRUMS_STARTED && first_beat == FALSE){
+			while((looper.DrumState == DRUMS_STARTED || looper.DrumState == DRUMS_PAUSED) && first_beat == FALSE){
 				continue;
 			}
 			first_beat = FALSE;
@@ -195,7 +196,7 @@ void stopDrums(){
 }
 
 void setPatternTime(__IO Pattern *p,__IO DrumTimes *t){
-	int beatTimeMillis = (60000 / p->beattime) / p->division;
+	int beatTimeMillis = ((60000 / p->beattime) / p->division)  + looper.timeIncrement;
 	t->numberOfBeats = p->beats * p->division;
 	t->barDuration = t->numberOfBeats * beatTimeMillis;
 	t->remainder = t->barDuration % t->numberOfBeats;
@@ -208,8 +209,8 @@ void midiDrumHandler(){
 	if(looper.DrumState != DRUMS_STARTED)
 		return;
 	if(midiDrumClock < timptr->barDuration){
-		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == 0)?(timptr->beatDuration + timptr->remainder):timptr->beatDuration) == 0){
-			for(i = drumBeatIndex; i < drumBeatIndex + 4; i++){
+		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->beatDuration + timptr->remainder):timptr->beatDuration) == 0){
+			for(i = drumBeatIndex; i < drumBeatIndex + NUM_DRUM_TRACKS; i++){
 				if(drumBuffPtr[i] != 0)
 					playPercussion(NOTEON,drumBuffPtr[i]);
 			}
@@ -217,7 +218,7 @@ void midiDrumHandler(){
 			if(drumBuffPtr[i] != 0)
 				playBass(NOTEON,drumBuffPtr[i]);
 
-			drumBeatIndex += 5;
+			drumBeatIndex += NUM_ALL_TRACKS;
 
 		}
 
