@@ -120,12 +120,12 @@ void readDrums(FIL *fil){
 
 
 	while((looper.DrumState == DRUMS_STARTED || looper.DrumState == DRUMS_PAUSED) && currPat < numOfPatterns){
-
+		while(looper.DrumState == DRUMS_PAUSED)
+			continue;
 		//currByte = f_tell(fil);
 		++currPat;
 		//if(currPat < numOfPatterns)
 			//map[currPat][0] = currByte;
-
 
 		if(switch_buff == FALSE){
 				updatePatternTime(&pat1,&tim1);
@@ -221,11 +221,11 @@ void midiDrumHandler(){
 	if(midiDrumClock < timptr->barDuration){
 		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->beatDuration + timptr->remainder):timptr->beatDuration) == 0){
 			for(i = drumBeatIndex; i < drumBeatIndex + NUM_DRUM_TRACKS; i++){
-				if(drumBuffPtr[i] != 0)
+				if(drumBuffPtr[i] != 0 && looper.DrumState == DRUMS_STARTED)
 					playPercussion(NOTEON,drumBuffPtr[i]);
 			}
 
-			if(drumBuffPtr[i] != 0)
+			if(drumBuffPtr[i] != 0 && looper.DrumState == DRUMS_STARTED)
 				playBass(NOTEON,drumBuffPtr[i]);
 
 			drumBeatIndex += NUM_ALL_TRACKS;
