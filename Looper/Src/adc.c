@@ -139,15 +139,17 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 				break;
 		case 57:
 		case 58:adc1val = 13;
-				looper.timeIncrement += 10;
+				looper.timeIncrement += 5;
 				break;
 		case 59:
 		case 60:adc1val = 14;
-				looper.timeIncrement -= 10;
+				looper.timeIncrement -= 5;
 				break;
 		case 61: adc1val = 15;
+				looper.DrumState = DRUMS_PAUSED;
 				break;
 		case 62: adc1val = 16;
+				looper.DrumState = DRUMS_STARTED;
 				break;
 		default: return;
 

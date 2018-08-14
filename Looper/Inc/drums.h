@@ -29,6 +29,7 @@ void midiDrumHandler();
 void initDrumBeats();
 void setBarBeats(uint16_t bar,uint16_t beats);
 void setPatternTime(__IO Pattern *p,__IO DrumTimes *t);
+void updatePatternTime(__IO Pattern *p,__IO DrumTimes *t);
 
 #define NUM_DRUM_TRACKS	4
 #define NUM_ALL_TRACKS		5
@@ -45,6 +46,7 @@ void setPatternTime(__IO Pattern *p,__IO DrumTimes *t);
 #define NUM_OF_PATTERNS		1
 #define MAX_RESOLUTION		2
 
+extern __IO DrumTimes *timptr;
 extern uint32_t drumBeatIndex;
 extern uint8_t key_to_drum[];
 #endif

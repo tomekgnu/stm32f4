@@ -128,6 +128,7 @@ void readDrums(FIL *fil){
 
 
 		if(switch_buff == FALSE){
+				updatePatternTime(&pat1,&tim1);
 				timptr = &tim1;
 				patptr = &pat1;
 				drumBuffPtr = drumBuffA;
@@ -141,6 +142,7 @@ void readDrums(FIL *fil){
 				switch_buff = TRUE;
 			}
 			else{
+				updatePatternTime(&pat2,&tim2);
 				timptr = &tim2;
 				patptr = &pat2;
 				drumBuffPtr = drumBuffB;
@@ -196,18 +198,26 @@ void stopDrums(){
 }
 
 void setPatternTime(__IO Pattern *p,__IO DrumTimes *t){
-	int beatTimeMillis = ((60000 / p->beattime) / p->division)  + looper.timeIncrement;
+	int beatTimeMillis = (60000 / p->beattime) / p->division;
 	t->numberOfBeats = p->beats * p->division;
 	t->barDuration = t->numberOfBeats * beatTimeMillis;
 	t->remainder = t->barDuration % t->numberOfBeats;
 	t->beatDuration = t->barDuration / t->numberOfBeats;
 }
 
+void updatePatternTime(__IO Pattern *p,__IO DrumTimes *t){
+	int beatTimeMillis = ((60000 / p->beattime) / p->division) + looper.timeIncrement;
+	t->numberOfBeats = p->beats * p->division;
+	t->barDuration = t->numberOfBeats * beatTimeMillis;
+	t->remainder = t->barDuration % t->numberOfBeats;
+	t->beatDuration = t->barDuration / t->numberOfBeats;
+}
 
 void midiDrumHandler(){
 	uint32_t i;
 	if(looper.DrumState != DRUMS_STARTED)
 		return;
+
 	if(midiDrumClock < timptr->barDuration){
 		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->beatDuration + timptr->remainder):timptr->beatDuration) == 0){
 			for(i = drumBeatIndex; i < drumBeatIndex + NUM_DRUM_TRACKS; i++){
@@ -229,7 +239,6 @@ void midiDrumHandler(){
 		first_beat = TRUE;
 		midiDrumClock = 0;
 		drumBeatIndex = 0;
-
 	}
 
 }
