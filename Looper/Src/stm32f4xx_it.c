@@ -45,12 +45,12 @@
 #include "drums.h"
 #include "memops.h"
 #include "SRAMDriver.h"
+#include "joystick.h"
 
 extern ADC_HandleTypeDef hadc1;
 extern CHANNEL ch1;
 extern uint32_t audio_pointer;
 extern BOOL audio_finished;
-
 
 /* USER CODE END 0 */
 
@@ -58,7 +58,6 @@ extern BOOL audio_finished;
 extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
-extern ADC_HandleTypeDef hadc3;
 extern DMA_HandleTypeDef hdma_dac2;
 extern DMA_HandleTypeDef hdma_spi5_rx;
 extern DMA_HandleTypeDef hdma_spi5_tx;
@@ -185,7 +184,6 @@ void ADC_IRQHandler(void)
   /* USER CODE END ADC_IRQn 0 */
   HAL_ADC_IRQHandler(&hadc1);
   HAL_ADC_IRQHandler(&hadc2);
-  HAL_ADC_IRQHandler(&hadc3);
   /* USER CODE BEGIN ADC_IRQn 1 */
 
   /* USER CODE END ADC_IRQn 1 */
@@ -218,6 +216,7 @@ void TIM1_BRK_TIM9_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim9);
   /* USER CODE BEGIN TIM1_BRK_TIM9_IRQn 1 */
   TM_KEYPAD_Update();
+  Update_Joystick();
   /* USER CODE END TIM1_BRK_TIM9_IRQn 1 */
 }
 

@@ -27,7 +27,6 @@ static void menuShowOptions(){
 			tit = menu_nodes[node_index].title;
 
 		sprintf(lcdline,"[%c] %s",TM_KEYPAD_GetChar(option_index),tit);
-
 		TM_ILI9341_Puts(10, offset, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 		offset += 20;
 	}

@@ -9,6 +9,8 @@ typedef struct{
 	BOOL	but;
 } JOYSTICK;
 
+
 JOYSTICK Read_Joystick();
+void Update_Joystick();
 
 #endif

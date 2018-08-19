@@ -160,8 +160,6 @@ extern char lcdline[];
 #define uSD_CS_GPIO_Port GPIOC
 #define Joystick_X_Pin GPIO_PIN_1
 #define Joystick_X_GPIO_Port GPIOA
-#define Joystick_Y_Pin GPIO_PIN_2
-#define Joystick_Y_GPIO_Port GPIOA
 #define SRAM_2_CS_Pin GPIO_PIN_3
 #define SRAM_2_CS_GPIO_Port GPIOA
 #define AD_KBD_Pin GPIO_PIN_4

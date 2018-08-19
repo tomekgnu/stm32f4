@@ -117,7 +117,7 @@ static spiffs fs;
 TM_KEYPAD_Button_t Keypad_Button;
 BOOL Skip_Read_Button = FALSE;
 BOOL jsw = FALSE;
-JOYSTICK joystick;
+__IO JOYSTICK joystick;
 /* USER CODE END 0 */
 
 /**
@@ -184,7 +184,6 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_TIM9_Init();
   MX_ADC2_Init();
-  MX_ADC3_Init();
   /* USER CODE BEGIN 2 */
 
   sFLASH_Init();
@@ -206,8 +205,7 @@ int main(void)
 
   status = HAL_TIM_Base_Start_IT(&htim4);
   status = HAL_ADC_Start_IT(&hadc1);
-  status = HAL_ADC_Start(&hadc2);
-  status = HAL_ADC_Start(&hadc3);
+
 
   ADS1256_WriteCmd(CMD_RESET);
   ADS1256_WriteCmd(CMD_SDATAC);
@@ -252,6 +250,10 @@ int main(void)
 	  }// end of key pressed
 
 	  joystick = Read_Joystick();
+	  if(joystick.xpos != 0 || joystick.ypos != 0 || joystick.but == TRUE){
+		  sprintf(lcdline,"x=%u y=%u but=%u",joystick.xpos,joystick.ypos,joystick.but);
+		  TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	  }
 
   /* USER CODE END WHILE */
 

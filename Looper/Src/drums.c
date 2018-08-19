@@ -223,9 +223,7 @@ void updatePatternTime(__IO Pattern *p,__IO DrumTimes *t){
 
 void midiDrumHandler(){
 	uint32_t i;
-	JOYSTICK js = Read_Joystick();
-	if(js.but == FALSE)
-		return;
+
 	if(looper.DrumState != DRUMS_STARTED)
 		return;
 
