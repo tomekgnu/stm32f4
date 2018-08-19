@@ -158,6 +158,10 @@ extern char lcdline[];
 #define ILI9341_CS_GPIO_Port GPIOC
 #define uSD_CS_Pin GPIO_PIN_3
 #define uSD_CS_GPIO_Port GPIOC
+#define Joystick_X_Pin GPIO_PIN_1
+#define Joystick_X_GPIO_Port GPIOA
+#define Joystick_Y_Pin GPIO_PIN_2
+#define Joystick_Y_GPIO_Port GPIOA
 #define SRAM_2_CS_Pin GPIO_PIN_3
 #define SRAM_2_CS_GPIO_Port GPIOA
 #define AD_KBD_Pin GPIO_PIN_4
@@ -267,9 +271,8 @@ extern char lcdline[];
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14
 #define SWCLK_GPIO_Port GPIOA
-#define TP_INT1_Pin GPIO_PIN_15
-#define TP_INT1_GPIO_Port GPIOA
-#define TP_INT1_EXTI_IRQn EXTI15_10_IRQn
+#define Joystick_SW_Pin GPIO_PIN_15
+#define Joystick_SW_GPIO_Port GPIOA
 #define ADS1256_CS_Pin GPIO_PIN_10
 #define ADS1256_CS_GPIO_Port GPIOC
 #define ADS1256_MISO_Pin GPIO_PIN_11

@@ -282,10 +282,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = TP_INT1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_EVT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(TP_INT1_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Pin = Joystick_SW_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(Joystick_SW_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = ADS1256_DRDY_Pin;
@@ -421,6 +421,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			BSP_LED_Off(LED_GREEN);
 		}
 
+		break;
+	case Joystick_SW_Pin:
+		if(looper.DrumState == DRUMS_STARTED)
+			looper.DrumState = DRUMS_PAUSED;
+		else
+			looper.DrumState = DRUMS_STARTED;
 		break;
 	case ADS1256_DRDY_Pin:
 //		if(function == PLAY_SD || function == PLAY_SRAM){

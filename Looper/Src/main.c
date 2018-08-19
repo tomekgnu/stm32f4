@@ -83,6 +83,8 @@
 #include "usb_device.h"
 #include "usbd_core.h"
 #include "usbd_cdc_if.h"
+#include "joystick.h"
+
 #define pi 3.14159
 #define LOG_PAGE_SIZE       256
 /* USER CODE END Includes */
@@ -114,6 +116,8 @@ static spiffs fs;
 
 TM_KEYPAD_Button_t Keypad_Button;
 BOOL Skip_Read_Button = FALSE;
+BOOL jsw = FALSE;
+JOYSTICK joystick;
 /* USER CODE END 0 */
 
 /**
@@ -179,6 +183,8 @@ int main(void)
   MX_TIM8_Init();
   MX_USB_DEVICE_Init();
   MX_TIM9_Init();
+  MX_ADC2_Init();
+  MX_ADC3_Init();
   /* USER CODE BEGIN 2 */
 
   sFLASH_Init();
@@ -200,6 +206,8 @@ int main(void)
 
   status = HAL_TIM_Base_Start_IT(&htim4);
   status = HAL_ADC_Start_IT(&hadc1);
+  status = HAL_ADC_Start(&hadc2);
+  status = HAL_ADC_Start(&hadc3);
 
   ADS1256_WriteCmd(CMD_RESET);
   ADS1256_WriteCmd(CMD_SDATAC);
@@ -243,7 +251,7 @@ int main(void)
 
 	  }// end of key pressed
 
-
+	  joystick = Read_Joystick();
 
   /* USER CODE END WHILE */
 

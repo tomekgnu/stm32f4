@@ -14,10 +14,10 @@ typedef struct{
 }Pattern;
 
 typedef struct{
-	uint32_t numberOfBeats;
+	uint32_t subbeats;
 	uint32_t barDuration;
 	uint32_t remainder;
-	uint32_t beatDuration;
+	uint32_t subBeatDuration;
 
 }DrumTimes;
 
@@ -31,6 +31,7 @@ void setBarBeats(uint16_t bar,uint16_t beats);
 void setPatternTime(__IO Pattern *p,__IO DrumTimes *t);
 void updatePatternTime(__IO Pattern *p,__IO DrumTimes *t);
 
+#define BEAT_MILLIS(x)	(60000 / (x))	// convert beat time signature (e.g. 60,120) to milliseconds
 #define NUM_DRUM_TRACKS	4
 #define NUM_ALL_TRACKS		5
 #define DRUM_TIM_HDR_SIZE	16	// beats,division,beattime,repeat: each 4 bytes
@@ -42,9 +43,11 @@ void updatePatternTime(__IO Pattern *p,__IO DrumTimes *t);
 #define BASS	4
 
 // index constants for drum file header
-#define NUM_OF_BYTES		0
-#define NUM_OF_PATTERNS		1
-#define MAX_RESOLUTION		2
+#define HEADER_NUM_BYTES		0
+#define HEADER_NUM_PATTS		1
+#define HEADER_MAX_BEATS		2
+
+#define MAX_SUBBEATS			48
 
 extern __IO DrumTimes *timptr;
 extern uint32_t drumBeatIndex;

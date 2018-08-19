@@ -9,6 +9,7 @@
 #include "audio.h"
 #include "SRAMDriver.h"
 #include "tm_stm32f4_ili9341.h"
+#include "joystick.h"
 
 uint32_t drumBeatIndex;
 __IO BOOL switch_buff;
@@ -33,8 +34,8 @@ uint8_t key_to_drum[16] = {
 		Chinese_Cymbal
 };
 
-uint8_t *drumBuffA;
-uint8_t *drumBuffB;
+uint8_t drumBuffA[MAX_SUBBEATS * NUM_ALL_TRACKS];
+uint8_t drumBuffB[MAX_SUBBEATS * NUM_ALL_TRACKS];
 uint8_t * drumBuffPtr;
 
 __IO Pattern pat1;
@@ -49,11 +50,11 @@ extern TM_KEYPAD_Button_t Keypad_Button;
 
 void readDrums(FIL *fil){
 
-	uint32_t numOfPatterns;
-	uint32_t numOfBytes;
-	uint32_t maxResolution;
+	uint32_t numOfPatterns = 0;
+	uint32_t numOfBytes = 0;
+	uint32_t maxResolution = 0;
 	uint32_t header[3];		// number of patterns, number of bytes, max. resolution
-	uint32_t currPat;
+	uint32_t currPat = 0;
 	uint32_t (*map)[2];
 	BOOL start = FALSE;
 	switch_buff = FALSE;
@@ -62,22 +63,29 @@ void readDrums(FIL *fil){
 	//f_read(fil,header,sizeof(header),&bytesRead);
 	SRAM_seekRead(0,SRAM_SET);
 	readSRAM((uint8_t *)header,sizeof(header));
-	numOfBytes = header[NUM_OF_BYTES];
-	numOfPatterns = header[NUM_OF_PATTERNS];
-	maxResolution = header[MAX_RESOLUTION];
+	numOfBytes = header[HEADER_NUM_BYTES];
+	numOfPatterns = header[HEADER_NUM_PATTS];
+	maxResolution = header[HEADER_MAX_BEATS];
 
-	map = malloc(numOfPatterns * 2);
-
+	if(numOfPatterns == 0){
+		TM_ILI9341_Puts(10, 100,"No patterns found!", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+		return;
+	}
+	if(maxResolution > MAX_SUBBEATS){
+		TM_ILI9341_Puts(10, 100,"Max. number of subbeats exceeded!", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+		return;
+	}
 	// create memory map
+	map = malloc(numOfPatterns * 2);
+	if(map == NULL)
+		return;
+
 	for(currPat = 0; currPat < numOfPatterns; currPat++){
 		map[currPat][0] = SRAM_readerPosition();
 		readSRAM((uint8_t *)&pat1,sizeof(Pattern));
 		readSRAM((uint8_t *)drumBuffA,pat1.beats * pat1.division * 5);
 	}
 
-	// buffers to store data read from memory
-	drumBuffA = (uint8_t *)malloc(DRUM_TIM_HDR_SIZE + DRUM_INSTR * maxResolution);
-	drumBuffB = (uint8_t *)malloc(DRUM_TIM_HDR_SIZE + DRUM_INSTR * maxResolution);
 
 	//if(f_eof(fil))
 		//return;
@@ -93,13 +101,13 @@ void readDrums(FIL *fil){
 			case TM_KEYPAD_Button_6:	if(currPat < (numOfPatterns - 1))
 											currPat++;
 										SRAM_seekRead(map[currPat][0],SRAM_SET);
-										sprintf(lcdline,"%u bar",(unsigned int)(currPat + 1));
+										sprintf(lcdline,"%u bar ",(unsigned int)(currPat + 1));
 										TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 										break;
 			case TM_KEYPAD_Button_4:	if(currPat > 0)
 											currPat--;
 										SRAM_seekRead(map[currPat][0],SRAM_SET);
-										sprintf(lcdline,"%u bar",(unsigned int)(currPat + 1));
+										sprintf(lcdline,"%u bar ",(unsigned int)(currPat + 1));
 										TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 										break;
 
@@ -108,7 +116,7 @@ void readDrums(FIL *fil){
 	readSRAM((uint8_t *)&pat1,sizeof(Pattern));
 	//f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
 	setPatternTime(&pat1,&tim1);
-	readSRAM((uint8_t *)drumBuffA,tim1.numberOfBeats * 5);
+	readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
 	//f_read(fil,drumBuffA,tim1.numberOfBeats * 5,(UINT *)&bytesRead);
 
 	resetDrums();
@@ -137,7 +145,7 @@ void readDrums(FIL *fil){
 				readSRAM((uint8_t *)&pat2,sizeof(Pattern));
 				//f_read(fil,&pat2,sizeof(Pattern),(UINT *)&bytesRead);
 				setPatternTime(&pat2,&tim2);
-				readSRAM((uint8_t *)drumBuffB,tim2.numberOfBeats * 5);
+				readSRAM((uint8_t *)drumBuffB,tim2.subbeats * 5);
 				//f_read(fil,drumBuffB,tim2.numberOfBeats * 5,(UINT *)&bytesRead);
 				switch_buff = TRUE;
 			}
@@ -151,14 +159,14 @@ void readDrums(FIL *fil){
 				readSRAM((uint8_t *)&pat1,sizeof(Pattern));
 				//f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
 				setPatternTime(&pat1,&tim1);
-				readSRAM((uint8_t *)drumBuffA,tim1.numberOfBeats * 5);
+				readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
 				//f_read(fil,drumBuffA,tim1.numberOfBeats * 5,(UINT *)&bytesRead);
 				switch_buff = FALSE;
 			}
 
 
 			wait_first_beat:
-			sprintf(lcdline,"%u bar",(unsigned int)currPat);
+			sprintf(lcdline,"%u bar ",(unsigned int)currPat);
 			TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 			while((looper.DrumState == DRUMS_STARTED || looper.DrumState == DRUMS_PAUSED) && first_beat == FALSE){
 				continue;
@@ -175,7 +183,7 @@ void readDrums(FIL *fil){
 				readSRAM((uint8_t *)&pat1,sizeof(Pattern));
 				//f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
 				setPatternTime(&pat1,&tim1);
-				readSRAM((uint8_t *)drumBuffA,tim1.numberOfBeats * 5);
+				readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
 			}
 
 	}
@@ -185,8 +193,8 @@ void readDrums(FIL *fil){
 	looper.Playback = FALSE;
 	looper.Recording = FALSE;
 
-	free(drumBuffA);
-	free(drumBuffB);
+	//free(drumBuffA);
+	//free(drumBuffB);
 	free(map);
 }
 
@@ -198,28 +206,31 @@ void stopDrums(){
 }
 
 void setPatternTime(__IO Pattern *p,__IO DrumTimes *t){
-	int beatTimeMillis = (60000 / p->beattime) / p->division;
-	t->numberOfBeats = p->beats * p->division;
-	t->barDuration = t->numberOfBeats * beatTimeMillis;
-	t->remainder = t->barDuration % t->numberOfBeats;
-	t->beatDuration = t->barDuration / t->numberOfBeats;
+	uint32_t millis = BEAT_MILLIS(p->beattime);
+	t->subbeats = p->beats * p->division;
+	t->barDuration = p->beats * millis;
+	t->remainder = t->barDuration % t->subbeats;
+	t->subBeatDuration = t->barDuration / t->subbeats;
 }
 
 void updatePatternTime(__IO Pattern *p,__IO DrumTimes *t){
-	int beatTimeMillis = ((60000 / p->beattime) / p->division) + looper.timeIncrement;
-	t->numberOfBeats = p->beats * p->division;
-	t->barDuration = t->numberOfBeats * beatTimeMillis;
-	t->remainder = t->barDuration % t->numberOfBeats;
-	t->beatDuration = t->barDuration / t->numberOfBeats;
+	uint32_t millis = BEAT_MILLIS(p->beattime + looper.timeIncrement) ;
+	t->subbeats = p->beats * p->division;
+	t->barDuration = p->beats * millis;
+	t->remainder = t->barDuration % t->subbeats;
+	t->subBeatDuration = t->barDuration / t->subbeats;
 }
 
 void midiDrumHandler(){
 	uint32_t i;
+	JOYSTICK js = Read_Joystick();
+	if(js.but == FALSE)
+		return;
 	if(looper.DrumState != DRUMS_STARTED)
 		return;
 
 	if(midiDrumClock < timptr->barDuration){
-		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->beatDuration + timptr->remainder):timptr->beatDuration) == 0){
+		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->subBeatDuration + timptr->remainder):timptr->subBeatDuration) == 0){
 			for(i = drumBeatIndex; i < drumBeatIndex + NUM_DRUM_TRACKS; i++){
 				if(drumBuffPtr[i] != 0 && looper.DrumState == DRUMS_STARTED)
 					playPercussion(NOTEON,drumBuffPtr[i]);
