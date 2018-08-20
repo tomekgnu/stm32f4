@@ -56,8 +56,9 @@ extern BOOL audio_finished;
 
 /* External variables --------------------------------------------------------*/
 extern PCD_HandleTypeDef hpcd_USB_OTG_HS;
+extern DMA_HandleTypeDef hdma_adc3;
 extern ADC_HandleTypeDef hadc1;
-extern ADC_HandleTypeDef hadc2;
+extern ADC_HandleTypeDef hadc3;
 extern DMA_HandleTypeDef hdma_dac2;
 extern DMA_HandleTypeDef hdma_spi5_rx;
 extern DMA_HandleTypeDef hdma_spi5_tx;
@@ -183,7 +184,7 @@ void ADC_IRQHandler(void)
 
   /* USER CODE END ADC_IRQn 0 */
   HAL_ADC_IRQHandler(&hadc1);
-  HAL_ADC_IRQHandler(&hadc2);
+  HAL_ADC_IRQHandler(&hadc3);
   /* USER CODE BEGIN ADC_IRQn 1 */
 
   /* USER CODE END ADC_IRQn 1 */
@@ -216,7 +217,7 @@ void TIM1_BRK_TIM9_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim9);
   /* USER CODE BEGIN TIM1_BRK_TIM9_IRQn 1 */
   TM_KEYPAD_Update();
-  Update_Joystick();
+  //Update_Joystick();
   /* USER CODE END TIM1_BRK_TIM9_IRQn 1 */
 }
 
@@ -247,6 +248,7 @@ void TIM4_IRQHandler(void)
   HAL_TIM_IRQHandler(&htim4);
   /* USER CODE BEGIN TIM4_IRQn 1 */
   buttonHandler();
+
   /* USER CODE END TIM4_IRQn 1 */
 }
 
@@ -283,6 +285,20 @@ void TIM8_UP_TIM13_IRQHandler(void)
   	  }
 }
   /* USER CODE END TIM8_UP_TIM13_IRQn 1 */
+}
+
+/**
+* @brief This function handles DMA2 stream1 global interrupt.
+*/
+void DMA2_Stream1_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA2_Stream1_IRQn 0 */
+
+  /* USER CODE END DMA2_Stream1_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_adc3);
+  /* USER CODE BEGIN DMA2_Stream1_IRQn 1 */
+  Update_Joystick();
+  /* USER CODE END DMA2_Stream1_IRQn 1 */
 }
 
 /**
@@ -337,6 +353,10 @@ void EXTI0_IRQHandler(void) {
 	HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
 }
 
+void HAL_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma){
+
+
+}
 
 void HAL_SDRAM_DMA_XferCpltCallback(DMA_HandleTypeDef *hdma){
 

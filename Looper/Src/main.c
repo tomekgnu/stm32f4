@@ -118,6 +118,7 @@ TM_KEYPAD_Button_t Keypad_Button;
 BOOL Skip_Read_Button = FALSE;
 BOOL jsw = FALSE;
 __IO JOYSTICK joystick;
+uint32_t joystick_data[2];
 /* USER CODE END 0 */
 
 /**
@@ -183,7 +184,7 @@ int main(void)
   MX_TIM8_Init();
   MX_USB_DEVICE_Init();
   MX_TIM9_Init();
-  MX_ADC2_Init();
+  MX_ADC3_Init();
   /* USER CODE BEGIN 2 */
 
   sFLASH_Init();
@@ -205,7 +206,7 @@ int main(void)
 
   status = HAL_TIM_Base_Start_IT(&htim4);
   status = HAL_ADC_Start_IT(&hadc1);
-
+  status = HAL_ADC_Start_DMA(&hadc3,joystick_data,2);
 
   ADS1256_WriteCmd(CMD_RESET);
   ADS1256_WriteCmd(CMD_SDATAC);

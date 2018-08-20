@@ -98,7 +98,7 @@ void Error_Handler(void);
 extern LooperApplication looper;
 extern uint8_t footswitch;
 extern char lcdline[];
-
+extern uint32_t joystick_data[];
 
 #define delayUS_ASM(us) do {\
 	asm volatile (	"MOV R0,%[loops]\n\t"\
@@ -158,8 +158,6 @@ extern char lcdline[];
 #define ILI9341_CS_GPIO_Port GPIOC
 #define uSD_CS_Pin GPIO_PIN_3
 #define uSD_CS_GPIO_Port GPIOC
-#define Joystick_X_Pin GPIO_PIN_1
-#define Joystick_X_GPIO_Port GPIOA
 #define SRAM_2_CS_Pin GPIO_PIN_3
 #define SRAM_2_CS_GPIO_Port GPIOA
 #define AD_KBD_Pin GPIO_PIN_4
