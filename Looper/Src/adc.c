@@ -65,6 +65,7 @@
 #include "drums.h"
 #include "menu.h"
 #include "ads1256_test.h"
+#include "joystick.h"
 
 #define pi 3.14159
 
@@ -83,6 +84,10 @@ void HAL_ADC_ErrorCallback(ADC_HandleTypeDef * hadc){
 	TM_HD44780_Puts(0,1,strval);
 }
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+	if(hadc->Instance == ADC3){
+		Update_Joystick();
+		return;
+	}
 
 	if(hadc->Instance == ADC1){
 
@@ -237,7 +242,7 @@ void MX_ADC3_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_1;
   sConfig.Rank = 1;
-  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
+  sConfig.SamplingTime = ADC_SAMPLETIME_144CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc3, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -293,7 +298,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     PA1     ------> ADC3_IN1
     PA2     ------> ADC3_IN2 
     */
-    GPIO_InitStruct.Pin = GPIO_PIN_1|GPIO_PIN_2;
+    GPIO_InitStruct.Pin = Joystick_X_Pin|Joystick_Y_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -367,7 +372,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
     PA1     ------> ADC3_IN1
     PA2     ------> ADC3_IN2 
     */
-    HAL_GPIO_DeInit(GPIOA, GPIO_PIN_1|GPIO_PIN_2);
+    HAL_GPIO_DeInit(GPIOA, Joystick_X_Pin|Joystick_Y_Pin);
 
     /* ADC3 DMA DeInit */
     HAL_DMA_DeInit(adcHandle->DMA_Handle);

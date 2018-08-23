@@ -94,7 +94,7 @@
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 LooperApplication looper;
-uint8_t footswitch = 0;
+uint8_t switches = 0;
 char lcdline[30];
 /* USER CODE END PV */
 
@@ -118,7 +118,7 @@ TM_KEYPAD_Button_t Keypad_Button;
 BOOL Skip_Read_Button = FALSE;
 BOOL jsw = FALSE;
 __IO JOYSTICK joystick;
-uint32_t joystick_data[2];
+__IO uint32_t joystick_data[2];
 /* USER CODE END 0 */
 
 /**
@@ -206,6 +206,7 @@ int main(void)
 
   status = HAL_TIM_Base_Start_IT(&htim4);
   status = HAL_ADC_Start_IT(&hadc1);
+
   status = HAL_ADC_Start_DMA(&hadc3,joystick_data,2);
 
   ADS1256_WriteCmd(CMD_RESET);
@@ -250,11 +251,12 @@ int main(void)
 
 	  }// end of key pressed
 
+
+
 	  joystick = Read_Joystick();
-	  if(joystick.xpos != 0 || joystick.ypos != 0 || joystick.but == TRUE){
-		  sprintf(lcdline,"x=%u y=%u but=%u",joystick.xpos,joystick.ypos,joystick.but);
-		  TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	  }
+	  sprintf(lcdline,"x=%u y=%u but=%u",joystick.xpos,joystick.ypos,joystick.but);
+	  TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+
 
   /* USER CODE END WHILE */
 
@@ -395,6 +397,9 @@ void buttonHandler() {
 
 	if(IS_BUT_DOWN(BUT_TOGFUN) && HAL_GPIO_ReadPin(ToggleFunction_GPIO_Port,ToggleFunction_Pin) == GPIO_PIN_SET )
 		BUT_UP(BUT_TOGFUN);
+
+	if(IS_BUT_DOWN(BUT_JOYSTICK) && HAL_GPIO_ReadPin(Joystick_SW_GPIO_Port,Joystick_SW_Pin) == GPIO_PIN_SET )
+			BUT_UP(BUT_JOYSTICK);
 }
 
 /* USER CODE END 4 */

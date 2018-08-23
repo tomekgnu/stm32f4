@@ -11,40 +11,24 @@
 
 static uint16_t millis = 0;
 static __IO JOYSTICK jstick;
-static JOYSTICK novalue = {0};
-static BOOL active = FALSE;
 
+static void Read_Joystick_INT(){
 
-JOYSTICK Read_Joystick_INT(){
-
-
-	jstick.but = !HAL_GPIO_ReadPin(Joystick_SW_GPIO_Port,Joystick_SW_Pin);
-	jstick.xpos = joystick_data[0];
-	jstick.ypos = joystick_data[1];
-
-	return jstick;
-
+	jstick.but = (HAL_GPIO_ReadPin(Joystick_SW_GPIO_Port,Joystick_SW_Pin) == GPIO_PIN_RESET);
+	jstick.xpos = (joystick_data[0] >> 3);
+	jstick.ypos = (joystick_data[1] >> 3);
 }
 
 JOYSTICK Read_Joystick(){
-	if(active == TRUE)
-		return novalue;
-
-	if(jstick.xpos != 32 || jstick.ypos != 32 || jstick.but == TRUE){
-		active = TRUE;
-		return jstick;
-	}
-
-	return novalue;
+	return jstick;
 }
 
 
 void Update_Joystick(){
 	Read_Joystick_INT();
 
-	if(++millis >= 500){
+	if(++millis >= 50000){
 		millis = 0;
-		active = FALSE;
 	}
 
 }

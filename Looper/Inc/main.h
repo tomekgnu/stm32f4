@@ -96,9 +96,9 @@ void SystemClock_Config(void);
 void Error_Handler(void);
 
 extern LooperApplication looper;
-extern uint8_t footswitch;
+extern uint8_t switches;
 extern char lcdline[];
-extern uint32_t joystick_data[];
+extern __IO uint32_t joystick_data[];
 
 #define delayUS_ASM(us) do {\
 	asm volatile (	"MOV R0,%[loops]\n\t"\
@@ -158,6 +158,10 @@ extern uint32_t joystick_data[];
 #define ILI9341_CS_GPIO_Port GPIOC
 #define uSD_CS_Pin GPIO_PIN_3
 #define uSD_CS_GPIO_Port GPIOC
+#define Joystick_X_Pin GPIO_PIN_1
+#define Joystick_X_GPIO_Port GPIOA
+#define Joystick_Y_Pin GPIO_PIN_2
+#define Joystick_Y_GPIO_Port GPIOA
 #define SRAM_2_CS_Pin GPIO_PIN_3
 #define SRAM_2_CS_GPIO_Port GPIOA
 #define AD_KBD_Pin GPIO_PIN_4
@@ -269,6 +273,7 @@ extern uint32_t joystick_data[];
 #define SWCLK_GPIO_Port GPIOA
 #define Joystick_SW_Pin GPIO_PIN_15
 #define Joystick_SW_GPIO_Port GPIOA
+#define Joystick_SW_EXTI_IRQn EXTI15_10_IRQn
 #define ADS1256_CS_Pin GPIO_PIN_10
 #define ADS1256_CS_GPIO_Port GPIOC
 #define ADS1256_MISO_Pin GPIO_PIN_11
@@ -345,9 +350,10 @@ typedef enum
 #define BUT_PLAY			2
 #define BUT_OVERDUB			4
 #define BUT_TOGFUN			8
-#define BUT_DOWN(BUT)		footswitch |= BUT
-#define BUT_UP(BUT)			footswitch ^= BUT
-#define IS_BUT_DOWN(BUT)	((footswitch & BUT) > 0)
+#define BUT_JOYSTICK		16
+#define BUT_DOWN(BUT)		switches |= BUT
+#define BUT_UP(BUT)			switches ^= BUT
+#define IS_BUT_DOWN(BUT)	((switches & BUT) > 0)
 
 typedef struct {
 	uint8_t manufacturer;

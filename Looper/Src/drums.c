@@ -169,6 +169,14 @@ void readDrums(FIL *fil){
 			sprintf(lcdline,"%u bar ",(unsigned int)currPat);
 			TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 			while((looper.DrumState == DRUMS_STARTED || looper.DrumState == DRUMS_PAUSED) && first_beat == FALSE){
+				if(looper.DrumState == DRUMS_PAUSED){
+
+					if(Read_Joystick().ypos > 32 && currPat < (numOfPatterns - 1)){
+						currPat++;
+						sprintf(lcdline,"%u bar ",(unsigned int)(currPat + 1));
+						TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+					}
+				}
 				continue;
 			}
 			first_beat = FALSE;
@@ -221,6 +229,8 @@ void updatePatternTime(__IO Pattern *p,__IO DrumTimes *t){
 	t->subBeatDuration = t->barDuration / t->subbeats;
 }
 
+
+
 void midiDrumHandler(){
 	uint32_t i;
 
@@ -251,6 +261,8 @@ void midiDrumHandler(){
 	}
 
 }
+
+
 
 void resetDrums(){
 	midiDrumClock = 0;

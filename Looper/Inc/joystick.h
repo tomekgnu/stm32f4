@@ -12,6 +12,6 @@ typedef struct{
 
 JOYSTICK Read_Joystick();
 void Update_Joystick();
-JOYSTICK Read_Joystick_INT();
+BOOL Joystick_Busy();
 
 #endif

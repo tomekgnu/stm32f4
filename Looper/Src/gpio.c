@@ -63,6 +63,7 @@
 #include "memops.h"
 #include "tim.h"
 #include "dac.h"
+#include "joystick.h"
 
 extern uint32_t sdram_pointer;
 extern int16_t sample16s;
@@ -283,8 +284,8 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = Joystick_SW_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(Joystick_SW_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
@@ -405,6 +406,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 	switch (GPIO_Pin) {
 
+	case Joystick_SW_Pin:
+			if(IS_BUT_DOWN(BUT_JOYSTICK))
+				return;
+			BUT_DOWN(BUT_JOYSTICK);
+			Update_Joystick();
+			if(looper.DrumState == DRUMS_STARTED)
+				looper.DrumState = DRUMS_PAUSED;
+			else if(looper.DrumState == DRUMS_PAUSED)
+				looper.DrumState = DRUMS_STARTED;
+			break;
 	case GPIO_PIN_0:	// user button
 			looper.DrumState = DRUMS_STOPPED;
 			looper.Function = NONE;
@@ -422,12 +433,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		}
 
 		break;
-	case Joystick_SW_Pin:
-		if(looper.DrumState == DRUMS_STARTED)
-			looper.DrumState = DRUMS_PAUSED;
-		else
-			looper.DrumState = DRUMS_STARTED;
-		break;
+
 	case ADS1256_DRDY_Pin:
 //		if(function == PLAY_SD || function == PLAY_SRAM){
 //			__HAL_TIM_SET_COUNTER(&htim8,0);
