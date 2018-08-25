@@ -252,12 +252,6 @@ int main(void)
 	  }// end of key pressed
 
 
-
-	  joystick = Read_Joystick();
-	  sprintf(lcdline,"x=%u y=%u but=%u",joystick.xpos,joystick.ypos,joystick.but);
-	  TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-
-
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */

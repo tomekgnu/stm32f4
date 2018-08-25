@@ -51,7 +51,7 @@ void play_rhythm(void) {
 	TM_ILI9341_Puts(10, 30,"[5] Start", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	TM_ILI9341_Puts(10, 50,"[6] One bar forward", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	TM_ILI9341_Puts(10, 70,"[0] Return", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	readDrums(&fil);
+	playDrums(&fil);
 	looper.DrumState = DRUMS_STOPPED;
 	Keypad_Button = TM_KEYPAD_Button_0;
 	Skip_Read_Button = TRUE;

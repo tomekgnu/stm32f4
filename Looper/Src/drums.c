@@ -45,18 +45,155 @@ __IO DrumTimes tim2;
 __IO DrumTimes *timptr;
 __IO Pattern *patptr;
 
+
 extern TM_KEYPAD_Button_t Keypad_Button;
 
+static void seekPattern(uint32_t (*map)[2],uint32_t ind){
+	switch_buff = FALSE;
+	SRAM_seekRead(map[ind][0],SRAM_SET);
+	readSRAM((uint8_t *)&pat1,sizeof(Pattern));
+	setPatternTime(&pat1,&tim1);
+	readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
+}
 
-void readDrums(FIL *fil){
+static uint32_t drumMenu(uint32_t (*map)[2],uint32_t currPat,uint32_t numOfPatterns,TM_KEYPAD_Button_t *key){
+	BOOL input = FALSE;
+
+	while (1){
+			Keypad_Button = TM_KEYPAD_Read();
+			if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
+				input = TRUE;
+				*key = Keypad_Button;
+				switch(Keypad_Button){
+					case TM_KEYPAD_Button_5:	return currPat;
+					case TM_KEYPAD_Button_0:	return 0;
+					case TM_KEYPAD_Button_6:	if(currPat < (numOfPatterns - 1))
+													currPat++;
+												break;
+					case TM_KEYPAD_Button_4:	if(currPat > 0)
+													currPat--;
+												break;
+				}
+
+			}
+			else if(Active_Joystick() == TRUE){
+				input = TRUE;
+				JOYSTICK js = Read_Joystick();
+				if(js.ypos > CENTER && currPat < (numOfPatterns - 1))
+					currPat++;
+				else if(js.ypos < CENTER && currPat > 0)
+					currPat--;
+
+				if(js.but == TRUE){
+					if(looper.DrumState == DRUMS_READY){
+						*key = TM_KEYPAD_Button_5;
+						break;
+					}
+					if(looper.DrumState == DRUMS_STOPPED){
+						looper.DrumState = DRUMS_READY;
+						Wait_Joystick();
+					}
+				}
+
+				Wait_Joystick();
+
+			}
+
+			if(input == TRUE){
+				sprintf(lcdline,"%u bar ",(unsigned int)(currPat + 1));
+				TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+				input = FALSE;
+			}
+		}
+
+
+	return currPat;
+}
+
+static uint32_t drumLoop(uint32_t (*map)[2],uint32_t currPat,uint32_t numOfPatterns){
+	seekPattern(map,currPat);
+	switch_buff = FALSE;
+	resetDrums();
+	HAL_TIM_Base_Start_IT(&htim2);
+
+	TM_ILI9341_DrawFilledRectangle(10,10,480,48,ILI9341_COLOR_MAGENTA);
+	TM_ILI9341_Puts(10, 10,"[User button] Stop", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	looper.DrumState = DRUMS_STARTED;
+
+
+		while(looper.DrumState == DRUMS_STARTED  && currPat < numOfPatterns){
+
+			if(switch_buff == FALSE){
+					updatePatternTime(&pat1,&tim1);
+					timptr = &tim1;
+					patptr = &pat1;
+					drumBuffPtr = drumBuffA;
+					if(currPat == (numOfPatterns - 1))
+						goto wait_first_beat;
+					readSRAM((uint8_t *)&pat2,sizeof(Pattern));
+					setPatternTime(&pat2,&tim2);
+					readSRAM((uint8_t *)drumBuffB,tim2.subbeats * 5);
+					switch_buff = TRUE;
+				}
+				else{
+					updatePatternTime(&pat2,&tim2);
+					timptr = &tim2;
+					patptr = &pat2;
+					drumBuffPtr = drumBuffB;
+					if(currPat == (numOfPatterns - 1))
+						goto wait_first_beat;
+					readSRAM((uint8_t *)&pat1,sizeof(Pattern));
+					setPatternTime(&pat1,&tim1);
+					readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
+					switch_buff = FALSE;
+				}
+
+				wait_first_beat:
+				sprintf(lcdline,"%u bar ",(unsigned int)(currPat + 1));
+				TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+
+				while(first_beat == FALSE && looper.DrumState == DRUMS_STARTED){
+					continue;
+				}
+				if(looper.DrumState == DRUMS_STOPPED || looper.DrumState == DRUMS_PAUSED){
+					goto end_drum_loop;
+				}
+
+				first_beat = FALSE;
+				currPat++;
+				if(currPat == numOfPatterns){
+					currPat = 0;
+					switch_buff = FALSE;
+					first_beat = FALSE;
+					SRAM_seekRead(map[currPat][0],SRAM_SET);
+					readSRAM((uint8_t *)&pat1,sizeof(Pattern));
+					setPatternTime(&pat1,&tim1);
+					readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
+				}
+
+		}
+
+
+		end_drum_loop:
+		stopDrums();
+
+		looper.StartLooper = FALSE;
+		looper.Playback = FALSE;
+		looper.Recording = FALSE;
+
+		return currPat;
+
+}
+
+void playDrums(FIL *fil){
 
 	uint32_t numOfPatterns = 0;
 	uint32_t numOfBytes = 0;
 	uint32_t maxResolution = 0;
 	uint32_t header[3];		// number of patterns, number of bytes, max. resolution
-	uint32_t currPat = 0;
 	uint32_t (*map)[2];
-	BOOL start = FALSE;
+	uint8_t choice;
+	uint32_t currPat;
 	switch_buff = FALSE;
 	first_beat = FALSE;
 
@@ -87,124 +224,27 @@ void readDrums(FIL *fil){
 	}
 
 
-	//if(f_eof(fil))
-		//return;
 	currPat = 0;
-	SRAM_seekRead(map[currPat][0],SRAM_SET);
 
+	do{
+		// return pattern from which to play and use it as parameter to drum loop
+		currPat = drumMenu(map,currPat,numOfPatterns,&choice);
+		switch(choice){
+			case TM_KEYPAD_Button_0: break;
 
-	while (start == FALSE){
-		Keypad_Button = TM_KEYPAD_Read();
-		switch(Keypad_Button){
-			case TM_KEYPAD_Button_5:	start = TRUE; break;
-			case TM_KEYPAD_Button_0:	return;
-			case TM_KEYPAD_Button_6:	if(currPat < (numOfPatterns - 1))
-											currPat++;
-										SRAM_seekRead(map[currPat][0],SRAM_SET);
-										sprintf(lcdline,"%u bar ",(unsigned int)(currPat + 1));
-										TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-										break;
-			case TM_KEYPAD_Button_4:	if(currPat > 0)
-											currPat--;
-										SRAM_seekRead(map[currPat][0],SRAM_SET);
-										sprintf(lcdline,"%u bar ",(unsigned int)(currPat + 1));
-										TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-										break;
-
+			case TM_KEYPAD_Button_5: // return last played pattern and use it as parameter to menu
+									 currPat = drumLoop(map,currPat,numOfPatterns);
+							 	 	 break;
+			default:				 break;
 		}
 	}
-	readSRAM((uint8_t *)&pat1,sizeof(Pattern));
-	//f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
-	setPatternTime(&pat1,&tim1);
-	readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
-	//f_read(fil,drumBuffA,tim1.numberOfBeats * 5,(UINT *)&bytesRead);
+	while(choice != TM_KEYPAD_Button_0);
 
-	resetDrums();
-	HAL_TIM_Base_Start_IT(&htim2);
-
-	TM_ILI9341_DrawFilledRectangle(10,10,480,48,ILI9341_COLOR_MAGENTA);
-	TM_ILI9341_Puts(10, 10,"[User button] Stop", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	looper.DrumState = DRUMS_STARTED;
-
-
-	while((looper.DrumState == DRUMS_STARTED || looper.DrumState == DRUMS_PAUSED) && currPat < numOfPatterns){
-		while(looper.DrumState == DRUMS_PAUSED)
-			continue;
-		//currByte = f_tell(fil);
-		++currPat;
-		//if(currPat < numOfPatterns)
-			//map[currPat][0] = currByte;
-
-		if(switch_buff == FALSE){
-				updatePatternTime(&pat1,&tim1);
-				timptr = &tim1;
-				patptr = &pat1;
-				drumBuffPtr = drumBuffA;
-				if(currPat == numOfPatterns)
-					goto wait_first_beat;
-				readSRAM((uint8_t *)&pat2,sizeof(Pattern));
-				//f_read(fil,&pat2,sizeof(Pattern),(UINT *)&bytesRead);
-				setPatternTime(&pat2,&tim2);
-				readSRAM((uint8_t *)drumBuffB,tim2.subbeats * 5);
-				//f_read(fil,drumBuffB,tim2.numberOfBeats * 5,(UINT *)&bytesRead);
-				switch_buff = TRUE;
-			}
-			else{
-				updatePatternTime(&pat2,&tim2);
-				timptr = &tim2;
-				patptr = &pat2;
-				drumBuffPtr = drumBuffB;
-				if(currPat == numOfPatterns)
-					goto wait_first_beat;
-				readSRAM((uint8_t *)&pat1,sizeof(Pattern));
-				//f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
-				setPatternTime(&pat1,&tim1);
-				readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
-				//f_read(fil,drumBuffA,tim1.numberOfBeats * 5,(UINT *)&bytesRead);
-				switch_buff = FALSE;
-			}
-
-
-			wait_first_beat:
-			sprintf(lcdline,"%u bar ",(unsigned int)currPat);
-			TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-			while((looper.DrumState == DRUMS_STARTED || looper.DrumState == DRUMS_PAUSED) && first_beat == FALSE){
-				if(looper.DrumState == DRUMS_PAUSED){
-
-					if(Read_Joystick().ypos > 32 && currPat < (numOfPatterns - 1)){
-						currPat++;
-						sprintf(lcdline,"%u bar ",(unsigned int)(currPat + 1));
-						TM_ILI9341_Puts(10, 100, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-					}
-				}
-				continue;
-			}
-			first_beat = FALSE;
-			//if(currPat < numOfPatterns)
-				//map[currPat][1] = ch1.SamplesWritten;
-
-			if(currPat == numOfPatterns){
-				currPat = 0;
-				switch_buff = FALSE;
-				first_beat = FALSE;
-				SRAM_seekRead(map[currPat][0],SRAM_SET);
-				readSRAM((uint8_t *)&pat1,sizeof(Pattern));
-				//f_read(fil,&pat1,sizeof(Pattern),(UINT *)&bytesRead);
-				setPatternTime(&pat1,&tim1);
-				readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
-			}
-
-	}
-
-	stopDrums();
-	looper.StartLooper = FALSE;
-	looper.Playback = FALSE;
-	looper.Recording = FALSE;
-
-	//free(drumBuffA);
-	//free(drumBuffB);
 	free(map);
+
+
 }
+
 
 void stopDrums(){
 	looper.DrumState = DRUMS_STOPPED;
@@ -234,8 +274,10 @@ void updatePatternTime(__IO Pattern *p,__IO DrumTimes *t){
 void midiDrumHandler(){
 	uint32_t i;
 
-	if(looper.DrumState != DRUMS_STARTED)
+	if(looper.DrumState != DRUMS_STARTED){
 		return;
+	}
+
 
 	if(midiDrumClock < timptr->barDuration){
 		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->subBeatDuration + timptr->remainder):timptr->subBeatDuration) == 0){

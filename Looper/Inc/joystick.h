@@ -9,9 +9,13 @@ typedef struct{
 	BOOL	but;
 } JOYSTICK;
 
+#define CENTER	4
+#define MAX 	7
+#define MIN		0
 
 JOYSTICK Read_Joystick();
+void Wait_Joystick();
 void Update_Joystick();
-BOOL Joystick_Busy();
+BOOL Active_Joystick();
 
 #endif

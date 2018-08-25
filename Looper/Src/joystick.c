@@ -8,8 +8,8 @@
 #include "main.h"
 #include "joystick.h"
 #include "adc.h"
+#include "stdlib.h"
 
-static uint16_t millis = 0;
 static __IO JOYSTICK jstick;
 
 static void Read_Joystick_INT(){
@@ -26,9 +26,27 @@ JOYSTICK Read_Joystick(){
 
 void Update_Joystick(){
 	Read_Joystick_INT();
+}
 
-	if(++millis >= 50000){
-		millis = 0;
-	}
+BOOL Active_Joystick(){
+	return (jstick.xpos != CENTER || jstick.ypos != CENTER || jstick.but != FALSE);
+}
+
+void Wait_Joystick(){
+	uint16_t wait;
+
+	// center position: no wait
+	if(jstick.xpos == 4 && jstick.ypos == 4 && jstick.but == FALSE)
+		return;
+	// button press
+	if(jstick.but == TRUE)
+		wait = 1000;
+	// not in any extreme position
+	if((jstick.xpos < MAX && jstick.xpos > MIN) && (jstick.ypos < MAX && jstick.ypos > MIN))
+		wait = 200;
+	else	// extreme position
+		wait = 100;
+
+	HAL_Delay(wait);
 
 }
