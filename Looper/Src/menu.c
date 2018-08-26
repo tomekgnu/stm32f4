@@ -5,6 +5,7 @@
 #include "tm_stm32_hd44780.h"
 #include "string.h"
 #include "menu_callback.h"
+#include "stdarg.h"
 
 static menuNodeType menu_nodes[TOTAL_MENU_NODES];
 static uint8_t current_node_index;	// current option
@@ -102,6 +103,23 @@ void menuShow(TM_KEYPAD_Button_t opt_key){
 }
 
 
+void menuMultiLine(uint8_t lines,uint8_t offset,...){
+	uint8_t i;
+	char *line;
+	va_list ap;
+
+	va_start(ap, lines);
+	for(i = 0; i < lines; i++,offset += 20) {
+	     line = va_arg(ap, char *);
+	     TM_ILI9341_Puts(10, offset,line, &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE2);
+	}
+	va_end(ap);
+}
+
+void menuWaitReturn(){
+	while(TM_KEYPAD_Read() != TM_KEYPAD_Button_0)
+		continue;
+}
 
 void menuShowTimers(){
 	uint16_t seconds;

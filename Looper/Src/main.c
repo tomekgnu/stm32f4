@@ -234,6 +234,9 @@ int main(void)
   menuInit();
   menuShow(0);
 
+  // write initial rhythm header to SRAM
+  SRAM_seekWrite(0,SRAM_SET);
+  writeSRAM((unsigned char *)"\0\0\0\0\0\0\0\0\0\0\0\0",12);
   /* USER CODE END 2 */
 
   /* Infinite loop */

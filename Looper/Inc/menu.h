@@ -5,6 +5,7 @@
 #include "audio.h"
 #include "stm32f429xx.h"
 #include "tm_stm32f4_keypad.h"
+#include "stdarg.h"
 
 #define TOTAL_MENU_NODES	8
 #define MAX_NUM_OPTS		16
@@ -22,5 +23,7 @@ typedef struct {
 void menuShowTimers();
 void menuShow(TM_KEYPAD_Button_t);
 void menuInit();
+void menuWaitReturn();
+void menuMultiLine(uint8_t lines,uint8_t offset,...);
 
 #endif

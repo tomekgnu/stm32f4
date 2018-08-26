@@ -10,6 +10,7 @@
 #include "SRAMDriver.h"
 #include "tm_stm32f4_ili9341.h"
 #include "joystick.h"
+#include "menu.h"
 
 uint32_t drumBeatIndex;
 __IO BOOL switch_buff;
@@ -205,11 +206,13 @@ void playDrums(FIL *fil){
 	maxResolution = header[HEADER_MAX_BEATS];
 
 	if(numOfPatterns == 0){
-		TM_ILI9341_Puts(10, 100,"No patterns found!", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+		menuMultiLine(1,100,"No patterns found!");
+		menuWaitReturn();
 		return;
 	}
 	if(maxResolution > MAX_SUBBEATS){
-		TM_ILI9341_Puts(10, 100,"Max. number of subbeats exceeded!", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+		menuMultiLine(1,100,"Too many subbeats!");
+		menuWaitReturn();
 		return;
 	}
 	// create memory map
