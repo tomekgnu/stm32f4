@@ -60,27 +60,27 @@ static void connectChildNode(uint8_t parent,uint8_t opt_key,uint8_t child){
 }
 
 void menuInit(){
+	menuInitMsg();
 	memset(menu_nodes,(int)NODE_EMPTY,sizeof(menu_nodes));
 	current_node_index = MAIN_MENU;
 
-	initParentNode(MAIN_MENU,"Main menu",NULL);
-	initParentNode(NODE1,"Download rhythm",download_rhythm);
-	initParentNode(NODE2,"Play rhythm",play_rhythm);
-	initParentNode(NODE3,"Option_0_3",NULL);
+	initParentNode(MAIN_MENU,messages[MAIN],NULL);
+	initParentNode(NODE1,messages[DOWNL_RTH],download_rhythm);
+	initParentNode(NODE2,messages[PLAY_RTH],play_rhythm);
 
-	initParentNode(NODE4,"Option_1_1",NULL);
-	initParentNode(NODE5,"Option_1_2",NULL);
-	initParentNode(NODE6,"Option_2_1",NULL);
-	initParentNode(NODE7,"Option_3_1",NULL);
+	initParentNode(NODE3,messages[ONE_BAR_BACK],NULL);
+	initParentNode(NODE4,messages[ONE_BAR_FORW],NULL);
+	initParentNode(NODE5,messages[START],NULL);
+	//initParentNode(NODE6,MENU(START),NULL);
+
 
 	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,NODE1);
 	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,NODE2);
-	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_7,NODE3);
 
-	connectChildNode(NODE1,TM_KEYPAD_Button_1,NODE4);
-	connectChildNode(NODE1,TM_KEYPAD_Button_2,NODE5);
-	connectChildNode(NODE2,TM_KEYPAD_Button_1,NODE6);
-	connectChildNode(NODE3,TM_KEYPAD_Button_1,NODE7);
+	connectChildNode(NODE2,TM_KEYPAD_Button_1,NODE3);
+	connectChildNode(NODE2,TM_KEYPAD_Button_2,NODE4);
+	connectChildNode(NODE2,TM_KEYPAD_Button_3,NODE5);
+
 
 }
 
@@ -95,10 +95,11 @@ void menuShow(TM_KEYPAD_Button_t opt_key){
 	TM_HD44780_Clear();
 	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
 	TM_HD44780_Puts(0,0,lcdline);
+	menuShowOptions();
+	// execute function handler
 	if(menu_nodes[current_node_index].callback != NULL)
 		menu_nodes[current_node_index].callback();
-	else
-		menuShowOptions();
+
 	return;
 }
 
@@ -108,7 +109,7 @@ void menuMultiLine(uint8_t lines,uint8_t offset,...){
 	char *line;
 	va_list ap;
 
-	va_start(ap, lines);
+	va_start(ap, offset);
 	for(i = 0; i < lines; i++,offset += 20) {
 	     line = va_arg(ap, char *);
 	     TM_ILI9341_Puts(10, offset,line, &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE2);

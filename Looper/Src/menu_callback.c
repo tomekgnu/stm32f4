@@ -7,12 +7,14 @@
 #include "stdio.h"
 #include "ff.h"
 #include "main.h"
+#include "menu.h"
 #include "memops.h"
 #include "drums.h"
 #include "tm_stm32f4_keypad.h"
 #include "tm_stm32f4_ili9341.h"
 #include "tm_stm32_hd44780.h"
 #include "menu_callback.h"
+#include "stdlib.h"
 
 extern TM_KEYPAD_Button_t Keypad_Button;
 extern BOOL Skip_Read_Button;
@@ -39,19 +41,48 @@ void print_letters(void) {
 
 void download_rhythm(void) {
 	looper.Function = DOWNLOAD_SRAM;
+	menuMultiLine(2,100,"Press [Send via USB] button","in Rhythm application.");
 	SRAM_download_rhythm();
 	looper.Function = NONE;
 	Skip_Read_Button = TRUE;
 }
 
 void play_rhythm(void) {
-	FIL fil;
+	uint32_t (*map)[2];
+	uint32_t currPat = 0;
+	uint32_t numOfPatterns;
+	uint32_t numOfBytes;
+	uint32_t maxResolution;
+	uint8_t choice;
 	looper.DrumState = DRUMS_READY;
-	TM_ILI9341_Puts(10, 10,"[4] One bar back", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	TM_ILI9341_Puts(10, 30,"[5] Start", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	TM_ILI9341_Puts(10, 50,"[6] One bar forward", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	TM_ILI9341_Puts(10, 70,"[0] Return", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	playDrums(&fil);
+	map = (uint32_t (*)[])readDrums(&numOfPatterns,&numOfBytes,&maxResolution);
+
+	if(numOfPatterns == 0){
+		menuMultiLine(1,100,messages[NO_PATTS]);
+		menuWaitReturn();
+		return;
+	}
+	if(maxResolution > MAX_SUBBEATS){
+		menuMultiLine(1,100,messages[NO_PATTS]);
+		menuWaitReturn();
+		return;
+	}
+
+	do{
+			// return pattern from which to play and use it as parameter to drum loop
+			currPat = drumMenuInput(map,currPat,numOfPatterns,&choice);
+			switch(choice){
+				case TM_KEYPAD_Button_0: break;
+
+				case TM_KEYPAD_Button_3: // return last played pattern and use it as parameter to menu
+										 currPat = drumLoop(map,currPat,numOfPatterns);
+								 	 	 break;
+				default:				 break;
+			}
+		}
+		while(choice != TM_KEYPAD_Button_0);
+
+	free(map);
 	looper.DrumState = DRUMS_STOPPED;
 	Keypad_Button = TM_KEYPAD_Button_0;
 	Skip_Read_Button = TRUE;

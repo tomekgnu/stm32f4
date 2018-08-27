@@ -21,7 +21,9 @@ typedef struct{
 
 }DrumTimes;
 
-void readDrums(FIL *fil);
+uint32_t * readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution);
+uint32_t drumLoop(uint32_t (*map)[2],uint32_t currPat,uint32_t numOfPatterns);
+
 void resetDrums();
 void stopDrums();
 void playDrums();

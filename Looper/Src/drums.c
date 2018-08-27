@@ -57,7 +57,7 @@ static void seekPattern(uint32_t (*map)[2],uint32_t ind){
 	readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
 }
 
-static uint32_t drumMenu(uint32_t (*map)[2],uint32_t currPat,uint32_t numOfPatterns,TM_KEYPAD_Button_t *key){
+uint32_t drumMenuInput(uint32_t (*map)[2],uint32_t currPat,uint32_t numOfPatterns,TM_KEYPAD_Button_t *key){
 	BOOL input = FALSE;
 
 	while (1){
@@ -66,12 +66,12 @@ static uint32_t drumMenu(uint32_t (*map)[2],uint32_t currPat,uint32_t numOfPatte
 				input = TRUE;
 				*key = Keypad_Button;
 				switch(Keypad_Button){
-					case TM_KEYPAD_Button_5:	return currPat;
+					case TM_KEYPAD_Button_3:	return currPat;
 					case TM_KEYPAD_Button_0:	return 0;
-					case TM_KEYPAD_Button_6:	if(currPat < (numOfPatterns - 1))
+					case TM_KEYPAD_Button_2:	if(currPat < (numOfPatterns - 1))
 													currPat++;
 												break;
-					case TM_KEYPAD_Button_4:	if(currPat > 0)
+					case TM_KEYPAD_Button_1:	if(currPat > 0)
 													currPat--;
 												break;
 				}
@@ -87,7 +87,7 @@ static uint32_t drumMenu(uint32_t (*map)[2],uint32_t currPat,uint32_t numOfPatte
 
 				if(js.but == TRUE){
 					if(looper.DrumState == DRUMS_READY){
-						*key = TM_KEYPAD_Button_5;
+						*key = TM_KEYPAD_Button_3;
 						break;
 					}
 					if(looper.DrumState == DRUMS_STOPPED){
@@ -111,7 +111,7 @@ static uint32_t drumMenu(uint32_t (*map)[2],uint32_t currPat,uint32_t numOfPatte
 	return currPat;
 }
 
-static uint32_t drumLoop(uint32_t (*map)[2],uint32_t currPat,uint32_t numOfPatterns){
+uint32_t drumLoop(uint32_t (*map)[2],uint32_t currPat,uint32_t numOfPatterns){
 	seekPattern(map,currPat);
 	switch_buff = FALSE;
 	resetDrums();
@@ -186,65 +186,37 @@ static uint32_t drumLoop(uint32_t (*map)[2],uint32_t currPat,uint32_t numOfPatte
 
 }
 
-void playDrums(FIL *fil){
+uint32_t * readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution){
 
-	uint32_t numOfPatterns = 0;
-	uint32_t numOfBytes = 0;
-	uint32_t maxResolution = 0;
 	uint32_t header[3];		// number of patterns, number of bytes, max. resolution
-	uint32_t (*map)[2];
-	uint8_t choice;
-	uint32_t currPat;
+	uint32_t (*map)[2] = NULL;
+	uint32_t currPat = 0;
 	switch_buff = FALSE;
 	first_beat = FALSE;
 
 	//f_read(fil,header,sizeof(header),&bytesRead);
 	SRAM_seekRead(0,SRAM_SET);
 	readSRAM((uint8_t *)header,sizeof(header));
-	numOfBytes = header[HEADER_NUM_BYTES];
-	numOfPatterns = header[HEADER_NUM_PATTS];
-	maxResolution = header[HEADER_MAX_BEATS];
+	*numOfBytes = header[HEADER_NUM_BYTES];
+	*numOfPatterns = header[HEADER_NUM_PATTS];
+	*maxResolution = header[HEADER_MAX_BEATS];
 
-	if(numOfPatterns == 0){
-		menuMultiLine(1,100,"No patterns found!");
-		menuWaitReturn();
-		return;
-	}
-	if(maxResolution > MAX_SUBBEATS){
-		menuMultiLine(1,100,"Too many subbeats!");
-		menuWaitReturn();
-		return;
-	}
-	// create memory map
-	map = malloc(numOfPatterns * 2);
+	if(*numOfPatterns > 0 && *maxResolution <= MAX_SUBBEATS)
+		map = malloc(*numOfPatterns * 2);
+	else
+		map = NULL;
+	// map is NULL if malloc fails or numOfPatterns == 0 or maxResolution > MAX_SUBBEATS
 	if(map == NULL)
-		return;
+		return NULL;
 
-	for(currPat = 0; currPat < numOfPatterns; currPat++){
+	// create memory map
+	for(currPat = 0; currPat < *numOfPatterns; currPat++){
 		map[currPat][0] = SRAM_readerPosition();
 		readSRAM((uint8_t *)&pat1,sizeof(Pattern));
 		readSRAM((uint8_t *)drumBuffA,pat1.beats * pat1.division * 5);
 	}
 
-
-	currPat = 0;
-
-	do{
-		// return pattern from which to play and use it as parameter to drum loop
-		currPat = drumMenu(map,currPat,numOfPatterns,&choice);
-		switch(choice){
-			case TM_KEYPAD_Button_0: break;
-
-			case TM_KEYPAD_Button_5: // return last played pattern and use it as parameter to menu
-									 currPat = drumLoop(map,currPat,numOfPatterns);
-							 	 	 break;
-			default:				 break;
-		}
-	}
-	while(choice != TM_KEYPAD_Button_0);
-
-	free(map);
-
+	return (uint32_t *)map;
 
 }
 
