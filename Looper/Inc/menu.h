@@ -14,7 +14,7 @@ extern char *messages[];
 
 typedef enum {NODE_EMPTY=-1,MAIN_MENU,NODE1,NODE2,NODE3,NODE4,NODE5,NODE6,NODE7} NODE_TYPE;
 
-enum {MAIN = 0, BACK,DOWNL_RTH,PLAY_RTH,ONE_BAR_BACK,ONE_BAR_FORW,START,NO_PATTS,TOO_MANY_SUBB};
+enum {MAIN = 0, BACK,DOWNL_RTH,PLAY_RTH,ONE_BAR_BACK,ONE_BAR_FORW,TOGGLE_START_END,START,NO_PATTS,TOO_MANY_SUBB};
 
 typedef struct {
 	char *title;
@@ -29,7 +29,7 @@ void menuWaitReturn();
 void menuMultiLine(uint8_t lines,uint8_t offset,...);
 void menuInitMsg();
 
-uint32_t drumMenuInput(uint32_t (*map)[2],uint32_t currPat,uint32_t numOfPatterns,TM_KEYPAD_Button_t *key);
+void drumMenuInput(uint32_t (*map)[2],uint32_t *startPat,uint32_t *endPat,uint32_t numOfPatterns,BOOL *play);
 
 // menu macros
 #define MESSG(X)			messages[X]

@@ -41,7 +41,7 @@ void print_letters(void) {
 
 void download_rhythm(void) {
 	looper.Function = DOWNLOAD_SRAM;
-	menuMultiLine(2,100,"Press [Send via USB] button","in Rhythm application.");
+	menuMultiLine(2,110,"Press [Send via USB] button","in Rhythm application.");
 	SRAM_download_rhythm();
 	looper.Function = NONE;
 	Skip_Read_Button = TRUE;
@@ -49,39 +49,35 @@ void download_rhythm(void) {
 
 void play_rhythm(void) {
 	uint32_t (*map)[2];
-	uint32_t currPat = 0;
+	uint32_t startPat = 0, endPat = 0;
 	uint32_t numOfPatterns;
 	uint32_t numOfBytes;
 	uint32_t maxResolution;
-	uint8_t choice;
+	BOOL play;
 	looper.DrumState = DRUMS_READY;
 	map = (uint32_t (*)[])readDrums(&numOfPatterns,&numOfBytes,&maxResolution);
+	endPat = numOfPatterns - 1;
 
 	if(numOfPatterns == 0){
-		menuMultiLine(1,100,messages[NO_PATTS]);
+		menuMultiLine(1,110,messages[NO_PATTS]);
 		menuWaitReturn();
-		return;
+		goto end_play_rhythm;
 	}
 	if(maxResolution > MAX_SUBBEATS){
-		menuMultiLine(1,100,messages[NO_PATTS]);
+		menuMultiLine(1,110,messages[TOO_MANY_SUBB]);
 		menuWaitReturn();
-		return;
+		goto end_play_rhythm;
 	}
 
 	do{
-			// return pattern from which to play and use it as parameter to drum loop
-			currPat = drumMenuInput(map,currPat,numOfPatterns,&choice);
-			switch(choice){
-				case TM_KEYPAD_Button_0: break;
+		// return star and end patterns and use them as parameters to drum loop
+		drumMenuInput(map,&startPat,&endPat,numOfPatterns,&play);
+		if(play == TRUE)
+			startPat = drumLoop(map,startPat,endPat);
 
-				case TM_KEYPAD_Button_3: // return last played pattern and use it as parameter to menu
-										 currPat = drumLoop(map,currPat,numOfPatterns);
-								 	 	 break;
-				default:				 break;
-			}
-		}
-		while(choice != TM_KEYPAD_Button_0);
+	}while(play != FALSE);
 
+	end_play_rhythm:
 	free(map);
 	looper.DrumState = DRUMS_STOPPED;
 	Keypad_Button = TM_KEYPAD_Button_0;
