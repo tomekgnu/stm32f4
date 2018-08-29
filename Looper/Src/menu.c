@@ -71,11 +71,11 @@ void menuInit(){
 	initParentNode(NODE1,messages[DOWNL_RTH],download_rhythm);
 	initParentNode(NODE2,messages[PLAY_RTH],play_rhythm);
 
-	initParentNode(NODE3,messages[ONE_BAR_BACK],NULL);
-	initParentNode(NODE4,messages[ONE_BAR_FORW],NULL);
+	initParentNode(NODE3,messages[ONE_BAR_BACK_START],NULL);
+	initParentNode(NODE4,messages[ONE_BAR_FORW_START],NULL);
 	initParentNode(NODE5,messages[START],NULL);
-	initParentNode(NODE6,messages[TOGGLE_START_END],NULL);
-
+	initParentNode(NODE6,messages[ONE_BAR_BACK_END],NULL);
+	initParentNode(NODE7,messages[ONE_BAR_FORW_END],NULL);
 
 	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,NODE1);
 	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,NODE2);
@@ -84,7 +84,7 @@ void menuInit(){
 	connectChildNode(NODE2,TM_KEYPAD_Button_2,NODE4);
 	connectChildNode(NODE2,TM_KEYPAD_Button_3,NODE5);
 	connectChildNode(NODE2,TM_KEYPAD_Button_4,NODE6);
-
+	connectChildNode(NODE2,TM_KEYPAD_Button_5,NODE7);
 }
 
 void menuShow(TM_KEYPAD_Button_t opt_key){
@@ -143,8 +143,8 @@ void menuShowTimers(){
 	}
 
 }
-static inline void forwardBar(BOOL start_end,uint32_t *startPat,uint32_t *endPat,uint32_t numOfPatterns){
-	if(start_end == TRUE){
+static inline void forwardBar(BOOL start,uint32_t *startPat,uint32_t *endPat,uint32_t numOfPatterns){
+	if(start == TRUE){
 		if(*startPat < *endPat)
 			(*startPat)++;
 		}
@@ -154,8 +154,8 @@ static inline void forwardBar(BOOL start_end,uint32_t *startPat,uint32_t *endPat
 }
 
 
-static inline void backwardBar(BOOL start_end,uint32_t *startPat,uint32_t *endPat){
-	if(start_end == TRUE){
+static inline void backwardBar(BOOL start,uint32_t *startPat,uint32_t *endPat){
+	if(start == TRUE){
 		if(*startPat > 0)
 			(*startPat)--;
 		}
@@ -164,10 +164,8 @@ static inline void backwardBar(BOOL start_end,uint32_t *startPat,uint32_t *endPa
 }
 
 void drumMenuInput(uint32_t (*map)[2],uint32_t *startPat,uint32_t *endPat,uint32_t numOfPatterns,BOOL *play){
-	BOOL input = FALSE;
-	BOOL start_end = TRUE;	// manipulate start or end pattern?
-	*endPat = (numOfPatterns - 1);
-	input = TRUE;
+	BOOL input = TRUE;
+	BOOL startBar = TRUE;
 
 	while (TRUE){
 			Keypad_Button = TM_KEYPAD_Read();
@@ -176,13 +174,18 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t *startPat,uint32_t *endPat,uint32
 				switch(Keypad_Button){
 
 					case TM_KEYPAD_Button_0:	*play = FALSE; return;
-					case TM_KEYPAD_Button_1:	backwardBar(start_end,startPat,endPat);
+					case TM_KEYPAD_Button_1:	startBar = TRUE;
+												backwardBar(startBar,startPat,endPat);
 												break;
-					case TM_KEYPAD_Button_2:	forwardBar(start_end,startPat,endPat,numOfPatterns);
+					case TM_KEYPAD_Button_2:	startBar = TRUE;
+												forwardBar(startBar,startPat,endPat,numOfPatterns);
 												break;
 					case TM_KEYPAD_Button_3:	*play = TRUE;  return;
-					case TM_KEYPAD_Button_4:	start_end = !start_end;  break;
-
+					case TM_KEYPAD_Button_4:	startBar = FALSE;
+												backwardBar(startBar,startPat,endPat);
+												break;
+					case TM_KEYPAD_Button_5:	startBar = FALSE;
+												forwardBar(startBar,startPat,endPat,numOfPatterns); break;
 				}
 
 			}
@@ -190,16 +193,16 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t *startPat,uint32_t *endPat,uint32
 				input = TRUE;
 				JOYSTICK js = Read_Joystick();
 				if(js.ypos > CENTER)
-					forwardBar(start_end,startPat,endPat,numOfPatterns);
+					forwardBar(startBar,startPat,endPat,numOfPatterns);
 				else if(js.ypos < CENTER)
-					backwardBar(start_end,startPat,endPat);
+					backwardBar(startBar,startPat,endPat);
 
 				if(js.but == TRUE){
 					if(looper.DrumState == DRUMS_READY){
 						*play = TRUE;
 						 break;
 					}
-					else if(looper.DrumState == DRUMS_STOPPED){
+					if(looper.DrumState == DRUMS_STOPPED){
 						looper.DrumState = DRUMS_READY;
 						Wait_Joystick();
 					}
@@ -210,17 +213,20 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t *startPat,uint32_t *endPat,uint32
 			}
 
 			if(input == TRUE){
-				if(start_end == TRUE)
+				if(startBar == TRUE){
 					sprintf(lcdline,"*Start: %u     ",(unsigned int)((*startPat) + 1));
-				else
-					sprintf(lcdline," Start: %u     ",(unsigned int)((*startPat) + 1));
-				TM_ILI9341_Puts(10, 130, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-
-				if(start_end == TRUE)
+					TM_ILI9341_Puts(10, 150, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 					sprintf(lcdline," End:	%u     ",(unsigned int)((*endPat) + 1));
-				else
+					TM_ILI9341_Puts(10, 170, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+				}
+				else{
+					sprintf(lcdline," Start: %u     ",(unsigned int)((*startPat) + 1));
+					TM_ILI9341_Puts(10, 150, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 					sprintf(lcdline,"*End:	%u     ",(unsigned int)((*endPat) + 1));
-				TM_ILI9341_Puts(10, 150, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+					TM_ILI9341_Puts(10, 170, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+
+				}
+
 				input = FALSE;
 			}
 		}

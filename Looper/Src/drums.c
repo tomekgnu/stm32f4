@@ -61,8 +61,8 @@ uint32_t drumLoop(uint32_t (*map)[2],uint32_t startPat,uint32_t endPat){
 	resetDrums();
 	HAL_TIM_Base_Start_IT(&htim2);
 
-	TM_ILI9341_DrawFilledRectangle(10,10,480,48,ILI9341_COLOR_MAGENTA);
-	TM_ILI9341_Puts(10, 10,"[User button] Stop", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+	//TM_ILI9341_DrawFilledRectangle(10,10,480,48,ILI9341_COLOR_MAGENTA);
+	//TM_ILI9341_Puts(10, 10,"[User button] Stop", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	looper.DrumState = DRUMS_STARTED;
 
 
@@ -95,7 +95,7 @@ uint32_t drumLoop(uint32_t (*map)[2],uint32_t startPat,uint32_t endPat){
 
 				wait_first_beat:
 				sprintf(lcdline," Playing bar:\t%u\t",(unsigned int)(startPat + 1));
-				TM_ILI9341_Puts(10, 110, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+				TM_ILI9341_Puts(10, 130, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 
 				while(first_beat == FALSE && looper.DrumState == DRUMS_STARTED){
 					continue;
@@ -126,7 +126,7 @@ uint32_t drumLoop(uint32_t (*map)[2],uint32_t startPat,uint32_t endPat){
 		looper.Playback = FALSE;
 		looper.Recording = FALSE;
 
-		return startPat;
+		return tmp;	// return original start pattern
 
 }
 

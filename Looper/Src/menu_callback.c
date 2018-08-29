@@ -59,12 +59,12 @@ void play_rhythm(void) {
 	endPat = numOfPatterns - 1;
 
 	if(numOfPatterns == 0){
-		menuMultiLine(1,110,messages[NO_PATTS]);
+		menuMultiLine(1,130,messages[NO_PATTS]);
 		menuWaitReturn();
 		goto end_play_rhythm;
 	}
 	if(maxResolution > MAX_SUBBEATS){
-		menuMultiLine(1,110,messages[TOO_MANY_SUBB]);
+		menuMultiLine(1,130,messages[TOO_MANY_SUBB]);
 		menuWaitReturn();
 		goto end_play_rhythm;
 	}
@@ -72,8 +72,10 @@ void play_rhythm(void) {
 	do{
 		// return star and end patterns and use them as parameters to drum loop
 		drumMenuInput(map,&startPat,&endPat,numOfPatterns,&play);
-		if(play == TRUE)
+		if(play == TRUE){
+			menuMultiLine(2,190,"User button/joystick","to stop");
 			startPat = drumLoop(map,startPat,endPat);
+		}
 
 	}while(play != FALSE);
 
