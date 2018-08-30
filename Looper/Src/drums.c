@@ -63,8 +63,10 @@ uint32_t drumLoop(uint32_t (*map)[2],uint32_t startPat,uint32_t endPat){
 
 	//TM_ILI9341_DrawFilledRectangle(10,10,480,48,ILI9341_COLOR_MAGENTA);
 	//TM_ILI9341_Puts(10, 10,"[User button] Stop", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	looper.DrumState = DRUMS_STARTED;
-
+	//looper.DrumState = DRUMS_STARTED;
+	while(looper.DrumState != DRUMS_STARTED){
+		continue;
+	}
 
 		while(looper.DrumState == DRUMS_STARTED  && startPat < (endPat + 1)){
 

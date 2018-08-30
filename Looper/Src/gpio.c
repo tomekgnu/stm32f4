@@ -568,6 +568,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 		BUT_DOWN(BUT_TOGFUN);
 		looper.StartLooper = FALSE;
 		switch(looper.Function){
+			case NONE:
 			case SINGLE_CHANNEL:
 			case CHANNEL_B:
 				looper.Function = CHANNEL_A;

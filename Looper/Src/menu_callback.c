@@ -53,8 +53,8 @@ void play_rhythm(void) {
 	uint32_t numOfPatterns;
 	uint32_t numOfBytes;
 	uint32_t maxResolution;
-	BOOL play;
-	looper.DrumState = DRUMS_READY;
+	BOOL play = FALSE;
+
 	map = (uint32_t (*)[])readDrums(&numOfPatterns,&numOfBytes,&maxResolution);
 	endPat = numOfPatterns - 1;
 
@@ -70,11 +70,14 @@ void play_rhythm(void) {
 	}
 
 	do{
+		looper.DrumState = DRUMS_READY;
 		// return star and end patterns and use them as parameters to drum loop
+		// waits until play == TRUE (button "3" or joystick)
 		drumMenuInput(map,&startPat,&endPat,numOfPatterns,&play);
 		if(play == TRUE){
 			menuMultiLine(2,190,"User button/joystick","to stop");
 			startPat = drumLoop(map,startPat,endPat);
+			// end playing on pressing user button or joystick
 		}
 
 	}while(play != FALSE);

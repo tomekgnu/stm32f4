@@ -198,17 +198,15 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t *startPat,uint32_t *endPat,uint32
 					backwardBar(startBar,startPat,endPat);
 
 				if(js.but == TRUE){
-					if(looper.DrumState == DRUMS_READY){
+					if((looper.DrumState == DRUMS_READY || looper.DrumState == DRUMS_STOPPED) && *play == FALSE){
 						*play = TRUE;
 						 break;
 					}
-					if(looper.DrumState == DRUMS_STOPPED){
-						looper.DrumState = DRUMS_READY;
-						Wait_Joystick();
-					}
+					if(looper.DrumState == DRUMS_READY && *play == TRUE)
+						*play = FALSE;
+
 				}
 
-				Wait_Joystick();
 
 			}
 
