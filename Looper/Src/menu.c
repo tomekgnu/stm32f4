@@ -67,26 +67,30 @@ void menuInit(){
 	memset(menu_nodes,(int)NODE_EMPTY,sizeof(menu_nodes));
 	current_node_index = MAIN_MENU;
 
+	// top 3 nodes: AUDIO RHYTHM AUDIO+RHYTHM
 	initParentNode(MAIN_MENU,messages[MAIN],NULL);
-	initParentNode(NODE1,messages[DOWNL_RTH],download_rhythm);
-	initParentNode(NODE2,messages[PLAY_RTH],play_rhythm);
+		initParentNode(NODE1,"Audio",NULL);
+		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,NODE1);
+			initParentNode(NODE4,messages[CHANNEL_SELECT],select_channel);
+			connectChildNode(NODE1,TM_KEYPAD_Button_1,NODE4);
+		initParentNode(NODE2,"Rhythm",NULL);
+		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,NODE2);
+			initParentNode(NODE7,messages[DOWNL_RTH],download_rhythm);
+			connectChildNode(NODE2,TM_KEYPAD_Button_1,NODE7);
+			initParentNode(NODE8,messages[PLAY_RTH],play_rhythm);
+			connectChildNode(NODE2,TM_KEYPAD_Button_2,NODE8);
+				initParentNode(NODE9,messages[ONE_BAR_BACK_START],NULL);
+				connectChildNode(NODE8,TM_KEYPAD_Button_1,NODE9);
+				initParentNode(NODE10,messages[ONE_BAR_FORW_START],NULL);
+				connectChildNode(NODE8,TM_KEYPAD_Button_2,NODE10);
+				initParentNode(NODE11,messages[START],NULL);
+				connectChildNode(NODE8,TM_KEYPAD_Button_3,NODE11);
+				initParentNode(NODE12,messages[ONE_BAR_BACK_END],NULL);
+				connectChildNode(NODE8,TM_KEYPAD_Button_4,NODE12);
+				initParentNode(NODE13,messages[ONE_BAR_FORW_END],NULL);
+				connectChildNode(NODE8,TM_KEYPAD_Button_5,NODE13);
 
-	initParentNode(NODE3,messages[ONE_BAR_BACK_START],NULL);
-	initParentNode(NODE4,messages[ONE_BAR_FORW_START],NULL);
-	initParentNode(NODE5,messages[START],NULL);
-	initParentNode(NODE6,messages[ONE_BAR_BACK_END],NULL);
-	initParentNode(NODE7,messages[ONE_BAR_FORW_END],NULL);
 
-	initParentNode(NODE8,messages[CHANNEL_SELECT],select_channel);
-	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,NODE1);
-	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,NODE2);
-
-	connectChildNode(NODE2,TM_KEYPAD_Button_1,NODE3);
-	connectChildNode(NODE2,TM_KEYPAD_Button_2,NODE4);
-	connectChildNode(NODE2,TM_KEYPAD_Button_3,NODE5);
-	connectChildNode(NODE2,TM_KEYPAD_Button_4,NODE6);
-	connectChildNode(NODE2,TM_KEYPAD_Button_5,NODE7);
-	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_3,NODE8);
 }
 
 void menuShow(TM_KEYPAD_Button_t opt_key){

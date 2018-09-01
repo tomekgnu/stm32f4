@@ -4,7 +4,7 @@ char *messages[30];
 
 void menuInitMsg(){
 
-	messages[MAIN] = "Main menu";
+	messages[MAIN] = "Main looper menu";
 	messages[BACK] = "Go back";
 	messages[DOWNL_RTH] = "Download rhythm";
 	messages[PLAY_RTH] = "Play rhythm";

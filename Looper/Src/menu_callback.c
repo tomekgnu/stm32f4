@@ -70,9 +70,10 @@ void select_channel(void){
 									 looper.ch2.Active = FALSE;
 									 looper.ch1.Monitor = TRUE;
 									 looper.ch2.Monitor = FALSE;
-									 ADS1256_SetChannel(0);
+									 ADS1256_SetDiffChannel(0);
 									 menuMultiLine(1,110,"Active channel: 1");
 									 ADS1256_WriteCmd(CMD_SELFCAL);
+									 ADS1256_WriteCmd(CMD_SELFOCAL);
 									 break;
 
 
@@ -81,9 +82,10 @@ void select_channel(void){
 									looper.ch2.Active = TRUE;
 									looper.ch1.Monitor = FALSE;
 									looper.ch2.Monitor = TRUE;
-									ADS1256_SetChannel(1);
+									ADS1256_SetDiffChannel(1);
 									menuMultiLine(1,110,"Active channel: 2");
 									ADS1256_WriteCmd(CMD_SELFCAL);
+									ADS1256_WriteCmd(CMD_SELFOCAL);
 									break;
 			case TM_KEYPAD_Button_C:menuMultiLine(1,110,"Active: Both     ");
 									break;

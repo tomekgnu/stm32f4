@@ -215,8 +215,9 @@ int main(void)
 
 
   ADS1256_CfgADC(ADS1256_GAIN_2, ADS1256_15000SPS);
-  ADS1256_SetChannel(0);
+  ADS1256_SetDiffChannel(0);
   ADS1256_WriteCmd(CMD_SELFCAL);
+  ADS1256_WriteCmd(CMD_SELFOCAL);
 
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);
   ADS1256_WriteCmd(CMD_RDATAC);
