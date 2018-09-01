@@ -15,6 +15,8 @@
 #include "tm_stm32_hd44780.h"
 #include "menu_callback.h"
 #include "stdlib.h"
+#include "ads1256_test.h"
+#include "audio.h"
 
 extern TM_KEYPAD_Button_t Keypad_Button;
 extern BOOL Skip_Read_Button;
@@ -44,6 +46,51 @@ void download_rhythm(void) {
 	menuMultiLine(2,110,"Press [Send via USB] button","in Rhythm application.");
 	SRAM_download_rhythm();
 	looper.Function = NONE;
+	Skip_Read_Button = TRUE;
+}
+
+void select_channel(void){
+	TM_KEYPAD_Button_t key;
+	if(ACTIVE_CHANNEL_1)
+		sprintf(lcdline,"%s","Active channel: 1");
+	else if(ACTIVE_CHANNEL_2)
+		sprintf(lcdline,"%s","Active channel: 2");
+	else if(ACTIVE_BOTH_CHANNELS)
+		sprintf(lcdline,"%s","Active: Both     ");
+
+	menuMultiLine(1,110,lcdline);
+	menuMultiLine(3,130,"[A] Channel 1","[B] Channel 2","[C] Both");
+
+	while(TRUE){
+		key = TM_KEYPAD_Read();
+		switch(key){
+			case TM_KEYPAD_Button_0: return;
+			case TM_KEYPAD_Button_A: looper.StartLooper = FALSE;
+									 looper.ch1.Active = TRUE;
+									 looper.ch2.Active = FALSE;
+									 looper.ch1.Monitor = TRUE;
+									 looper.ch2.Monitor = FALSE;
+									 ADS1256_SetChannel(0);
+									 menuMultiLine(1,110,"Active channel: 1");
+									 ADS1256_WriteCmd(CMD_SELFCAL);
+									 break;
+
+
+			case TM_KEYPAD_Button_B:looper.StartLooper = FALSE;
+									looper.ch1.Active = FALSE;
+									looper.ch2.Active = TRUE;
+									looper.ch1.Monitor = FALSE;
+									looper.ch2.Monitor = TRUE;
+									ADS1256_SetChannel(1);
+									menuMultiLine(1,110,"Active channel: 2");
+									ADS1256_WriteCmd(CMD_SELFCAL);
+									break;
+			case TM_KEYPAD_Button_C:menuMultiLine(1,110,"Active: Both     ");
+									break;
+
+		}
+	}
+
 	Skip_Read_Button = TRUE;
 }
 

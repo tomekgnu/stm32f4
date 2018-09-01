@@ -5,7 +5,7 @@
 void print_letters(void);
 void download_rhythm(void);
 void play_rhythm(void);
-
+void select_channel(void);
 
 
 #endif

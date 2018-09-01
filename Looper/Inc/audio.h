@@ -4,6 +4,11 @@
 #include "stm32f429xx.h"
 
 #define	SIGNED16_UNSIGNED12(x)		((x / 4) + 2048)
+
+#define ACTIVE_CHANNEL_1			looper.ch1.Active == TRUE && looper.ch2.Active == FALSE?TRUE:FALSE
+#define ACTIVE_CHANNEL_2			looper.ch1.Active == FALSE && looper.ch2.Active == TRUE?TRUE:FALSE
+#define ACTIVE_BOTH_CHANNELS		looper.ch1.Active == TRUE && looper.ch2.Active == TRUE?TRUE:FALSE
+
 enum { ONE,TWO,THREE,FOUR };
 typedef struct {
 	uint8_t Number: 1;

@@ -144,7 +144,7 @@ int main(void)
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-	looper.Function = SINGLE_CHANNEL;
+	looper.Function = CHANNEL_A;
 
   /* USER CODE END 1 */
 
@@ -215,7 +215,7 @@ int main(void)
 
 
   ADS1256_CfgADC(ADS1256_GAIN_2, ADS1256_15000SPS);
-  ADS1256_SetDiffChannel(0);
+  ADS1256_SetChannel(0);
   ADS1256_WriteCmd(CMD_SELFCAL);
 
   HAL_NVIC_EnableIRQ(EXTI2_IRQn);

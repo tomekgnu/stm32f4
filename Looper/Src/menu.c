@@ -77,6 +77,7 @@ void menuInit(){
 	initParentNode(NODE6,messages[ONE_BAR_BACK_END],NULL);
 	initParentNode(NODE7,messages[ONE_BAR_FORW_END],NULL);
 
+	initParentNode(NODE8,messages[CHANNEL_SELECT],select_channel);
 	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,NODE1);
 	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,NODE2);
 
@@ -85,6 +86,7 @@ void menuInit(){
 	connectChildNode(NODE2,TM_KEYPAD_Button_3,NODE5);
 	connectChildNode(NODE2,TM_KEYPAD_Button_4,NODE6);
 	connectChildNode(NODE2,TM_KEYPAD_Button_5,NODE7);
+	connectChildNode(MAIN_MENU,TM_KEYPAD_Button_3,NODE8);
 }
 
 void menuShow(TM_KEYPAD_Button_t opt_key){
@@ -106,6 +108,10 @@ void menuShow(TM_KEYPAD_Button_t opt_key){
 	return;
 }
 
+// write short message text at the bottom
+void menuStatusLine(char *text){
+	TM_ILI9341_Puts(0, 220,text, &TM_Font_11x18, ILI9341_COLOR_YELLOW, ILI9341_COLOR_BLACK);
+}
 
 void menuMultiLine(uint8_t lines,uint8_t offset,...){
 	uint8_t i;

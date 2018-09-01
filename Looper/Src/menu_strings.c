@@ -15,6 +15,6 @@ void menuInitMsg(){
 	messages[START] = "Start";
 	messages[NO_PATTS] = "No patterns found!";
 	messages[TOO_MANY_SUBB] = "Too many subbeats!";
-
+	messages[CHANNEL_SELECT] = "Select channel";
 }
 
