@@ -16,6 +16,16 @@
 uint32_t sdram_pointer = 0;
 int16_t sample16s;	// sample obtained from ADS1256
 
+void inline resetSamples(){
+	if(looper.Playback == TRUE){
+				looper.ch1.SamplesRead = 0;
+				looper.ch2.SamplesRead = 0;
+			}
+			if(looper.Recording == TRUE){
+				looper.ch1.SamplesRead = 0;
+				looper.ch2.SamplesRead = 0;
+			}
+}
 
 void signed16_unsigned12(int16_t *buf,int32_t start,int32_t stop){
 	for(;start < stop;start++)
@@ -32,7 +42,7 @@ void record_sample(int16_t swrite,__IO CHANNEL *cha){
 	if(sdram_pointer == SDRAM_SIZE){
 		sdram_pointer = 0;
 		cha->SamplesRead = 0;
-		resetDrums();
+		//resetDrums();
 	}
 }
 
@@ -68,7 +78,7 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha){
 		cha->mix32Max = 16383;
 		sdram_pointer = 0;
 		cha->SamplesRead = 0;
-		resetDrums();
+		//resetDrums();
 		return;
 	}
 
@@ -117,7 +127,7 @@ void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 		cha->SamplesRead = 0;
 		chb->SamplesRead = 0;
 		sdram_pointer = 0;
-		resetDrums();
+		//resetDrums();
 		looper.StartLooper = TRUE;
 		return;
 	}
@@ -125,7 +135,7 @@ void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 		sdram_pointer = 0;
 		cha->SamplesRead = 0;
 		chb->SamplesRead = 0;
-		resetDrums();
+		//resetDrums();
 	}
 }
 
@@ -194,7 +204,7 @@ void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 		active->mix32Max = 16383;
 		sdram_pointer = 0;
 		active->SamplesRead = 0;
-		resetDrums();
+		//resetDrums();
 		return;
 		}
 

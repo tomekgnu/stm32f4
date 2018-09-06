@@ -69,27 +69,28 @@ void menuInit(){
 
 	// top 3 nodes: AUDIO RHYTHM AUDIO+RHYTHM
 	initParentNode(MAIN_MENU,messages[MAIN],NULL);
-		initParentNode(NODE1,"Audio",NULL);
-		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,NODE1);
-			initParentNode(NODE4,messages[CHANNEL_SELECT],select_channel);
-			connectChildNode(NODE1,TM_KEYPAD_Button_1,NODE4);
-		initParentNode(NODE2,"Rhythm",NULL);
-		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,NODE2);
-			initParentNode(NODE7,messages[DOWNL_RTH],download_rhythm);
-			connectChildNode(NODE2,TM_KEYPAD_Button_1,NODE7);
-			initParentNode(NODE8,messages[PLAY_RTH],play_rhythm);
-			connectChildNode(NODE2,TM_KEYPAD_Button_2,NODE8);
-				initParentNode(NODE9,messages[ONE_BAR_BACK_START],NULL);
-				connectChildNode(NODE8,TM_KEYPAD_Button_1,NODE9);
-				initParentNode(NODE10,messages[ONE_BAR_FORW_START],NULL);
-				connectChildNode(NODE8,TM_KEYPAD_Button_2,NODE10);
-				initParentNode(NODE11,messages[START],NULL);
-				connectChildNode(NODE8,TM_KEYPAD_Button_3,NODE11);
-				initParentNode(NODE12,messages[ONE_BAR_BACK_END],NULL);
-				connectChildNode(NODE8,TM_KEYPAD_Button_4,NODE12);
-				initParentNode(NODE13,messages[ONE_BAR_FORW_END],NULL);
-				connectChildNode(NODE8,TM_KEYPAD_Button_5,NODE13);
-
+		initParentNode(AUDIO_NODE,"Audio",audio_only);
+		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,AUDIO_NODE);
+			initParentNode(SELECT_CHANNEL_NODE,messages[CHANNEL_SELECT],select_channel);
+			connectChildNode(AUDIO_NODE,TM_KEYPAD_Button_1,SELECT_CHANNEL_NODE);
+		initParentNode(RHYTHM_NODE,"Rhythm",NULL);
+		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,RHYTHM_NODE);
+			initParentNode(DOWNLOAD_RHYTHM,messages[DOWNL_RTH],download_rhythm);
+			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_1,DOWNLOAD_RHYTHM);
+			initParentNode(PLAY_RHYTHM,messages[PLAY_RTH],play_rhythm);
+			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_2,PLAY_RHYTHM);
+				initParentNode(MOVE_BAR_BACK_START,messages[ONE_BAR_BACK_START],NULL);
+				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_1,MOVE_BAR_BACK_START);
+				initParentNode(MOVE_BAR_FORW_START,messages[ONE_BAR_FORW_START],NULL);
+				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_2,MOVE_BAR_FORW_START);
+				initParentNode(START_RHYTHM_NODE,messages[START_RHYTHM],NULL);
+				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_3,START_RHYTHM_NODE);
+				initParentNode(MOVE_BAR_BACK_END,messages[ONE_BAR_BACK_END],NULL);
+				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_4,MOVE_BAR_BACK_END);
+				initParentNode(MOVE_BAR_FORW_END,messages[ONE_BAR_FORW_END],NULL);
+				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_5,MOVE_BAR_FORW_END);
+		initParentNode(AUDIO_RHYTHM_NODE,messages[AUDIO_RHYTHM],audio_drums);
+		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_3,AUDIO_RHYTHM_NODE);
 
 }
 
@@ -112,9 +113,29 @@ void menuShow(TM_KEYPAD_Button_t opt_key){
 	return;
 }
 
+void menuShowStatus(){
+	if(looper.Recording == FALSE && looper.Playback == FALSE){
+		menuStatusLine("All stopped");
+		return;
+	}
+	if(looper.Recording == TRUE){
+		menuStatusLine("Recording");
+		return;
+	}
+	if(looper.ch1.Overdub == TRUE || looper.ch2.Overdub == TRUE){
+		menuStatusLine("Overdubbing");
+		return;
+	}
+	if(looper.Playback == TRUE){
+		menuStatusLine("Playback");
+		return;
+	}
+}
+
 // write short message text at the bottom
 void menuStatusLine(char *text){
-	TM_ILI9341_Puts(0, 220,text, &TM_Font_11x18, ILI9341_COLOR_YELLOW, ILI9341_COLOR_BLACK);
+	sprintf(lcdline,"%-29s",text);
+	TM_ILI9341_Puts(0, 221,lcdline, &TM_Font_11x18, ILI9341_COLOR_YELLOW, ILI9341_COLOR_BLACK);
 }
 
 void menuMultiLine(uint8_t lines,uint8_t offset,...){
@@ -153,31 +174,32 @@ void menuShowTimers(){
 	}
 
 }
-static inline void forwardBar(BOOL start,uint32_t *startPat,uint32_t *endPat,uint32_t numOfPatterns){
+static inline void forwardBar(BOOL start,uint32_t numOfPatterns){
 	if(start == TRUE){
-		if(*startPat < *endPat)
-			(*startPat)++;
+		if(looper.startPattern < looper.endPattern)
+			looper.startPattern++;
 		}
-		else if(*endPat < (numOfPatterns - 1))
-			(*endPat)++;
+		else if(looper.endPattern < (numOfPatterns - 1))
+			looper.endPattern++;
 
 }
 
 
-static inline void backwardBar(BOOL start,uint32_t *startPat,uint32_t *endPat){
+static inline void backwardBar(BOOL start){
 	if(start == TRUE){
-		if(*startPat > 0)
-			(*startPat)--;
+		if(looper.startPattern > 0)
+			looper.startPattern--;
 		}
-	else if(*endPat > *startPat)
-		(*endPat)--;
+	else if(looper.endPattern > looper.startPattern)
+		looper.endPattern--;
 }
 
-void drumMenuInput(uint32_t (*map)[2],uint32_t *startPat,uint32_t *endPat,uint32_t numOfPatterns,BOOL *play){
+void drumMenuInput(uint32_t (*map)[2],uint32_t numOfPatterns,BOOL *play){
 	BOOL input = TRUE;
 	BOOL startBar = TRUE;
 
 	while (TRUE){
+
 			Keypad_Button = TM_KEYPAD_Read();
 			if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
 				input = TRUE;
@@ -185,17 +207,17 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t *startPat,uint32_t *endPat,uint32
 
 					case TM_KEYPAD_Button_0:	*play = FALSE; return;
 					case TM_KEYPAD_Button_1:	startBar = TRUE;
-												backwardBar(startBar,startPat,endPat);
+												backwardBar(startBar);
 												break;
 					case TM_KEYPAD_Button_2:	startBar = TRUE;
-												forwardBar(startBar,startPat,endPat,numOfPatterns);
+												forwardBar(startBar,numOfPatterns);
 												break;
 					case TM_KEYPAD_Button_3:	*play = TRUE;  return;
 					case TM_KEYPAD_Button_4:	startBar = FALSE;
-												backwardBar(startBar,startPat,endPat);
+												backwardBar(startBar);
 												break;
 					case TM_KEYPAD_Button_5:	startBar = FALSE;
-												forwardBar(startBar,startPat,endPat,numOfPatterns); break;
+												forwardBar(startBar,numOfPatterns); break;
 				}
 
 			}
@@ -203,9 +225,9 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t *startPat,uint32_t *endPat,uint32
 				input = TRUE;
 				JOYSTICK js = Read_Joystick();
 				if(js.ypos > CENTER)
-					forwardBar(startBar,startPat,endPat,numOfPatterns);
+					forwardBar(startBar,numOfPatterns);
 				else if(js.ypos < CENTER)
-					backwardBar(startBar,startPat,endPat);
+					backwardBar(startBar);
 
 				if(js.but == TRUE){
 					if((looper.DrumState == DRUMS_READY || looper.DrumState == DRUMS_STOPPED) && *play == FALSE){
@@ -222,15 +244,15 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t *startPat,uint32_t *endPat,uint32
 
 			if(input == TRUE){
 				if(startBar == TRUE){
-					sprintf(lcdline,"*Start: %u     ",(unsigned int)((*startPat) + 1));
+					sprintf(lcdline,"*Start: %u     ",(unsigned int)(looper.startPattern + 1));
 					TM_ILI9341_Puts(10, 150, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-					sprintf(lcdline," End:	%u     ",(unsigned int)((*endPat) + 1));
+					sprintf(lcdline," End:	%u     ",(unsigned int)(looper.endPattern + 1));
 					TM_ILI9341_Puts(10, 170, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 				}
 				else{
-					sprintf(lcdline," Start: %u     ",(unsigned int)((*startPat) + 1));
+					sprintf(lcdline," Start: %u     ",(unsigned int)(looper.startPattern + 1));
 					TM_ILI9341_Puts(10, 150, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-					sprintf(lcdline,"*End:	%u     ",(unsigned int)((*endPat) + 1));
+					sprintf(lcdline,"*End:	%u     ",(unsigned int)(looper.endPattern + 1));
 					TM_ILI9341_Puts(10, 170, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 
 				}

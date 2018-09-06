@@ -423,11 +423,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				looper.StartLooper = FALSE;
 				looper.DrumState = DRUMS_STOPPED;
 				looper.Function = NONE;
+				resetChannels();
 				stopDrums();
 				BSP_LED_Off(LED_RED);
 				BSP_LED_Off(LED_GREEN);
-				menuStatusLine("All stopped");
-			break;
+				show_status_line = TRUE;
+				break;
 
 		case ADS1256_DRDY_Pin:
 	//		if(function == PLAY_SD || function == PLAY_SRAM){
@@ -481,8 +482,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 			looper.StartLooper = FALSE;
 			sdram_pointer = 0;
-			resetDrums();
-			resetChannels(&looper.ch1,&looper.ch2);
+
+			//resetChannels(&looper.ch1,&looper.ch2);
 			if(looper.ch1.Active == TRUE){
 				looper.ch1.Clipping = FALSE;
 				looper.ch1.Overdub = FALSE;
@@ -507,11 +508,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 			//midiDrumPointer = 0;
 			//midiDrumClock = 0;
-			if(looper.DrumState == DRUMS_READY)
-				looper.DrumState = DRUMS_STARTED;
-			looper.Recording = 1;
-			looper.Playback = 0;
+
+			looper.Recording = TRUE;
+			looper.Playback = FALSE;
 			looper.StartLooper = 1;
+			show_status_line = TRUE;
 			break;
 		case Playback_Pin:
 			if(IS_BUT_DOWN(BUT_PLAY) == TRUE)
@@ -521,20 +522,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				return;
 			if(looper.ch1.SamplesWritten == 0 && looper.ch2.SamplesWritten == 0)
 				return;
-
-
 			sdram_pointer = 0;
-			resetDrums();
-	//		if(looper.DrumState == DRUMS_STARTED){
-	//			looper.DrumState = DRUMS_STOPPED;
-	//			looper.StartLooper = 0;
-	//			return;
-	//		}
-			if(looper.DrumState == DRUMS_READY)
-				looper.DrumState = DRUMS_STARTED;
-			looper.StartLooper = 0;
-			looper.ch1.SamplesRead = 0;
-			looper.ch2.SamplesRead = 0;
+
+			looper.StartLooper = TRUE;
+			//looper.ch1.SamplesRead = 0;
+			//looper.ch2.SamplesRead = 0;
+
+			//looper.startPattern = 0;
 			if(looper.ch1.Active == TRUE){
 				looper.ch1.Clipping = FALSE;
 				looper.ch1.Overdub = FALSE;
@@ -553,11 +547,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			looper.Recording = FALSE;
 			looper.Playback = TRUE;
 			looper.StartLooper = TRUE;
+			show_status_line = TRUE;
 			break;
 		case Overdubbing_Pin:
 			if(IS_BUT_DOWN(BUT_OVERDUB) == TRUE)
 				return;
 			BUT_DOWN(BUT_OVERDUB);
+			if(looper.ch1.SamplesWritten == 0 && looper.ch2.SamplesWritten == 0)
+				return;
 			if(looper.ch1.Active == TRUE){
 				if(looper.ch1.Overdub == FALSE)
 					looper.ch1.Overdub = TRUE;
@@ -570,6 +567,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				else
 					looper.ch2.Overdub = FALSE;
 			}
+			show_status_line = TRUE;
 			break;
 		case ToggleFunction_Pin:
 			if(IS_BUT_DOWN(BUT_TOGFUN) == TRUE)

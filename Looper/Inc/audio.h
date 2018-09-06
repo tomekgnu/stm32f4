@@ -25,6 +25,7 @@ typedef struct {
 	float gain;
 } CHANNEL;
 
+void resetSamples();
 void signed16_unsigned12(int16_t *buf,int32_t start,int32_t stop);
 void showMinMaxSamples(int32_t min,int32_t max);
 void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb);

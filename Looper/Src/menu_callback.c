@@ -22,7 +22,17 @@ extern TM_KEYPAD_Button_t Keypad_Button;
 extern BOOL Skip_Read_Button;
 
 
+void audio_only(void){
+	looper.Function = AUDIO_ONLY;
+}
 
+void drums_only(void){
+	looper.Function = DRUMS_ONLY;
+}
+
+void audio_drums(){
+	looper.Function = AUDIO_DRUMS;
+}
 void print_letters(void) {
 
 	int c = '0';
@@ -91,6 +101,7 @@ void select_channel(void){
 									break;
 
 		}
+
 	}
 
 	Skip_Read_Button = TRUE;
@@ -98,14 +109,14 @@ void select_channel(void){
 
 void play_rhythm(void) {
 	uint32_t (*map)[2];
-	uint32_t startPat = 0, endPat = 0;
 	uint32_t numOfPatterns;
 	uint32_t numOfBytes;
 	uint32_t maxResolution;
 	BOOL play = FALSE;
+	looper.startPattern = 0;
 
 	map = (uint32_t (*)[])readDrums(&numOfPatterns,&numOfBytes,&maxResolution);
-	endPat = numOfPatterns - 1;
+	looper.endPattern = numOfPatterns - 1;
 
 	if(numOfPatterns == 0){
 		menuMultiLine(1,130,messages[NO_PATTS]);
@@ -122,10 +133,14 @@ void play_rhythm(void) {
 		looper.DrumState = DRUMS_READY;
 		// return star and end patterns and use them as parameters to drum loop
 		// waits until play == TRUE (button "3" or joystick)
-		drumMenuInput(map,&startPat,&endPat,numOfPatterns,&play);
+		sdram_pointer = 0;
+		drumMenuInput(map,numOfPatterns,&play);
 		if(play == TRUE){
-			menuMultiLine(2,190,"User button/joystick","to stop");
-			startPat = drumLoop(map,startPat,endPat);
+			//menuMultiLine(2,190,"User button/joystick","to stop");
+			while(looper.StartLooper == FALSE)
+				continue;
+			drumLoop(map);
+
 			// end playing on pressing user button or joystick
 		}
 

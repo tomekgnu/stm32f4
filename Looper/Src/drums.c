@@ -52,30 +52,44 @@ static void seekPattern(uint32_t (*map)[2],uint32_t ind){
 	readSRAM((uint8_t *)&pat1,sizeof(Pattern));
 	setPatternTime(&pat1,&tim1);
 	readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
+	if(looper.ch1.Active == TRUE){
+		looper.ch1.SamplesRead = map[ind][1];
+		sdram_pointer = looper.ch1.SamplesRead * 2;
+	}
+	if(looper.ch2.Active == TRUE){
+		looper.ch2.SamplesRead =	map[ind][1];
+		sdram_pointer = looper.ch2.SamplesRead * 2;
+	}
 }
 
-uint32_t drumLoop(uint32_t (*map)[2],uint32_t startPat,uint32_t endPat){
-	uint32_t tmp = startPat;
-	seekPattern(map,startPat);
+void drumLoop(uint32_t (*map)[2]){
+	uint32_t tmp = looper.startPattern;
 	switch_buff = FALSE;
-	resetDrums();
-	HAL_TIM_Base_Start_IT(&htim2);
+	BOOL start = FALSE;
+	first_beat = FALSE;
+	seekPattern(map,looper.startPattern);
 
-	//TM_ILI9341_DrawFilledRectangle(10,10,480,48,ILI9341_COLOR_MAGENTA);
-	//TM_ILI9341_Puts(10, 10,"[User button] Stop", &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-	//looper.DrumState = DRUMS_STARTED;
-	while(looper.DrumState != DRUMS_STARTED){
-		continue;
-	}
-
-		while(looper.DrumState == DRUMS_STARTED  && startPat < (endPat + 1)){
+	while(looper.startPattern < (looper.startPattern + 1)){
+			if(looper.Recording == TRUE){
+				if(looper.ch1.Active == TRUE)
+					map[looper.startPattern][1] = looper.ch1.SamplesWritten;
+				if(looper.ch2.Active == TRUE)
+					map[looper.startPattern][1] = looper.ch2.SamplesWritten;
+			}
 
 			if(switch_buff == FALSE){
+				if(start == FALSE){
+						HAL_TIM_Base_Start_IT(&htim2);
+						looper.DrumState = DRUMS_STARTED;
+						resetDrums();
+						start = TRUE;
+					}
 					updatePatternTime(&pat1,&tim1);
 					timptr = &tim1;
 					patptr = &pat1;
 					drumBuffPtr = drumBuffA;
-					if(startPat == endPat)
+
+					if(looper.startPattern == looper.endPattern)
 						goto wait_first_beat;
 					readSRAM((uint8_t *)&pat2,sizeof(Pattern));
 					setPatternTime(&pat2,&tim2);
@@ -87,7 +101,7 @@ uint32_t drumLoop(uint32_t (*map)[2],uint32_t startPat,uint32_t endPat){
 					timptr = &tim2;
 					patptr = &pat2;
 					drumBuffPtr = drumBuffB;
-					if(startPat == endPat)
+					if(looper.startPattern == looper.endPattern)
 						goto wait_first_beat;
 					readSRAM((uint8_t *)&pat1,sizeof(Pattern));
 					setPatternTime(&pat1,&tim1);
@@ -96,26 +110,31 @@ uint32_t drumLoop(uint32_t (*map)[2],uint32_t startPat,uint32_t endPat){
 				}
 
 				wait_first_beat:
-				sprintf(lcdline," Playing bar:\t%u\t",(unsigned int)(startPat + 1));
+				sprintf(lcdline," Playing bar:\t%u\t",(unsigned int)(looper.startPattern + 1));
 				TM_ILI9341_Puts(10, 130, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 
 				while(first_beat == FALSE && looper.DrumState == DRUMS_STARTED){
 					continue;
 				}
-				if(looper.DrumState == DRUMS_STOPPED || looper.DrumState == DRUMS_PAUSED){
+
+				if(looper.DrumState == DRUMS_STOPPED || looper.DrumState == DRUMS_PAUSED)
 					goto end_drum_loop;
-				}
 
 				first_beat = FALSE;
-				startPat++;
-				if(startPat == (endPat + 1)){
-					startPat = tmp;	// restore original start pattern number
+
+				looper.startPattern++;
+
+				if(looper.startPattern == (looper.endPattern + 1)){
+					if(looper.Recording == TRUE){
+						looper.Recording = FALSE;
+						goto end_drum_loop;
+					}
+
+					looper.startPattern = tmp;	// restore original start pattern number
 					switch_buff = FALSE;
 					first_beat = FALSE;
-					SRAM_seekRead(map[startPat][0],SRAM_SET);
-					readSRAM((uint8_t *)&pat1,sizeof(Pattern));
-					setPatternTime(&pat1,&tim1);
-					readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
+					seekPattern(map,looper.startPattern);
+					resetDrums();
 				}
 
 		}
@@ -123,12 +142,10 @@ uint32_t drumLoop(uint32_t (*map)[2],uint32_t startPat,uint32_t endPat){
 
 		end_drum_loop:
 		stopDrums();
-
+		looper.startPattern = tmp;
 		looper.StartLooper = FALSE;
 		looper.Playback = FALSE;
 		looper.Recording = FALSE;
-
-		return tmp;	// return original start pattern
 
 }
 
@@ -198,7 +215,6 @@ void midiDrumHandler(){
 	if(looper.DrumState != DRUMS_STARTED){
 		return;
 	}
-
 
 	if(midiDrumClock < timptr->barDuration){
 		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->subBeatDuration + timptr->remainder):timptr->subBeatDuration) == 0){

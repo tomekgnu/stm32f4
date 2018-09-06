@@ -12,9 +12,10 @@ void menuInitMsg(){
 	messages[ONE_BAR_FORW_START] = "Move start forward";
 	messages[ONE_BAR_BACK_END] = "Move end back";
 	messages[ONE_BAR_FORW_END] = "Move end forward";
-	messages[START] = "Start";
+	messages[START_RHYTHM] = "Start rhythm";
 	messages[NO_PATTS] = "No patterns found!";
 	messages[TOO_MANY_SUBB] = "Too many subbeats!";
 	messages[CHANNEL_SELECT] = "Select channel";
+	messages[AUDIO_RHYTHM] = "Audio and rhythm";
 }
 

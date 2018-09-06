@@ -116,8 +116,8 @@ static spiffs fs;
 
 TM_KEYPAD_Button_t Keypad_Button;
 BOOL Skip_Read_Button = FALSE;
-BOOL jsw = FALSE;
-__IO JOYSTICK joystick;
+BOOL show_status_line = FALSE;
+
 __IO uint32_t joystick_data[2];
 /* USER CODE END 0 */
 
@@ -255,6 +255,10 @@ int main(void)
 
 	  }// end of key pressed
 
+	  if(show_status_line == TRUE){
+		  menuShowStatus();
+		  show_status_line = FALSE;
+	  }
 
   /* USER CODE END WHILE */
 

@@ -1,51 +1,51 @@
 /**
-  ******************************************************************************
-  * @file           : main.h
-  * @brief          : Header for main.c file.
-  *                   This file contains the common defines of the application.
-  ******************************************************************************
-  * This notice applies to any and all portions of this file
-  * that are not between comment pairs USER CODE BEGIN and
-  * USER CODE END. Other portions of this file, whether 
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
-  *
-  * Copyright (c) 2018 STMicroelectronics International N.V. 
-  * All rights reserved.
-  *
-  * Redistribution and use in source and binary forms, with or without 
-  * modification, are permitted, provided that the following conditions are met:
-  *
-  * 1. Redistribution of source code must retain the above copyright notice, 
-  *    this list of conditions and the following disclaimer.
-  * 2. Redistributions in binary form must reproduce the above copyright notice,
-  *    this list of conditions and the following disclaimer in the documentation
-  *    and/or other materials provided with the distribution.
-  * 3. Neither the name of STMicroelectronics nor the names of other 
-  *    contributors to this software may be used to endorse or promote products 
-  *    derived from this software without specific written permission.
-  * 4. This software, including modifications and/or derivative works of this 
-  *    software, must execute solely and exclusively on microcontroller or
-  *    microprocessor devices manufactured by or for STMicroelectronics.
-  * 5. Redistribution and use of this software other than as permitted under 
-  *    this license is void and will automatically terminate your rights under 
-  *    this license. 
-  *
-  * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS" 
-  * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT 
-  * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A 
-  * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
-  * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT 
-  * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
-  * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-  * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
-  * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF 
-  * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING 
-  * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
-  * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-  *
-  ******************************************************************************
-  */
+ ******************************************************************************
+ * @file           : main.h
+ * @brief          : Header for main.c file.
+ *                   This file contains the common defines of the application.
+ ******************************************************************************
+ * This notice applies to any and all portions of this file
+ * that are not between comment pairs USER CODE BEGIN and
+ * USER CODE END. Other portions of this file, whether
+ * inserted by the user or by software development tools
+ * are owned by their respective copyright owners.
+ *
+ * Copyright (c) 2018 STMicroelectronics International N.V.
+ * All rights reserved.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted, provided that the following conditions are met:
+ *
+ * 1. Redistribution of source code must retain the above copyright notice,
+ *    this list of conditions and the following disclaimer.
+ * 2. Redistributions in binary form must reproduce the above copyright notice,
+ *    this list of conditions and the following disclaimer in the documentation
+ *    and/or other materials provided with the distribution.
+ * 3. Neither the name of STMicroelectronics nor the names of other
+ *    contributors to this software may be used to endorse or promote products
+ *    derived from this software without specific written permission.
+ * 4. This software, including modifications and/or derivative works of this
+ *    software, must execute solely and exclusively on microcontroller or
+ *    microprocessor devices manufactured by or for STMicroelectronics.
+ * 5. Redistribution and use of this software other than as permitted under
+ *    this license is void and will automatically terminate your rights under
+ *    this license.
+ *
+ * THIS SOFTWARE IS PROVIDED BY STMICROELECTRONICS AND CONTRIBUTORS "AS IS"
+ * AND ANY EXPRESS, IMPLIED OR STATUTORY WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A
+ * PARTICULAR PURPOSE AND NON-INFRINGEMENT OF THIRD PARTY INTELLECTUAL PROPERTY
+ * RIGHTS ARE DISCLAIMED TO THE FULLEST EXTENT PERMITTED BY LAW. IN NO EVENT
+ * SHALL STMICROELECTRONICS OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+ * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
+ * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ ******************************************************************************
+ */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __MAIN_H__
@@ -68,25 +68,41 @@
 #define WRITE_SIZE			((SAMPLE_BYTES) / 4)
 #define MEM_BLOCK			READ_SIZE
 
-
-
-typedef enum {FALSE,TRUE} BOOL;
-typedef enum{BUT_UP,BUT_DOWN} BUTTON ;
-typedef enum{NONE,AUDIO,AUDIO_DRUMS,DRUMS,CHANNEL_A,CHANNEL_B,BOTH_CHANNELS,DOWNLOAD_SRAM,PLAY_SRAM,PLAY_SD,PLAY_SF3} FUNCTION;
+typedef enum {
+	FALSE, TRUE
+} BOOL;
+typedef enum {
+	BUT_UP, BUT_DOWN
+} BUTTON;
+typedef enum {
+	NONE,
+	AUDIO_ONLY,
+	AUDIO_DRUMS,
+	DRUMS_ONLY,
+	CHANNEL_A,
+	CHANNEL_B,
+	BOTH_CHANNELS,
+	DOWNLOAD_SRAM,
+	PLAY_SRAM,
+	PLAY_SD,
+	PLAY_SF3
+} FUNCTION;
 //typedef enum{NONE,SINGLE_CHANNEL,CHANNEL_A,CHANNEL_B,READ_SD,PLAY_SD,READ_SF3,PLAY_SF3,READ_SRAM,PLAY_SRAM,DOWNLOAD_SRAM} FUNCTION;
 typedef uint8_t byte;
 
 // ----- Global structure for looper application
 typedef struct {
-__IO BOOL Recording;
-__IO BOOL Playback;
-__IO BOOL Overdubbing;
-__IO BOOL StartLooper;
-__IO DrumFunction DrumState;
-__IO FUNCTION Function;
-__IO CHANNEL ch1;
-__IO CHANNEL ch2;
-__IO int32_t timeIncrement;	// if negative - plays faster, positive - slower
+	__IO BOOL Recording;
+	__IO BOOL Playback;
+	__IO BOOL Overdubbing;
+	__IO BOOL StartLooper;
+	__IO uint32_t startPattern;
+	__IO uint32_t endPattern;
+	__IO DrumFunction DrumState;
+	__IO FUNCTION Function;
+	__IO CHANNEL ch1;
+	__IO CHANNEL ch2;
+	__IO int32_t timeIncrement;	// if negative - plays faster, positive - slower
 } LooperApplication;
 
 void play_record();
@@ -100,6 +116,8 @@ extern LooperApplication looper;
 extern uint8_t switches;
 extern char lcdline[];
 extern __IO uint32_t joystick_data[];
+extern BOOL show_status_line;
+uint32_t sdram_pointer;
 
 #define delayUS_ASM(us) do {\
 	asm volatile (	"MOV R0,%[loops]\n\t"\
@@ -333,19 +351,17 @@ extern __IO uint32_t joystick_data[];
 
 /* ########################## Assert Selection ############################## */
 /**
-  * @brief Uncomment the line below to expanse the "assert_param" macro in the 
-  *        HAL drivers code
-  */
+ * @brief Uncomment the line below to expanse the "assert_param" macro in the
+ *        HAL drivers code
+ */
 /* #define USE_FULL_ASSERT    1U */
 
 /* USER CODE BEGIN Private defines */
 #define SDRAM_SIZE			((uint32_t)0x800000)
 
-typedef enum
-{
-  LED_GREEN = 0,
-  LED_RED = 1
-}Led_Colors;
+typedef enum {
+	LED_GREEN = 0, LED_RED = 1
+} Led_Colors;
 
 #define BUT_REC				1
 #define BUT_PLAY			2
@@ -368,7 +384,7 @@ typedef struct {
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus
- extern "C" {
+extern "C" {
 #endif
 void _Error_Handler(char *, int);
 
