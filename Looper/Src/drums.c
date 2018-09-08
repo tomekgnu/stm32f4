@@ -47,19 +47,13 @@ __IO DrumTimes *timptr;
 __IO Pattern *patptr;
 
 static void seekPattern(uint32_t (*map)[2],uint32_t ind){
+	uint32_t sample_count;
 	switch_buff = FALSE;
 	SRAM_seekRead(map[ind][0],SRAM_SET);
 	readSRAM((uint8_t *)&pat1,sizeof(Pattern));
 	setPatternTime(&pat1,&tim1);
 	readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
-	if(looper.ch1.Active == TRUE){
-		looper.ch1.SamplesRead = map[ind][1];
-		sdram_pointer = looper.ch1.SamplesRead * 2;
-	}
-	if(looper.ch2.Active == TRUE){
-		looper.ch2.SamplesRead =	map[ind][1];
-		sdram_pointer = looper.ch2.SamplesRead * 2;
-	}
+	sample_count = map[ind][1];
 }
 
 void drumLoop(uint32_t (*map)[2]){
@@ -74,12 +68,12 @@ void drumLoop(uint32_t (*map)[2]){
 
 
 	while(looper.DrumState == DRUMS_STARTED && looper.startPattern < (looper.startPattern + 1)){
-			if(looper.Recording == TRUE){
-				if(looper.ch1.Active == TRUE)
-					map[looper.startPattern][1] = looper.ch1.SamplesWritten;
-				if(looper.ch2.Active == TRUE)
-					map[looper.startPattern][1] = looper.ch2.SamplesWritten;
-			}
+//			if(looper.Recording == TRUE){
+//				if(looper.ch1.Active == TRUE)
+//					map[looper.startPattern][1] = looper.ch1.SamplesWritten;
+//				if(looper.ch2.Active == TRUE)
+//					map[looper.startPattern][1] = looper.ch2.SamplesWritten;
+//			}
 
 			if(switch_buff == FALSE){
 					updatePatternTime(&pat1,&tim1);
@@ -108,7 +102,7 @@ void drumLoop(uint32_t (*map)[2]){
 				}
 
 				wait_first_beat:
-				sprintf(lcdline," Playing bar:\t%u\t",(unsigned int)(looper.startPattern + 1));
+				sprintf(lcdline," Playing bar: %-4u",(unsigned int)(looper.startPattern + 1));
 				TM_ILI9341_Puts(10, 130, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 
 				while(first_beat == FALSE){
@@ -132,6 +126,12 @@ void drumLoop(uint32_t (*map)[2]){
 					first_beat = FALSE;
 					seekPattern(map,looper.startPattern);
 					resetDrums();
+					looper.ch1.SamplesRead = map[looper.startPattern][1];
+					sdram_pointer = looper.ch1.SamplesRead * 2;
+					if(looper.Playback == TRUE)
+						looper.ch1.SamplesWritten = map[looper.endPattern + 1][1];
+					else if(looper.Recording == TRUE)
+						looper.ch1.SamplesWritten = looper.ch1.SamplesRead;
 				}
 
 		}
@@ -147,7 +147,7 @@ void drumLoop(uint32_t (*map)[2]){
 }
 
 void readDrums(uint32_t (*map)[2],uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution){
-
+	Pattern tmp;
 	uint32_t header[3];		// number of patterns, number of bytes, max. resolution
 	//uint32_t (*map)[2] = NULL;
 	uint32_t currPat = 0;
@@ -167,8 +167,12 @@ void readDrums(uint32_t (*map)[2],uint32_t *numOfPatterns,uint32_t *numOfBytes,u
 	// create memory map
 	for(currPat = 0; currPat < *numOfPatterns; currPat++){
 		map[currPat][0] = SRAM_readerPosition();
-		readSRAM((uint8_t *)&pat1,sizeof(Pattern));
-		readSRAM((uint8_t *)drumBuffA,pat1.beats * pat1.division * 5);
+		readSRAM((uint8_t *)&tmp,sizeof(Pattern));
+		readSRAM((uint8_t *)drumBuffA,tmp.beats * tmp.division * 5);
+		if(currPat < (*numOfPatterns - 1)){
+			uint32_t millis = BEAT_MILLIS(tmp.beattime);
+			map[currPat + 1][1] = map[currPat][1] + ((1000 * millis * tmp.beats) / 66);
+		}
 	}
 
 	//return (uint32_t *)map;

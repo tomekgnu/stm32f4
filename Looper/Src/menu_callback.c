@@ -108,13 +108,14 @@ void select_channel(void){
 }
 
 void play_rhythm(void) {
-	uint32_t map[MAX_PATTERNS][2];
+	uint32_t map[MAX_PATTERNS + 1][2];
 	uint32_t numOfPatterns;
 	uint32_t numOfBytes;
 	uint32_t maxResolution;
 	BOOL play = FALSE;
 	looper.startPattern = 0;
 	sdram_pointer = 0;
+	looper.Function = AUDIO_RHYTHM;
 	//map = (uint32_t (*)[])
 	memset(map,0,sizeof(map));
 	readDrums(map,&numOfPatterns,&numOfBytes,&maxResolution);
@@ -142,6 +143,12 @@ void play_rhythm(void) {
 		// waits until play == TRUE (button "3" or joystick)
 		menuShowStatus();
 		drumMenuInput(map,numOfPatterns,&play);
+		looper.ch1.SamplesRead = map[looper.startPattern][1];
+		sdram_pointer = looper.ch1.SamplesRead * 2;
+		if(looper.Playback == TRUE)
+			looper.ch1.SamplesWritten = map[looper.endPattern + 1][1];
+		else if(looper.Recording == TRUE)
+			looper.ch1.SamplesWritten = looper.ch1.SamplesRead;
 		drumLoop(map);
 		// end playing on pressing user button or joystick
 

@@ -249,15 +249,15 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t numOfPatterns,BOOL *play){
 
 			if(input == TRUE){
 				if(startBar == TRUE){
-					sprintf(lcdline,"*Start: %u     ",(unsigned int)(looper.startPattern + 1));
+					sprintf(lcdline,"*Start: %-4u",(unsigned int)(looper.startPattern + 1));
 					TM_ILI9341_Puts(10, 150, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-					sprintf(lcdline," End:	%u     ",(unsigned int)(looper.endPattern + 1));
+					sprintf(lcdline," End: %-4u",(unsigned int)(looper.endPattern + 1));
 					TM_ILI9341_Puts(10, 170, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 				}
 				else{
-					sprintf(lcdline," Start: %u     ",(unsigned int)(looper.startPattern + 1));
+					sprintf(lcdline," Start: %-4u",(unsigned int)(looper.startPattern + 1));
 					TM_ILI9341_Puts(10, 150, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-					sprintf(lcdline,"*End:	%u     ",(unsigned int)(looper.endPattern + 1));
+					sprintf(lcdline,"*End: %-4u",(unsigned int)(looper.endPattern + 1));
 					TM_ILI9341_Puts(10, 170, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 
 				}

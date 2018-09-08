@@ -483,25 +483,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			looper.StartLooper = FALSE;
 			//sdram_pointer = 0;
 
-			//resetChannels(&looper.ch1,&looper.ch2);
-			if(looper.ch1.Active == TRUE){
-				looper.ch1.Clipping = FALSE;
-				looper.ch1.Overdub = FALSE;
-				looper.ch1.mix32Max = 16383;
-				looper.ch1.gain = 1.0;
-				looper.ch1.SamplesRead = 0;
-				looper.ch1.SamplesWritten = 0;
-				looper.ch1.CurrentSample = 0;
-			}
-			else{
-				looper.ch2.Clipping = FALSE;
-				looper.ch2.Overdub = FALSE;
-				looper.ch2.mix32Max = 16383;
-				looper.ch2.gain = 1.0;
-				looper.ch2.SamplesRead = 0;
-				looper.ch2.SamplesWritten = 0;
-				looper.ch2.CurrentSample = 0;
-			}
+			if(looper.Function == AUDIO_ONLY)
+				resetChannels(&looper.ch1,&looper.ch2);
 
 			BSP_LED_On(LED_RED);
 			BSP_LED_Off(LED_GREEN);
