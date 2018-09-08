@@ -481,7 +481,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				return;
 
 			looper.StartLooper = FALSE;
-			sdram_pointer = 0;
+			//sdram_pointer = 0;
 
 			//resetChannels(&looper.ch1,&looper.ch2);
 			if(looper.ch1.Active == TRUE){
@@ -511,7 +511,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 			looper.Recording = TRUE;
 			looper.Playback = FALSE;
-			looper.StartLooper = 1;
+			looper.StartLooper = TRUE;
 			show_status_line = TRUE;
 			break;
 		case Playback_Pin:

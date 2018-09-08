@@ -14,6 +14,7 @@ void menuInitMsg(){
 	messages[ONE_BAR_FORW_END] = "Move end forward";
 	messages[START_RHYTHM] = "Start rhythm";
 	messages[NO_PATTS] = "No patterns found!";
+	messages[TOO_MANY_PATTS] = "Too many patterns!";
 	messages[TOO_MANY_SUBB] = "Too many subbeats!";
 	messages[CHANNEL_SELECT] = "Select channel";
 	messages[AUDIO_RHYTHM] = "Audio and rhythm";

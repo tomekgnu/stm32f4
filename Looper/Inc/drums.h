@@ -21,7 +21,7 @@ typedef struct{
 
 }DrumTimes;
 
-uint32_t * readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution);
+void readDrums(uint32_t (*map)[2],uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution);
 void drumLoop(uint32_t (*map)[2]);
 
 void resetDrums();
@@ -48,7 +48,7 @@ void updatePatternTime(__IO Pattern *p,__IO DrumTimes *t);
 #define HEADER_NUM_BYTES		0
 #define HEADER_NUM_PATTS		1
 #define HEADER_MAX_BEATS		2
-
+#define MAX_PATTERNS			200
 #define MAX_SUBBEATS			48
 
 extern __IO DrumTimes *timptr;

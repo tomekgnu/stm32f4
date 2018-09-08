@@ -132,6 +132,7 @@ void menuShowStatus(){
 	}
 }
 
+
 // write short message text at the bottom
 void menuStatusLine(char *text){
 	sprintf(lcdline,"%-29s",text);
@@ -220,6 +221,10 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t numOfPatterns,BOOL *play){
 												forwardBar(startBar,numOfPatterns); break;
 				}
 
+			}
+			else if(looper.Recording == TRUE || looper.Playback == TRUE){
+				*play = TRUE;
+				break;
 			}
 			else if(Active_Joystick() == TRUE){
 				input = TRUE;

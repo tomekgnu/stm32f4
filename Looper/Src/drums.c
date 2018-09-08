@@ -64,12 +64,16 @@ static void seekPattern(uint32_t (*map)[2],uint32_t ind){
 
 void drumLoop(uint32_t (*map)[2]){
 	uint32_t tmp = looper.startPattern;
-	switch_buff = FALSE;
 	BOOL start = FALSE;
+	switch_buff = FALSE;
 	first_beat = FALSE;
 	seekPattern(map,looper.startPattern);
+	resetDrums();
+	HAL_TIM_Base_Start_IT(&htim2);
+	looper.DrumState = DRUMS_STARTED;
 
-	while(looper.startPattern < (looper.startPattern + 1)){
+
+	while(looper.DrumState == DRUMS_STARTED && looper.startPattern < (looper.startPattern + 1)){
 			if(looper.Recording == TRUE){
 				if(looper.ch1.Active == TRUE)
 					map[looper.startPattern][1] = looper.ch1.SamplesWritten;
@@ -78,17 +82,11 @@ void drumLoop(uint32_t (*map)[2]){
 			}
 
 			if(switch_buff == FALSE){
-				if(start == FALSE){
-						HAL_TIM_Base_Start_IT(&htim2);
-						looper.DrumState = DRUMS_STARTED;
-						resetDrums();
-						start = TRUE;
-					}
 					updatePatternTime(&pat1,&tim1);
 					timptr = &tim1;
 					patptr = &pat1;
 					drumBuffPtr = drumBuffA;
-
+					menuShowStatus();
 					if(looper.startPattern == looper.endPattern)
 						goto wait_first_beat;
 					readSRAM((uint8_t *)&pat2,sizeof(Pattern));
@@ -113,12 +111,11 @@ void drumLoop(uint32_t (*map)[2]){
 				sprintf(lcdline," Playing bar:\t%u\t",(unsigned int)(looper.startPattern + 1));
 				TM_ILI9341_Puts(10, 130, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 
-				while(first_beat == FALSE && looper.DrumState == DRUMS_STARTED){
+				while(first_beat == FALSE){
+					if(looper.DrumState == DRUMS_PAUSED || looper.DrumState == DRUMS_STOPPED)
+						goto end_drum_loop;
 					continue;
 				}
-
-				if(looper.DrumState == DRUMS_STOPPED || looper.DrumState == DRUMS_PAUSED)
-					goto end_drum_loop;
 
 				first_beat = FALSE;
 
@@ -149,10 +146,10 @@ void drumLoop(uint32_t (*map)[2]){
 
 }
 
-uint32_t * readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution){
+void readDrums(uint32_t (*map)[2],uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution){
 
 	uint32_t header[3];		// number of patterns, number of bytes, max. resolution
-	uint32_t (*map)[2] = NULL;
+	//uint32_t (*map)[2] = NULL;
 	uint32_t currPat = 0;
 	switch_buff = FALSE;
 	first_beat = FALSE;
@@ -164,13 +161,8 @@ uint32_t * readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxR
 	*numOfPatterns = header[HEADER_NUM_PATTS];
 	*maxResolution = header[HEADER_MAX_BEATS];
 
-	if(*numOfPatterns > 0 && *maxResolution <= MAX_SUBBEATS)
-		map = malloc(*numOfPatterns * 2);
-	else
-		map = NULL;
-	// map is NULL if malloc fails or numOfPatterns == 0 or maxResolution > MAX_SUBBEATS
-	if(map == NULL)
-		return NULL;
+	if(*numOfPatterns == 0 || *maxResolution > MAX_SUBBEATS)
+		return;
 
 	// create memory map
 	for(currPat = 0; currPat < *numOfPatterns; currPat++){
@@ -179,7 +171,7 @@ uint32_t * readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxR
 		readSRAM((uint8_t *)drumBuffA,pat1.beats * pat1.division * 5);
 	}
 
-	return (uint32_t *)map;
+	//return (uint32_t *)map;
 
 }
 
