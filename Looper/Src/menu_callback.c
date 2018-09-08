@@ -143,6 +143,8 @@ void play_rhythm(void) {
 		// waits until play == TRUE (button "3" or joystick)
 		menuShowStatus();
 		drumMenuInput(map,numOfPatterns,&play);
+		if(play == FALSE)
+			goto end_play_rhythm;
 		looper.ch1.SamplesRead = map[looper.startPattern][1];
 		sdram_pointer = looper.ch1.SamplesRead * 2;
 		if(looper.Playback == TRUE)
