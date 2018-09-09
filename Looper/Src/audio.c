@@ -76,8 +76,14 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha){
 		}
 
 		cha->mix32Max = 16383;
-		sdram_pointer = 0;
-		cha->SamplesRead = 0;
+		if(looper.Function == AUDIO_ONLY){
+			sdram_pointer = 0;
+			cha->SamplesRead = 0;
+		}
+		else if(looper.Function == AUDIO_DRUMS){
+
+		}
+
 		//resetDrums();
 		return;
 	}

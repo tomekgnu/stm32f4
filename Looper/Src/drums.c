@@ -35,6 +35,7 @@ uint8_t key_to_drum[16] = {
 		Chinese_Cymbal
 };
 
+uint32_t pattern_audio_map[MAX_PATTERNS + 1][2];
 uint8_t drumBuffA[MAX_SUBBEATS * NUM_ALL_TRACKS];
 uint8_t drumBuffB[MAX_SUBBEATS * NUM_ALL_TRACKS];
 uint8_t * drumBuffPtr;
@@ -46,35 +47,39 @@ __IO DrumTimes tim2;
 __IO DrumTimes *timptr;
 __IO Pattern *patptr;
 
-static void seekPattern(uint32_t (*map)[2],uint32_t ind){
-	uint32_t sample_count;
+static void seekPattern(uint32_t (*pattern_audio_map)[2],uint32_t ind){
 	switch_buff = FALSE;
-	SRAM_seekRead(map[ind][0],SRAM_SET);
+	SRAM_seekRead(pattern_audio_map[ind][0],SRAM_SET);
 	readSRAM((uint8_t *)&pat1,sizeof(Pattern));
 	setPatternTime(&pat1,&tim1);
 	readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
-	sample_count = map[ind][1];
+
 }
 
-void drumLoop(uint32_t (*map)[2]){
+void drumAudioSync(){
+	looper.ch1.SamplesRead = pattern_audio_map[looper.startPattern][1];
+	sdram_pointer = looper.ch1.SamplesRead * 2;
+//	if(looper.Playback == TRUE)
+//		looper.ch1.SamplesWritten = pattern_audio_map[looper.endPattern + 1][1];
+//	else if(looper.Recording == TRUE)
+//		looper.ch1.SamplesWritten = looper.ch1.SamplesRead;
+}
+
+void drumLoop(){
 	uint32_t tmp = looper.startPattern;
-	BOOL start = FALSE;
 	switch_buff = FALSE;
 	first_beat = FALSE;
-	seekPattern(map,looper.startPattern);
+	seekPattern(pattern_audio_map,looper.startPattern);
 	resetDrums();
 	HAL_TIM_Base_Start_IT(&htim2);
 	looper.DrumState = DRUMS_STARTED;
 
 
 	while(looper.DrumState == DRUMS_STARTED && looper.startPattern < (looper.startPattern + 1)){
-//			if(looper.Recording == TRUE){
-//				if(looper.ch1.Active == TRUE)
-//					map[looper.startPattern][1] = looper.ch1.SamplesWritten;
-//				if(looper.ch2.Active == TRUE)
-//					map[looper.startPattern][1] = looper.ch2.SamplesWritten;
-//			}
-
+			if(looper.StartLooper == FALSE){
+				drumAudioSync();
+				looper.StartLooper = TRUE;
+			}
 			if(switch_buff == FALSE){
 					updatePatternTime(&pat1,&tim1);
 					timptr = &tim1;
@@ -116,6 +121,7 @@ void drumLoop(uint32_t (*map)[2]){
 				looper.startPattern++;
 
 				if(looper.startPattern == (looper.endPattern + 1)){
+					looper.StartLooper = FALSE;
 					if(looper.Recording == TRUE){
 						looper.Recording = FALSE;
 						goto end_drum_loop;
@@ -124,14 +130,8 @@ void drumLoop(uint32_t (*map)[2]){
 					looper.startPattern = tmp;	// restore original start pattern number
 					switch_buff = FALSE;
 					first_beat = FALSE;
-					seekPattern(map,looper.startPattern);
+					seekPattern(pattern_audio_map,looper.startPattern);
 					resetDrums();
-					looper.ch1.SamplesRead = map[looper.startPattern][1];
-					sdram_pointer = looper.ch1.SamplesRead * 2;
-					if(looper.Playback == TRUE)
-						looper.ch1.SamplesWritten = map[looper.endPattern + 1][1];
-					else if(looper.Recording == TRUE)
-						looper.ch1.SamplesWritten = looper.ch1.SamplesRead;
 				}
 
 		}
@@ -146,7 +146,7 @@ void drumLoop(uint32_t (*map)[2]){
 
 }
 
-void readDrums(uint32_t (*map)[2],uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution){
+void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution){
 	Pattern tmp;
 	uint32_t header[3];		// number of patterns, number of bytes, max. resolution
 	//uint32_t (*map)[2] = NULL;
@@ -166,12 +166,12 @@ void readDrums(uint32_t (*map)[2],uint32_t *numOfPatterns,uint32_t *numOfBytes,u
 
 	// create memory map
 	for(currPat = 0; currPat < *numOfPatterns; currPat++){
-		map[currPat][0] = SRAM_readerPosition();
+		pattern_audio_map[currPat][0] = SRAM_readerPosition();
 		readSRAM((uint8_t *)&tmp,sizeof(Pattern));
 		readSRAM((uint8_t *)drumBuffA,tmp.beats * tmp.division * 5);
 		if(currPat < (*numOfPatterns - 1)){
 			uint32_t millis = BEAT_MILLIS(tmp.beattime);
-			map[currPat + 1][1] = map[currPat][1] + ((1000 * millis * tmp.beats) / 66);
+			pattern_audio_map[currPat + 1][1] = pattern_audio_map[currPat][1] + ((1000 * millis * tmp.beats) / 66);
 		}
 	}
 
