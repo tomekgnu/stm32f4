@@ -114,7 +114,7 @@ void play_rhythm(void) {
 	BOOL play = FALSE;
 	looper.startPattern = 0;
 	sdram_pointer = 0;
-	looper.Function = AUDIO_RHYTHM;
+	looper.Function = AUDIO_DRUMS;
 	//map = (uint32_t (*)[])
 	memset(pattern_audio_map,0,sizeof(pattern_audio_map));
 	readDrums(&numOfPatterns,&numOfBytes,&maxResolution);
@@ -144,7 +144,6 @@ void play_rhythm(void) {
 		drumMenuInput(pattern_audio_map,numOfPatterns,&play);
 		if(play == FALSE)
 			goto end_play_rhythm;
-		drumAudioSync();
 		drumLoop();
 		// end playing on pressing user button or joystick
 

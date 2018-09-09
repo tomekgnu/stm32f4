@@ -59,10 +59,7 @@ static void seekPattern(uint32_t (*pattern_audio_map)[2],uint32_t ind){
 void drumAudioSync(){
 	looper.ch1.SamplesRead = pattern_audio_map[looper.startPattern][1];
 	sdram_pointer = looper.ch1.SamplesRead * 2;
-//	if(looper.Playback == TRUE)
-//		looper.ch1.SamplesWritten = pattern_audio_map[looper.endPattern + 1][1];
-//	else if(looper.Recording == TRUE)
-//		looper.ch1.SamplesWritten = looper.ch1.SamplesRead;
+	looper.ch1.SamplesWritten = pattern_audio_map[looper.endPattern + 1][1];
 }
 
 void drumLoop(){
@@ -73,13 +70,9 @@ void drumLoop(){
 	resetDrums();
 	HAL_TIM_Base_Start_IT(&htim2);
 	looper.DrumState = DRUMS_STARTED;
-
+	setStartEndPatterns(looper.startPattern,looper.endPattern);
 
 	while(looper.DrumState == DRUMS_STARTED && looper.startPattern < (looper.startPattern + 1)){
-			if(looper.StartLooper == FALSE){
-				drumAudioSync();
-				looper.StartLooper = TRUE;
-			}
 			if(switch_buff == FALSE){
 					updatePatternTime(&pat1,&tim1);
 					timptr = &tim1;
@@ -121,13 +114,13 @@ void drumLoop(){
 				looper.startPattern++;
 
 				if(looper.startPattern == (looper.endPattern + 1)){
-					looper.StartLooper = FALSE;
 					if(looper.Recording == TRUE){
 						looper.Recording = FALSE;
 						goto end_drum_loop;
 					}
 
 					looper.startPattern = tmp;	// restore original start pattern number
+					setStartEndPatterns(looper.startPattern,looper.endPattern);
 					switch_buff = FALSE;
 					first_beat = FALSE;
 					seekPattern(pattern_audio_map,looper.startPattern);
@@ -171,7 +164,7 @@ void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolut
 		readSRAM((uint8_t *)drumBuffA,tmp.beats * tmp.division * 5);
 		if(currPat < (*numOfPatterns - 1)){
 			uint32_t millis = BEAT_MILLIS(tmp.beattime);
-			pattern_audio_map[currPat + 1][1] = pattern_audio_map[currPat][1] + ((1000 * millis * tmp.beats) / 66);
+			pattern_audio_map[currPat + 1][1] = pattern_audio_map[currPat][1] + (millis * tmp.beats * 15);
 		}
 	}
 

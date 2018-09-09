@@ -16,6 +16,18 @@
 uint32_t sdram_pointer = 0;
 int16_t sample16s;	// sample obtained from ADS1256
 
+static uint32_t startPatternTmp = 0;
+static uint32_t endPatternTmp = 0;
+static uint32_t sdramPointerTmp = 0;
+
+void setStartEndPatterns(uint32_t start,uint32_t end){
+	startPatternTmp = start;
+	endPatternTmp = end;
+	sdram_pointer =  sdramPointerTmp = pattern_audio_map[startPatternTmp][1] * 2;
+	looper.ch1.SamplesRead = pattern_audio_map[startPatternTmp][1];
+	looper.ch1.SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
+}
+
 void inline resetSamples(){
 	if(looper.Playback == TRUE){
 				looper.ch1.SamplesRead = 0;
@@ -48,7 +60,6 @@ void record_sample(int16_t swrite,__IO CHANNEL *cha){
 
 void read_sample(int16_t swrite,__IO CHANNEL *cha){
 	int16_t sread;
-	uint32_t swritten = cha->SamplesWritten;
 
 	if(looper.StartLooper == FALSE ){
 			return;
@@ -67,10 +78,8 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha){
 	if(cha->Overdub == TRUE)
 		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) &cha->mix32tmp, 1);
 
-	if(looper.Function == AUDIO_DRUMS)
-		swritten = pattern_audio_map[looper.endPattern + 1][1];
 
-	if(cha->SamplesRead >= swritten){
+	if(cha->SamplesRead >= cha->SamplesWritten){
 		if(cha->Overdub == TRUE && cha->mix32Max > 16383){
 			cha->Clipping = TRUE;
 			cha->gain = 16383.00 / cha->mix32Max;
@@ -81,11 +90,8 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha){
 		}
 
 		cha->mix32Max = 16383;
-		if(looper.Function == AUDIO_ONLY){
-			sdram_pointer = 0;
-			cha->SamplesRead = 0;
-		}
-
+		sdram_pointer = 0;
+		cha->SamplesRead = 0;
 
 		//resetDrums();
 		return;
