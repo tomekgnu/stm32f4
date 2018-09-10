@@ -162,7 +162,7 @@ void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolut
 		pattern_audio_map[currPat][0] = SRAM_readerPosition();
 		readSRAM((uint8_t *)&tmp,sizeof(Pattern));
 		readSRAM((uint8_t *)drumBuffA,tmp.beats * tmp.division * 5);
-		if(currPat < (*numOfPatterns - 1)){
+		if(currPat < *numOfPatterns){
 			uint32_t millis = BEAT_MILLIS(tmp.beattime);
 			pattern_audio_map[currPat + 1][1] = pattern_audio_map[currPat][1] + (millis * tmp.beats * 15);
 		}
