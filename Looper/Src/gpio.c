@@ -481,11 +481,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				return;
 
 			looper.StartLooper = FALSE;
-			//sdram_pointer = 0;
+			//
 
-			if(looper.Function == AUDIO_ONLY)
+			if(looper.Function == AUDIO_ONLY){
 				resetChannels(&looper.ch1,&looper.ch2);
-
+				sdram_pointer = 0;
+			}
 			BSP_LED_On(LED_RED);
 			BSP_LED_Off(LED_GREEN);
 

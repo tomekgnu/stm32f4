@@ -144,7 +144,6 @@ int main(void)
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
 	DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
-	looper.Function = CHANNEL_A;
 
   /* USER CODE END 1 */
 
@@ -154,6 +153,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
+  looper.Function = AUDIO_ONLY;
   looper.ch1.Active = TRUE;
   looper.ch1.Monitor = TRUE;
   looper.ch2.Active = FALSE;
