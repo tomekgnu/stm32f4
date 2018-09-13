@@ -69,10 +69,14 @@ void drumLoop(){
 	seekPattern(pattern_audio_map,looper.startPattern);
 	resetDrums();
 	HAL_TIM_Base_Start_IT(&htim2);
+	looper.Function = AUDIO_DRUMS;
 	looper.DrumState = DRUMS_STARTED;
 	setStartEndPatterns(looper.startPattern,looper.endPattern);
 
 	while(looper.DrumState == DRUMS_STARTED && looper.startPattern < (looper.startPattern + 1)){
+
+			looper.StartLooper = TRUE;
+
 			if(switch_buff == FALSE){
 					updatePatternTime(&pat1,&tim1);
 					timptr = &tim1;
@@ -120,11 +124,11 @@ void drumLoop(){
 					}
 
 					looper.startPattern = tmp;	// restore original start pattern number
-					setStartEndPatterns(looper.startPattern,looper.endPattern);
+					//setStartEndPatterns(looper.startPattern,looper.endPattern);
 					switch_buff = FALSE;
 					first_beat = FALSE;
 					seekPattern(pattern_audio_map,looper.startPattern);
-					resetDrums();
+
 				}
 
 		}

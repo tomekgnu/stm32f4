@@ -24,8 +24,14 @@ void setStartEndPatterns(uint32_t start,uint32_t end){
 	startPatternTmp = start;
 	endPatternTmp = end;
 	sdram_pointer =  sdramPointerTmp = pattern_audio_map[startPatternTmp][1] * 2;
-	looper.ch1.SamplesRead = pattern_audio_map[startPatternTmp][1];
-	looper.ch1.SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
+	if(ACTIVE_CHANNEL_1){
+		looper.ch1.SamplesRead = pattern_audio_map[startPatternTmp][1];
+		looper.ch1.SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
+	}
+	else if(ACTIVE_CHANNEL_2){
+		looper.ch2.SamplesRead = pattern_audio_map[startPatternTmp][1];
+		looper.ch2.SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
+	}
 }
 
 void inline resetSamples(){
@@ -64,6 +70,7 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha){
 	if(looper.StartLooper == FALSE ){
 			return;
 	}
+
 	BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *) &sread, 1);
 	cha->mix32tmp = sread  + swrite;
 	cha->CurrentSample = sread;
@@ -90,10 +97,15 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha){
 		}
 
 		cha->mix32Max = 16383;
-		sdram_pointer = 0;
-		cha->SamplesRead = 0;
-
-		//resetDrums();
+		if(looper.Function == AUDIO_DRUMS){
+			setStartEndPatterns(startPatternTmp,endPatternTmp);
+			looper.StartLooper = FALSE;
+		}
+		else{
+			sdram_pointer = 0;
+			cha->SamplesRead = 0;
+		}
+		//
 		return;
 	}
 
