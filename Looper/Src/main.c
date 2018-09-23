@@ -154,13 +154,13 @@ int main(void)
 
   /* USER CODE BEGIN Init */
   looper.Function = AUDIO_ONLY;
+  looper.TwoChannels = FALSE;
   looper.ch1.Active = TRUE;
-  looper.ch1.Monitor = TRUE;
+  looper.ch1.Monitor = FALSE;
   looper.ch2.Active = FALSE;
-  looper.ch2.Monitor = TRUE;
-  looper.ch1.Number = ONE;
-  looper.ch2.Number = TWO;
+  looper.ch2.Monitor = FALSE;
   looper.timeIncrement = 0;
+  looper.SampleOffset = 2;
   /* USER CODE END Init */
 
   /* Configure the system clock */

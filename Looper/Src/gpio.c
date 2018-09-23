@@ -412,22 +412,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 					return;
 				BUT_DOWN(BUT_JOYSTICK);
 				Update_Joystick();
+				looper.StartLooper = FALSE;
 				if(looper.DrumState == DRUMS_STARTED)
 					looper.DrumState = DRUMS_PAUSED;
 				else if(looper.DrumState == DRUMS_PAUSED)
 					looper.DrumState = DRUMS_STARTED;
 				break;
 		case GPIO_PIN_0:	// user button stops everything
-				looper.Recording = FALSE;
-				looper.Playback = FALSE;
-				looper.StartLooper = FALSE;
-				looper.DrumState = DRUMS_STOPPED;
-				looper.Function = NONE;
-				resetChannels();
-				stopDrums();
-				BSP_LED_Off(LED_RED);
-				BSP_LED_Off(LED_GREEN);
-				show_status_line = TRUE;
+				stopAll();
 				break;
 
 		case ADS1256_DRDY_Pin:
@@ -441,15 +433,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			sample16s = (int16_t)(ADS1256_ReadData() >> 8);
 
 			if(looper.Playback == TRUE){
-				if(looper.ch1.Active == TRUE && looper.ch2.Active == FALSE){
-					read_sample(sample16s,&looper.ch1);
-					play_sample(&looper.ch1);
+				if(looper.TwoChannels == FALSE){
+					read_sample(sample16s,GET_ACTIVE_CHANNEL);
+					play_sample(GET_ACTIVE_CHANNEL);
 				}
-				else if(looper.ch1.Active == FALSE && looper.ch2.Active == TRUE){
-					read_sample(sample16s,&looper.ch2);
-					play_sample(&looper.ch2);
-				}
-				else if(looper.ch1.Active == TRUE && looper.ch2.Active == TRUE){
+				else {
 					read_samples(sample16s,&looper.ch1,&looper.ch2);
 					play_samples(&looper.ch1,&looper.ch2);
 				}
@@ -459,16 +447,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 
 			if(looper.Recording == TRUE){
-				if(looper.ch1.Active == TRUE && looper.ch2.Active == TRUE){
+
+				if(looper.TwoChannels == FALSE){
+					record_sample(sample16s,GET_ACTIVE_CHANNEL);
+				}
+				else {
 					record_samples(sample16s,&looper.ch1,&looper.ch2);
-					play_samples(&looper.ch1,&looper.ch2);
+					play_sample(GET_INACTIVE_CHANNEL);
 				}
-				else if(looper.ch1.Active == TRUE && looper.ch2.Active == FALSE){
-					record_sample(sample16s,&looper.ch1);
-				}
-				else if(looper.ch1.Active == FALSE && looper.ch2.Active == TRUE){
-					record_sample(sample16s,&looper.ch2);
-				}
+
 			}
 
 			break;
@@ -484,7 +471,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			//
 
 			if(looper.Function == AUDIO_ONLY){
-				resetChannels(&looper.ch1,&looper.ch2);
+				if(looper.TwoChannels == TRUE)
+					resetChannel(GET_ACTIVE_CHANNEL);
 				sdram_pointer = 0;
 			}
 			BSP_LED_On(LED_RED);
@@ -506,11 +494,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				return;
 			if(looper.ch1.SamplesWritten == 0 && looper.ch2.SamplesWritten == 0)
 				return;
-			sdram_pointer = 0;
+
+			if(looper.Function == AUDIO_ONLY){
+				looper.ch1.SamplesRead = 0;
+				looper.ch2.SamplesRead = 0;
+				sdram_pointer = 0;
+			}
+
 
 			looper.StartLooper = TRUE;
-			//looper.ch1.SamplesRead = 0;
-			//looper.ch2.SamplesRead = 0;
+
 
 			//looper.startPattern = 0;
 			if(looper.ch1.Active == TRUE){
@@ -557,7 +550,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			if(IS_BUT_DOWN(BUT_TOGFUN) == TRUE)
 				return;
 			BUT_DOWN(BUT_TOGFUN);
-			looper.StartLooper = FALSE;
+
 
 		}
 

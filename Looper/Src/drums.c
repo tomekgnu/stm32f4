@@ -105,7 +105,7 @@ void drumLoop(){
 
 				wait_first_beat:
 				sprintf(lcdline," Playing bar: %-4u",(unsigned int)(looper.startPattern + 1));
-				TM_ILI9341_Puts(10, 130, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+				TM_ILI9341_Puts(10, 150, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 
 				while(first_beat == FALSE){
 					if(looper.DrumState == DRUMS_PAUSED || looper.DrumState == DRUMS_STOPPED)
@@ -124,7 +124,7 @@ void drumLoop(){
 					}
 
 					looper.startPattern = tmp;	// restore original start pattern number
-					//setStartEndPatterns(looper.startPattern,looper.endPattern);
+					// setStartEndPatterns in read_sample and read_samples
 					switch_buff = FALSE;
 					first_beat = FALSE;
 					seekPattern(pattern_audio_map,looper.startPattern);

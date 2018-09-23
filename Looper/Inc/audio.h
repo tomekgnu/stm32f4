@@ -5,18 +5,21 @@
 
 #define	SIGNED16_UNSIGNED12(x)		((x / 4) + 2048)
 
-#define ACTIVE_CHANNEL_1			looper.ch1.Active == TRUE && looper.ch2.Active == FALSE?TRUE:FALSE
-#define ACTIVE_CHANNEL_2			looper.ch1.Active == FALSE && looper.ch2.Active == TRUE?TRUE:FALSE
-#define ACTIVE_BOTH_CHANNELS		looper.ch1.Active == TRUE && looper.ch2.Active == TRUE?TRUE:FALSE
+#define ACTIVE_CHANNEL_1			(looper.ch1.Active == TRUE && looper.ch2.Active == FALSE?TRUE:FALSE)
+#define ACTIVE_CHANNEL_2			(looper.ch1.Active == FALSE && looper.ch2.Active == TRUE?TRUE:FALSE)
+#define GET_ACTIVE_CHANNEL			(looper.ch1.Active == TRUE?&looper.ch1:&looper.ch2)
+#define GET_INACTIVE_CHANNEL		(looper.ch1.Active == FALSE?&looper.ch1:&looper.ch2)
+#define MONITOR_CHANNEL_1			(looper.ch1.Monitor == TRUE)
+#define MONITOR_CHANNEL_2			(looper.ch2.Monitor == TRUE)
+#define ACTIVE_BOTH_CHANNELS		(looper.ch1.Active == TRUE && looper.ch2.Active == TRUE?TRUE:FALSE)
 
 enum { ONE,TWO,THREE,FOUR };
 typedef struct {
-	uint8_t Number: 1;
 	uint8_t Active: 1;
 	uint8_t Monitor: 1;
 	uint8_t Clipping: 1;
 	uint8_t Overdub: 1;
-	uint8_t Fill: 3;
+	uint8_t Offset: 4;
 	uint32_t SamplesRead;
 	uint32_t SamplesWritten;
 	int16_t CurrentSample;
@@ -37,6 +40,11 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha);
 void record_sample(int16_t swrite,__IO CHANNEL *cha);
 void play_sample(__IO CHANNEL *cha);
 void play_sample_dac(__IO CHANNEL *cha);
-void resetChannels();
+void setActiveChannelOne();
+void setActiveChannelTwo();
+void toggleActiveBothChannels();
+void initChannels();
+void resetChannel(__IO CHANNEL *ch);
+void stopAll();
 
 #endif

@@ -96,6 +96,8 @@ typedef struct {
 	__IO BOOL Playback;
 	__IO BOOL Overdubbing;
 	__IO BOOL StartLooper;
+	__IO BOOL TwoChannels;
+	__IO uint32_t SampleOffset;
 	__IO uint32_t startPattern;
 	__IO uint32_t endPattern;
 	__IO DrumFunction DrumState;

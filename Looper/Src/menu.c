@@ -89,6 +89,7 @@ void menuInit(){
 				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_4,MOVE_BAR_BACK_END);
 				initParentNode(MOVE_BAR_FORW_END,messages[ONE_BAR_FORW_END],NULL);
 				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_5,MOVE_BAR_FORW_END);
+				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_6,SELECT_CHANNEL_NODE);
 		initParentNode(AUDIO_RHYTHM_NODE,messages[AUDIO_RHYTHM],audio_drums);
 		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_3,AUDIO_RHYTHM_NODE);
 
@@ -219,6 +220,11 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t numOfPatterns,BOOL *play){
 												break;
 					case TM_KEYPAD_Button_5:	startBar = FALSE;
 												forwardBar(startBar,numOfPatterns); break;
+					case TM_KEYPAD_Button_6:	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
+												select_channel();
+												*play = FALSE;
+												menuShow(TM_KEYPAD_Button_2);
+												return;
 				}
 
 			}
@@ -250,15 +256,15 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t numOfPatterns,BOOL *play){
 			if(input == TRUE){
 				if(startBar == TRUE){
 					sprintf(lcdline,"*Start: %-4u",(unsigned int)(looper.startPattern + 1));
-					TM_ILI9341_Puts(10, 150, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-					sprintf(lcdline," End: %-4u",(unsigned int)(looper.endPattern + 1));
 					TM_ILI9341_Puts(10, 170, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+					sprintf(lcdline," End: %-4u",(unsigned int)(looper.endPattern + 1));
+					TM_ILI9341_Puts(10, 190, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 				}
 				else{
 					sprintf(lcdline," Start: %-4u",(unsigned int)(looper.startPattern + 1));
-					TM_ILI9341_Puts(10, 150, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-					sprintf(lcdline,"*End: %-4u",(unsigned int)(looper.endPattern + 1));
 					TM_ILI9341_Puts(10, 170, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+					sprintf(lcdline,"*End: %-4u",(unsigned int)(looper.endPattern + 1));
+					TM_ILI9341_Puts(10, 190, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 
 				}
 
