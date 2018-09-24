@@ -21,16 +21,21 @@
 extern TM_KEYPAD_Button_t Keypad_Button;
 extern BOOL Skip_Read_Button;
 
+void audio_rhythm(){
+	looper.Function = AUDIO_DRUMS;
 
-void audio_only(void){
+}
+
+void audio_only(){
 	looper.Function = AUDIO_ONLY;
+
 }
 
 void drums_only(void){
 	looper.Function = DRUMS_ONLY;
 }
 
-void audio_drums(){
+void audio_drums(void){
 	looper.Function = AUDIO_DRUMS;
 }
 void print_letters(void) {
@@ -51,7 +56,7 @@ void print_letters(void) {
 
 }
 
-void download_rhythm(void) {
+void download_rhythm() {
 	looper.Function = DOWNLOAD_SRAM;
 	menuMultiLine(2,110,"Press [Send via USB] button","in Rhythm application.");
 	SRAM_download_rhythm();
@@ -59,8 +64,7 @@ void download_rhythm(void) {
 	Skip_Read_Button = TRUE;
 }
 
-void select_channel(void){
-	TM_KEYPAD_Button_t key;
+void select_channel(){
 	if(ACTIVE_CHANNEL_1)
 		menuMultiLine(1,110,"Record channel 1");
 	else if(ACTIVE_CHANNEL_2)
@@ -73,9 +77,11 @@ void select_channel(void){
 	menuMultiLine(4,150,"[A] Channel 1","[B] Channel 2","[C] Toggle two channels","[0] Return");
 
 	while(TRUE){
-		key = TM_KEYPAD_Read();
-		switch(key){
-			case TM_KEYPAD_Button_0: goto end_channel_select;
+
+		Keypad_Button = TM_KEYPAD_Read();
+
+		switch(Keypad_Button){
+			case TM_KEYPAD_Button_0: goto end_select_channel;
 			case TM_KEYPAD_Button_A:
 				 setActiveChannelOne();
 				 looper.ch2.SamplesRead = 0;
@@ -103,11 +109,11 @@ void select_channel(void){
 			}
 	}
 
-	end_channel_select:
+	end_select_channel:
 	Skip_Read_Button = TRUE;
 }
 
-void play_rhythm(void) {
+void play_rhythm() {
 	uint32_t numOfPatterns;
 	uint32_t numOfBytes;
 	uint32_t maxResolution;
@@ -153,6 +159,5 @@ void play_rhythm(void) {
 	end_play_rhythm:
 	//free(map);
 	looper.DrumState = DRUMS_STOPPED;
-	Keypad_Button = TM_KEYPAD_Button_0;
 	Skip_Read_Button = TRUE;
 }

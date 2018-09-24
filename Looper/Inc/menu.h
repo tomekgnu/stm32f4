@@ -18,17 +18,17 @@ typedef enum {
 	AUDIO_NODE,
 	RHYTHM_NODE,
 	AUDIO_RHYTHM_NODE,
-	SELECT_CHANNEL_NODE,
-	NODE5,
+	SELECT_AUDIO_CHANNEL_NODE,
+	SELECT_AUDIO_RHYTHM_CHANNEL_NODE,
 	NODE6,
-	DOWNLOAD_RHYTHM,
-	PLAY_RHYTHM,
-	MOVE_BAR_BACK_START,
-	MOVE_BAR_FORW_START,
+	DOWNLOAD_RHYTHM_NODE,
+	PLAY_RHYTHM_NODE,
+	MOVE_BAR_BACK_START_NODE,
+	MOVE_BAR_FORW_START_NODE,
 	START_RHYTHM_NODE,
-	MOVE_BAR_BACK_END,
-	MOVE_BAR_FORW_END,
-	NODE14,
+	MOVE_BAR_BACK_END_NODE,
+	MOVE_BAR_FORW_END_NODE,
+	SELECT_BARS_NODE,
 	NODE15,
 	NODE16,
 	NODE17,
@@ -56,7 +56,8 @@ enum {
 typedef struct {
 	char *title;
 	NODE_TYPE options[MAX_NUM_OPTS];
-	void (*callback)(void);
+	void (*before)(void);	// call before showing options
+	void (*callback)(void);	// call after showing options.
 } menuNodeType;
 
 void menuShowTimers();
@@ -68,7 +69,8 @@ void menuInitMsg();
 void menuStatusLine(char *text);
 void menuShowStatus();
 void drumMenuInput(uint32_t (*map)[2],uint32_t numOfPatterns, BOOL *play);
-
+void setCurrentMenuNode(uint8_t node);
+void connectChildNode(uint8_t parent,uint8_t opt_key,uint8_t child);
 // menu macros
 #define MESSG(X)			messages[X]
 

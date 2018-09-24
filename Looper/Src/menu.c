@@ -31,7 +31,7 @@ static void menuShowOptions(){
 			tit = menu_nodes[node_index].title;
 
 		sprintf(lcdline,"[%c] %s",TM_KEYPAD_GetChar(option_index),tit);
-		TM_ILI9341_Puts(10, offset, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
+		TM_ILI9341_Puts(option_index == TM_KEYPAD_Button_0?10:30, offset, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 		offset += 20;
 	}
 
@@ -39,7 +39,7 @@ static void menuShowOptions(){
 /**
  * which node,number of options,title,return node
  */
-static void initParentNode(uint8_t node_index,char * tit,void (*fun)(void)){
+static void initParentNode(uint8_t node_index,char * tit,void (*fun)(uint8_t)){
 	if(node_index >= TOTAL_MENU_NODES)
 		return;
 	menu_nodes[node_index].title = tit;
@@ -50,7 +50,7 @@ static void initParentNode(uint8_t node_index,char * tit,void (*fun)(void)){
 /**
  * parent node,which parent option,child node
  */
-static void connectChildNode(uint8_t parent,uint8_t opt_key,uint8_t child){
+void connectChildNode(uint8_t parent,uint8_t opt_key,uint8_t child){
 	if(child >= TOTAL_MENU_NODES)
 		return;
 	if(opt_key == TM_KEYPAD_Button_0)	// option "0" will be connected to par_node later
@@ -62,6 +62,10 @@ static void connectChildNode(uint8_t parent,uint8_t opt_key,uint8_t child){
 
 }
 
+void setCurrentMenuNode(uint8_t node){
+	current_node_index = node;
+}
+
 void menuInit(){
 	menuInitMsg();
 	memset(menu_nodes,(int)NODE_EMPTY,sizeof(menu_nodes));
@@ -69,33 +73,37 @@ void menuInit(){
 
 	// top 3 nodes: AUDIO RHYTHM AUDIO+RHYTHM
 	initParentNode(MAIN_MENU,messages[MAIN],NULL);
-		initParentNode(AUDIO_NODE,"Audio",audio_only);
+		initParentNode(AUDIO_NODE,"Audio",audio_only);									// [AUDIO]
+			initParentNode(SELECT_AUDIO_CHANNEL_NODE,messages[CHANNEL_SELECT],select_channel);				// [SELECT CHANNEL]
+		initParentNode(RHYTHM_NODE,messages[AUDIO_RHYTHM],audio_rhythm);				// [AUDIO AND RHYTHM]
+			initParentNode(DOWNLOAD_RHYTHM_NODE,messages[DOWNL_RTH],download_rhythm);		// [DOWNLOAD RHYTHM
+
+				initParentNode(SELECT_AUDIO_RHYTHM_CHANNEL_NODE,messages[CHANNEL_SELECT],select_channel);	// [SELECT CHANNEL]
+				initParentNode(SELECT_BARS_NODE,"Select bars",play_rhythm);						// [SELECT BARS]
+					initParentNode(MOVE_BAR_BACK_START_NODE,messages[ONE_BAR_BACK_START],NULL);		// [MOVE BAR BACK]
+					initParentNode(MOVE_BAR_FORW_START_NODE,messages[ONE_BAR_FORW_START],NULL);		// [MOVE BAR FORW]
+					initParentNode(START_RHYTHM_NODE,messages[START_RHYTHM],NULL);					// [START RHYTHM]
+					initParentNode(MOVE_BAR_BACK_END_NODE,messages[ONE_BAR_BACK_END],NULL);			// [MOVE BAR BACK]
+					initParentNode(MOVE_BAR_FORW_END_NODE,messages[ONE_BAR_FORW_END],NULL);			// [MOVE BAR FORW]
+
 		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,AUDIO_NODE);
-			initParentNode(SELECT_CHANNEL_NODE,messages[CHANNEL_SELECT],select_channel);
-			connectChildNode(AUDIO_NODE,TM_KEYPAD_Button_1,SELECT_CHANNEL_NODE);
-		initParentNode(RHYTHM_NODE,"Rhythm",NULL);
+			connectChildNode(AUDIO_NODE,TM_KEYPAD_Button_1,SELECT_AUDIO_CHANNEL_NODE);
 		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,RHYTHM_NODE);
-			initParentNode(DOWNLOAD_RHYTHM,messages[DOWNL_RTH],download_rhythm);
-			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_1,DOWNLOAD_RHYTHM);
-			initParentNode(PLAY_RHYTHM,messages[PLAY_RTH],play_rhythm);
-			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_2,PLAY_RHYTHM);
-				initParentNode(MOVE_BAR_BACK_START,messages[ONE_BAR_BACK_START],NULL);
-				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_1,MOVE_BAR_BACK_START);
-				initParentNode(MOVE_BAR_FORW_START,messages[ONE_BAR_FORW_START],NULL);
-				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_2,MOVE_BAR_FORW_START);
-				initParentNode(START_RHYTHM_NODE,messages[START_RHYTHM],NULL);
-				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_3,START_RHYTHM_NODE);
-				initParentNode(MOVE_BAR_BACK_END,messages[ONE_BAR_BACK_END],NULL);
-				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_4,MOVE_BAR_BACK_END);
-				initParentNode(MOVE_BAR_FORW_END,messages[ONE_BAR_FORW_END],NULL);
-				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_5,MOVE_BAR_FORW_END);
-				connectChildNode(PLAY_RHYTHM,TM_KEYPAD_Button_6,SELECT_CHANNEL_NODE);
-		initParentNode(AUDIO_RHYTHM_NODE,messages[AUDIO_RHYTHM],audio_drums);
-		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_3,AUDIO_RHYTHM_NODE);
+			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_1,DOWNLOAD_RHYTHM_NODE);
+			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_2,SELECT_AUDIO_RHYTHM_CHANNEL_NODE);
+			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_3,SELECT_BARS_NODE);
+
+				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_1,MOVE_BAR_BACK_START_NODE);
+				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_2,MOVE_BAR_FORW_START_NODE);
+				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_3,START_RHYTHM_NODE);
+				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_4,MOVE_BAR_BACK_END_NODE);
+				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_5,MOVE_BAR_FORW_END_NODE);
 
 }
 
 void menuShow(TM_KEYPAD_Button_t opt_key){
+	uint8_t parent = current_node_index;
+
 	if(opt_key > TM_KEYPAD_Button_D)
 		return;
 	if(menu_nodes[current_node_index].options[opt_key] == NODE_EMPTY)
@@ -106,7 +114,9 @@ void menuShow(TM_KEYPAD_Button_t opt_key){
 	TM_HD44780_Clear();
 	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
 	TM_HD44780_Puts(0,0,lcdline);
+
 	menuShowOptions();
+
 	// execute function handler
 	if(menu_nodes[current_node_index].callback != NULL)
 		menu_nodes[current_node_index].callback();
@@ -154,7 +164,7 @@ void menuMultiLine(uint8_t lines,uint8_t offset,...){
 }
 
 void menuWaitReturn(){
-	while(TM_KEYPAD_Read() != TM_KEYPAD_Button_0)
+	while((Keypad_Button = TM_KEYPAD_Read() != TM_KEYPAD_Button_0))
 		continue;
 }
 
@@ -220,11 +230,7 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t numOfPatterns,BOOL *play){
 												break;
 					case TM_KEYPAD_Button_5:	startBar = FALSE;
 												forwardBar(startBar,numOfPatterns); break;
-					case TM_KEYPAD_Button_6:	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
-												select_channel();
-												*play = FALSE;
-												menuShow(TM_KEYPAD_Button_2);
-												return;
+
 				}
 
 			}

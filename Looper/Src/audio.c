@@ -121,7 +121,7 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha){
 
 
 void play_sample(__IO CHANNEL *cha){
-	if(cha->SamplesWritten > 0)
+	if(cha->SamplesWritten > 0 && cha->SamplesRead <= cha->SamplesWritten)
 		Write_DAC8552(channel_A,(uint16_t)(cha->CurrentSample + 16383));
 
 }
