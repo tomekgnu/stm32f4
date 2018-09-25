@@ -29,13 +29,12 @@ void setStartEndPatterns(uint32_t start,uint32_t end){
 	startPatternTmp = start;
 	endPatternTmp = end;
 	sdram_pointer =  sdramPointerTmp = pattern_audio_map[startPatternTmp][1] * looper.SampleOffset;
-
-	looper.ch1.SamplesRead = pattern_audio_map[startPatternTmp][1];
-	looper.ch1.SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
-
-	looper.ch2.SamplesRead = pattern_audio_map[startPatternTmp][1];
-	looper.ch2.SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
-
+	GET_ACTIVE_CHANNEL->SamplesRead = pattern_audio_map[startPatternTmp][1];
+	GET_ACTIVE_CHANNEL->SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
+	if(GET_INACTIVE_CHANNEL->SamplesWritten > 0){
+		GET_INACTIVE_CHANNEL->SamplesRead = pattern_audio_map[startPatternTmp][1];
+		GET_INACTIVE_CHANNEL->SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
+	}
 }
 
 void inline resetSamples(){

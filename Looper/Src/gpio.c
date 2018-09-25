@@ -466,7 +466,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			BUT_DOWN(BUT_REC);
 			if(looper.Recording == TRUE)
 				return;
-
+			if(looper.DrumState == DRUMS_STARTED)
+				return;
 			looper.StartLooper = FALSE;
 			//
 
@@ -490,6 +491,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				return;
 			BUT_DOWN(BUT_PLAY);
 			if(looper.Playback == TRUE)
+				return;
+			if(looper.DrumState == DRUMS_STARTED)
 				return;
 			if(looper.ch1.SamplesWritten == 0 && looper.ch2.SamplesWritten == 0)
 				return;
