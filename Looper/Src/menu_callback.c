@@ -118,13 +118,14 @@ void play_rhythm() {
 	uint32_t numOfBytes;
 	uint32_t maxResolution;
 	BOOL play = FALSE;
-	looper.startPattern = 0;
+	//looper.startPattern = 0;
 	sdram_pointer = 0;
 	looper.Function = AUDIO_DRUMS;
 	//map = (uint32_t (*)[])
 	memset(pattern_audio_map,0,sizeof(pattern_audio_map));
 	readDrums(&numOfPatterns,&numOfBytes,&maxResolution);
-	looper.endPattern = numOfPatterns - 1;
+	getStartEndPatterns(&looper.startPattern,&looper.endPattern);
+	//looper.endPattern = numOfPatterns - 1;
 
 	if(numOfPatterns == 0){
 		menuMultiLine(1,130,messages[NO_PATTS]);

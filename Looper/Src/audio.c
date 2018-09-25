@@ -20,6 +20,11 @@ static uint32_t startPatternTmp = 0;
 static uint32_t endPatternTmp = 0;
 static uint32_t sdramPointerTmp = 0;
 
+void getStartEndPatterns(uint32_t *start,uint32_t *end){
+	*start = startPatternTmp;
+	*end = endPatternTmp;
+}
+
 void setStartEndPatterns(uint32_t start,uint32_t end){
 	startPatternTmp = start;
 	endPatternTmp = end;
