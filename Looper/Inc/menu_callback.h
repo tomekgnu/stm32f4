@@ -7,7 +7,7 @@ void drums_only(void);
 void audio_drums(void);
 void print_letters(void);
 void download_rhythm(void);
-void play_rhythm(void);
+void select_bars(void);
 void select_channel(void);
 
 

@@ -39,7 +39,7 @@ static void menuShowOptions(){
 /**
  * which node,number of options,title,return node
  */
-static void initParentNode(uint8_t node_index,char * tit,void (*fun)(uint8_t)){
+static void initParentNode(uint8_t node_index,char * tit,void (*fun)()){
 	if(node_index >= TOTAL_MENU_NODES)
 		return;
 	menu_nodes[node_index].title = tit;
@@ -79,7 +79,7 @@ void menuInit(){
 			initParentNode(DOWNLOAD_RHYTHM_NODE,messages[DOWNL_RTH],download_rhythm);		// [DOWNLOAD RHYTHM
 
 				initParentNode(SELECT_AUDIO_RHYTHM_CHANNEL_NODE,messages[CHANNEL_SELECT],select_channel);	// [SELECT CHANNEL]
-				initParentNode(SELECT_BARS_NODE,"Select bars",play_rhythm);						// [SELECT BARS]
+				initParentNode(SELECT_BARS_NODE,"Select bars",select_bars);						// [SELECT BARS]
 					initParentNode(MOVE_BAR_BACK_START_NODE,messages[ONE_BAR_BACK_START],NULL);		// [MOVE BAR BACK]
 					initParentNode(MOVE_BAR_FORW_START_NODE,messages[ONE_BAR_FORW_START],NULL);		// [MOVE BAR FORW]
 					initParentNode(START_RHYTHM_NODE,messages[START_RHYTHM],NULL);					// [START RHYTHM]
@@ -90,19 +90,17 @@ void menuInit(){
 			connectChildNode(AUDIO_NODE,TM_KEYPAD_Button_1,SELECT_AUDIO_CHANNEL_NODE);
 		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,RHYTHM_NODE);
 			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_1,DOWNLOAD_RHYTHM_NODE);
-			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_2,SELECT_AUDIO_RHYTHM_CHANNEL_NODE);
-			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_3,SELECT_BARS_NODE);
+			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_2,SELECT_BARS_NODE);
 
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_1,MOVE_BAR_BACK_START_NODE);
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_2,MOVE_BAR_FORW_START_NODE);
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_3,START_RHYTHM_NODE);
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_4,MOVE_BAR_BACK_END_NODE);
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_5,MOVE_BAR_FORW_END_NODE);
-
+				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_6,SELECT_AUDIO_RHYTHM_CHANNEL_NODE);
 }
 
 void menuShow(TM_KEYPAD_Button_t opt_key){
-	uint8_t parent = current_node_index;
 
 	if(opt_key > TM_KEYPAD_Button_D)
 		return;
@@ -125,22 +123,47 @@ void menuShow(TM_KEYPAD_Button_t opt_key){
 }
 
 void menuShowStatus(){
+	char *activeLabel = "";
+	char tmp[31];
+	if(looper.ch1.Active == TRUE)
+		activeLabel = "CH1";
+	else
+		activeLabel = "CH2";
+
 	if(looper.Recording == FALSE && looper.Playback == FALSE){
-		menuStatusLine("All stopped");
+		sprintf(tmp,"Stopped Active ");
+		sprintf(tmp + strlen(tmp),activeLabel);
+		if(looper.TwoChannels == TRUE)
+			sprintf(tmp + strlen(tmp)," Dual");
+		menuStatusLine(tmp);
 		return;
 	}
 	if(looper.Recording == TRUE){
-		menuStatusLine("Recording");
-		return;
+		sprintf(tmp,"Recording ");
 	}
-	if(looper.ch1.Overdub == TRUE || looper.ch2.Overdub == TRUE){
-		menuStatusLine("Overdubbing");
-		return;
+	else if(looper.ch1.Overdub == TRUE || looper.ch2.Overdub == TRUE){
+		sprintf(tmp,"Overdubbing ");
 	}
-	if(looper.Playback == TRUE){
-		menuStatusLine("Playback");
-		return;
+	else if(looper.Playback == TRUE){
+		sprintf(tmp,"Playback ");
 	}
+
+	if(looper.TwoChannels == TRUE){
+		if(looper.ch1.Overdub == TRUE || looper.ch2.Overdub == TRUE || looper.Recording == TRUE)
+			sprintf(tmp + strlen(tmp),activeLabel);
+		else{
+			if(looper.ch1.SamplesWritten)
+				sprintf(tmp + strlen(tmp),"CH1 ");
+			if(looper.ch2.SamplesWritten)
+				sprintf(tmp + strlen(tmp),"CH2 ");
+		}
+
+	}
+	else{
+		sprintf(tmp + strlen(tmp),activeLabel);
+	}
+
+	menuStatusLine(tmp);
 }
 
 
@@ -230,6 +253,9 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t numOfPatterns,BOOL *play){
 												break;
 					case TM_KEYPAD_Button_5:	startBar = FALSE;
 												forwardBar(startBar,numOfPatterns); break;
+					case TM_KEYPAD_Button_6:	select_channel();
+												menuShowOptions();
+												menuShowStatus();
 
 				}
 
@@ -276,6 +302,8 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t numOfPatterns,BOOL *play){
 
 				input = FALSE;
 			}
+
+			//HAL_Delay(100);
 		}
 
 

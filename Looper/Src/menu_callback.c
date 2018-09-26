@@ -110,10 +110,10 @@ void select_channel(){
 	}
 
 	end_select_channel:
-	Skip_Read_Button = TRUE;
+	Skip_Read_Button = FALSE;
 }
 
-void play_rhythm() {
+void select_bars() {
 	uint32_t numOfPatterns;
 	uint32_t numOfBytes;
 	uint32_t maxResolution;
