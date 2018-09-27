@@ -29,11 +29,11 @@ void setStartEndPatterns(uint32_t start,uint32_t end){
 	startPatternTmp = start;
 	endPatternTmp = end;
 	sdram_pointer =  sdramPointerTmp = pattern_audio_map[startPatternTmp][1] * looper.SampleOffset;
-	GET_ACTIVE_CHANNEL->SamplesRead = pattern_audio_map[startPatternTmp][1];
-	GET_ACTIVE_CHANNEL->SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
-	if(GET_INACTIVE_CHANNEL->SamplesWritten > 0){
-		GET_INACTIVE_CHANNEL->SamplesRead = pattern_audio_map[startPatternTmp][1];
-		GET_INACTIVE_CHANNEL->SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
+	(GET_ACTIVE_CHANNEL)->SamplesRead = pattern_audio_map[startPatternTmp][1];
+	(GET_ACTIVE_CHANNEL)->SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
+	if((GET_INACTIVE_CHANNEL)->SamplesWritten > 0){
+		(GET_INACTIVE_CHANNEL)->SamplesRead = pattern_audio_map[startPatternTmp][1];
+		(GET_INACTIVE_CHANNEL)->SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
 	}
 }
 
@@ -172,7 +172,7 @@ void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 		cha->SamplesRead = 0;
 		chb->SamplesRead = 0;
 		sdram_pointer = 0;
-		//resetDrums();
+		show_status_line = TRUE;
 		looper.StartLooper = TRUE;
 		return;
 	}

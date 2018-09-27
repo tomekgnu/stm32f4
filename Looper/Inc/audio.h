@@ -7,11 +7,11 @@
 
 #define ACTIVE_CHANNEL_1			(looper.ch1.Active == TRUE && looper.ch2.Active == FALSE?TRUE:FALSE)
 #define ACTIVE_CHANNEL_2			(looper.ch1.Active == FALSE && looper.ch2.Active == TRUE?TRUE:FALSE)
-#define GET_ACTIVE_CHANNEL			(looper.ch1.Active == TRUE?&looper.ch1:&looper.ch2)
-#define GET_INACTIVE_CHANNEL		(looper.ch1.Active == FALSE?&looper.ch1:&looper.ch2)
-#define MONITOR_CHANNEL_1			(looper.ch1.Monitor == TRUE)
-#define MONITOR_CHANNEL_2			(looper.ch2.Monitor == TRUE)
-#define ACTIVE_BOTH_CHANNELS		(looper.ch1.Active == TRUE && looper.ch2.Active == TRUE?TRUE:FALSE)
+#define GET_ACTIVE_CHANNEL			looper.ch1.Active == TRUE?&looper.ch1:&looper.ch2
+#define GET_INACTIVE_CHANNEL		looper.ch1.Active == FALSE?&looper.ch1:&looper.ch2
+#define MONITOR_CHANNEL_1			looper.ch1.Monitor == TRUE
+#define MONITOR_CHANNEL_2			looper.ch2.Monitor == TRUE
+#define ACTIVE_BOTH_CHANNELS		looper.ch1.Active == TRUE && looper.ch2.Active == TRUE?TRUE:FALSE
 
 enum { ONE,TWO,THREE,FOUR };
 typedef struct {

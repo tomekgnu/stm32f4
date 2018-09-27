@@ -124,11 +124,17 @@ void menuShow(TM_KEYPAD_Button_t opt_key){
 
 void menuShowStatus(){
 	char *activeLabel = "";
+	char *inactiveLabel = "";
+	CHANNEL *inactive = (GET_INACTIVE_CHANNEL);
 	char tmp[31];
-	if(looper.ch1.Active == TRUE)
+	if(looper.ch1.Active == TRUE){
 		activeLabel = "CH1";
-	else
+		inactiveLabel = "CH2";
+	}
+	else{
 		activeLabel = "CH2";
+		inactiveLabel = "CH1";
+	}
 
 	if(looper.Recording == FALSE && looper.Playback == FALSE){
 		sprintf(tmp,"Stopped Active ");
@@ -147,20 +153,12 @@ void menuShowStatus(){
 	else if(looper.Playback == TRUE){
 		sprintf(tmp,"Playback ");
 	}
-
+	sprintf(tmp + strlen(tmp),activeLabel);
 	if(looper.TwoChannels == TRUE){
-		if(looper.ch1.Overdub == TRUE || looper.ch2.Overdub == TRUE || looper.Recording == TRUE)
-			sprintf(tmp + strlen(tmp),activeLabel);
-		else{
-			if(looper.ch1.SamplesWritten)
-				sprintf(tmp + strlen(tmp),"CH1 ");
-			if(looper.ch2.SamplesWritten)
-				sprintf(tmp + strlen(tmp),"CH2 ");
+		if(inactive->SamplesWritten > 0){
+			sprintf(tmp + strlen(tmp),"|Playback ");
+			sprintf(tmp + strlen(tmp),inactiveLabel);
 		}
-
-	}
-	else{
-		sprintf(tmp + strlen(tmp),activeLabel);
 	}
 
 	menuStatusLine(tmp);
