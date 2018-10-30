@@ -11,7 +11,7 @@ typedef struct{
 	uint32_t division; // number of smaller parts in single beat
 	uint32_t beattime;	// beat time e.g. 60..120
 	uint32_t repeat;
-}Pattern;
+}PatternBeats;
 
 typedef struct{
 	uint32_t subbeats;
@@ -19,7 +19,14 @@ typedef struct{
 	uint32_t remainder;
 	uint32_t subBeatDuration;
 
-}DrumTimes;
+}PatternTimes;
+
+typedef struct{
+	uint32_t sram_position;		// pattern offset in sram in bytes
+	uint32_t audio_position;	// audio sample offset
+	uint8_t ch1rec:1;
+	uint8_t ch2rec:1;
+}PatternData;
 
 void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution);
 void drumLoop();
@@ -30,8 +37,8 @@ void playDrums();
 void midiDrumHandler();
 void initDrumBeats();
 void setBarBeats(uint16_t bar,uint16_t beats);
-void setPatternTime(__IO Pattern *p,__IO DrumTimes *t);
-void updatePatternTime(__IO Pattern *p,__IO DrumTimes *t);
+void setPatternTime(__IO PatternBeats *p,__IO PatternTimes *t);
+void updatePatternTime(__IO PatternBeats *p,__IO PatternTimes *t);
 
 #define BEAT_MILLIS(x)	(60000 / (x))	// convert beat time signature (e.g. 60,120) to milliseconds
 #define NUM_DRUM_TRACKS	4
@@ -51,8 +58,10 @@ void updatePatternTime(__IO Pattern *p,__IO DrumTimes *t);
 #define MAX_PATTERNS			200
 #define MAX_SUBBEATS			48
 
-extern uint32_t pattern_audio_map[MAX_PATTERNS + 1][2];
-extern __IO DrumTimes *timptr;
+
+extern PatternData pattern_audio_map[MAX_PATTERNS + 1];
+extern __IO PatternTimes *timptr;
 extern uint32_t drumBeatIndex;
 extern uint8_t key_to_drum[];
+
 #endif

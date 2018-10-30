@@ -107,6 +107,7 @@ typedef struct {
 	__IO int32_t timeIncrement;	// if negative - plays faster, positive - slower
 } LooperApplication;
 
+
 void play_record();
 void lowerMixedSamples(uint32_t * buf);
 void buttonHandler();

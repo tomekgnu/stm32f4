@@ -64,13 +64,18 @@ void download_rhythm() {
 	Skip_Read_Button = TRUE;
 }
 
+void record_select_loops(){
+
+
+}
+
 void select_channel(){
 	if(ACTIVE_CHANNEL_1)
 		menuMultiLine(1,110,"Record channel 1");
 	else if(ACTIVE_CHANNEL_2)
 		menuMultiLine(1,110,"Record channel 2");
 	if(looper.TwoChannels == TRUE)
-		menuMultiLine(1,130,"Two channels    ");
+		menuMultiLine(1,130,"Output on both ");
 	else
 		menuMultiLine(1,130,"Output on single");
 
@@ -102,7 +107,7 @@ void select_channel(){
 				toggleActiveBothChannels();
 				looper.ch1.SamplesRead = looper.ch2.SamplesRead = 0;
 				if(looper.TwoChannels == TRUE)
-					menuMultiLine(1,130,"Two channels    ");
+					menuMultiLine(1,130,"Output on both ");
 				else
 					menuMultiLine(1,130,"Output on single");
 				break;
@@ -110,7 +115,7 @@ void select_channel(){
 	}
 
 	end_select_channel:
-	Skip_Read_Button = FALSE;
+	Skip_Read_Button = TRUE;
 }
 
 void select_bars() {
@@ -124,6 +129,7 @@ void select_bars() {
 	//map = (uint32_t (*)[])
 	memset(pattern_audio_map,0,sizeof(pattern_audio_map));
 	readDrums(&numOfPatterns,&numOfBytes,&maxResolution);
+	// restore previous values of start/end bars
 	getStartEndPatterns(&looper.startPattern,&looper.endPattern);
 	//looper.endPattern = numOfPatterns - 1;
 

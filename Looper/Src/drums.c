@@ -35,31 +35,31 @@ uint8_t key_to_drum[16] = {
 		Chinese_Cymbal
 };
 
-uint32_t pattern_audio_map[MAX_PATTERNS + 1][2];
+PatternData pattern_audio_map[MAX_PATTERNS + 1];
 uint8_t drumBuffA[MAX_SUBBEATS * NUM_ALL_TRACKS];
 uint8_t drumBuffB[MAX_SUBBEATS * NUM_ALL_TRACKS];
 uint8_t * drumBuffPtr;
 
-__IO Pattern pat1;
-__IO Pattern pat2;
-__IO DrumTimes tim1;
-__IO DrumTimes tim2;
-__IO DrumTimes *timptr;
-__IO Pattern *patptr;
+__IO PatternBeats pat1;
+__IO PatternBeats pat2;
+__IO PatternTimes tim1;
+__IO PatternTimes tim2;
+__IO PatternTimes *timptr;
+__IO PatternBeats *patptr;
 
-static void seekPattern(uint32_t (*pattern_audio_map)[2],uint32_t ind){
+static void seekPattern(PatternData *pattern_audio_map,uint32_t ind){
 	switch_buff = FALSE;
-	SRAM_seekRead(pattern_audio_map[ind][0],SRAM_SET);
-	readSRAM((uint8_t *)&pat1,sizeof(Pattern));
+	SRAM_seekRead(pattern_audio_map[ind].sram_position,SRAM_SET);
+	readSRAM((uint8_t *)&pat1,sizeof(PatternBeats));
 	setPatternTime(&pat1,&tim1);
 	readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
 
 }
 
 void drumAudioSync(){
-	looper.ch1.SamplesRead = pattern_audio_map[looper.startPattern][1];
+	looper.ch1.SamplesRead = pattern_audio_map[looper.startPattern].audio_position;
 	sdram_pointer = looper.ch1.SamplesRead * 2;
-	looper.ch1.SamplesWritten = pattern_audio_map[looper.endPattern + 1][1];
+	looper.ch1.SamplesWritten = pattern_audio_map[looper.endPattern + 1].audio_position;
 }
 
 void drumLoop(){
@@ -85,9 +85,9 @@ void drumLoop(){
 					menuShowStatus();
 					if(looper.startPattern == looper.endPattern)
 						goto wait_first_beat;
-					readSRAM((uint8_t *)&pat2,sizeof(Pattern));
+					readSRAM((uint8_t *)&pat2,sizeof(PatternBeats));
 					setPatternTime(&pat2,&tim2);
-					readSRAM((uint8_t *)drumBuffB,tim2.subbeats * 5);
+					readSRAM((uint8_t *)drumBuffB,tim2.subbeats * NUM_ALL_TRACKS);
 					switch_buff = TRUE;
 				}
 				else{
@@ -97,9 +97,9 @@ void drumLoop(){
 					drumBuffPtr = drumBuffB;
 					if(looper.startPattern == looper.endPattern)
 						goto wait_first_beat;
-					readSRAM((uint8_t *)&pat1,sizeof(Pattern));
+					readSRAM((uint8_t *)&pat1,sizeof(PatternBeats));
 					setPatternTime(&pat1,&tim1);
-					readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
+					readSRAM((uint8_t *)drumBuffA,tim1.subbeats * NUM_ALL_TRACKS);
 					switch_buff = FALSE;
 				}
 
@@ -144,7 +144,7 @@ void drumLoop(){
 }
 
 void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution){
-	Pattern tmp;
+	PatternBeats tmp;
 	uint32_t header[3];		// number of patterns, number of bytes, max. resolution
 	//uint32_t (*map)[2] = NULL;
 	uint32_t currPat = 0;
@@ -162,13 +162,14 @@ void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolut
 		return;
 
 	// create memory map
+	pattern_audio_map[0].audio_position = 0;
 	for(currPat = 0; currPat < *numOfPatterns; currPat++){
-		pattern_audio_map[currPat][0] = SRAM_readerPosition();
-		readSRAM((uint8_t *)&tmp,sizeof(Pattern));
-		readSRAM((uint8_t *)drumBuffA,tmp.beats * tmp.division * 5);
+		pattern_audio_map[currPat].sram_position = SRAM_readerPosition();
+		readSRAM((uint8_t *)&tmp,sizeof(PatternBeats));
+		readSRAM((uint8_t *)drumBuffA,tmp.beats * tmp.division * NUM_ALL_TRACKS);
 		if(currPat < *numOfPatterns){
 			uint32_t millis = BEAT_MILLIS(tmp.beattime);
-			pattern_audio_map[currPat + 1][1] = pattern_audio_map[currPat][1] + (millis * tmp.beats * 15);
+			pattern_audio_map[currPat + 1].audio_position = pattern_audio_map[currPat].audio_position + (millis * tmp.beats * 15);
 		}
 	}
 
@@ -184,7 +185,7 @@ void stopDrums(){
 
 }
 
-void setPatternTime(__IO Pattern *p,__IO DrumTimes *t){
+void setPatternTime(__IO PatternBeats *p,__IO PatternTimes *t){
 	uint32_t millis = BEAT_MILLIS(p->beattime);
 	t->subbeats = p->beats * p->division;
 	t->barDuration = p->beats * millis;
@@ -192,7 +193,7 @@ void setPatternTime(__IO Pattern *p,__IO DrumTimes *t){
 	t->subBeatDuration = t->barDuration / t->subbeats;
 }
 
-void updatePatternTime(__IO Pattern *p,__IO DrumTimes *t){
+void updatePatternTime(__IO PatternBeats *p,__IO PatternTimes *t){
 	uint32_t millis = BEAT_MILLIS(p->beattime + looper.timeIncrement) ;
 	t->subbeats = p->beats * p->division;
 	t->barDuration = p->beats * millis;

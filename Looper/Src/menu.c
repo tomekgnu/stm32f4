@@ -75,6 +75,7 @@ void menuInit(){
 	initParentNode(MAIN_MENU,messages[MAIN],NULL);
 		initParentNode(AUDIO_NODE,"Audio",audio_only);									// [AUDIO]
 			initParentNode(SELECT_AUDIO_CHANNEL_NODE,messages[CHANNEL_SELECT],select_channel);				// [SELECT CHANNEL]
+			initParentNode(RECORD_SELECT_LOOPS_NODE,messages[REC_SEL_LOOPS],record_select_loops);
 		initParentNode(RHYTHM_NODE,messages[AUDIO_RHYTHM],audio_rhythm);				// [AUDIO AND RHYTHM]
 			initParentNode(DOWNLOAD_RHYTHM_NODE,messages[DOWNL_RTH],download_rhythm);		// [DOWNLOAD RHYTHM
 
@@ -88,6 +89,7 @@ void menuInit(){
 
 		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,AUDIO_NODE);
 			connectChildNode(AUDIO_NODE,TM_KEYPAD_Button_1,SELECT_AUDIO_CHANNEL_NODE);
+			connectChildNode(AUDIO_NODE,TM_KEYPAD_Button_2,RECORD_SELECT_LOOPS_NODE);
 		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,RHYTHM_NODE);
 			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_1,DOWNLOAD_RHYTHM_NODE);
 			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_2,SELECT_BARS_NODE);

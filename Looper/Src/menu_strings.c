@@ -18,5 +18,6 @@ void menuInitMsg(){
 	messages[TOO_MANY_SUBB] = "Too many subbeats!";
 	messages[CHANNEL_SELECT] = "Select channel";
 	messages[AUDIO_RHYTHM] = "Audio and rhythm";
+	messages[REC_SEL_LOOPS] = "Play and Record";
 }
 

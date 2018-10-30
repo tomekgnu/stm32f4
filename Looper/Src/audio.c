@@ -28,13 +28,19 @@ void getStartEndPatterns(uint32_t *start,uint32_t *end){
 void setStartEndPatterns(uint32_t start,uint32_t end){
 	startPatternTmp = start;
 	endPatternTmp = end;
-	sdram_pointer =  sdramPointerTmp = pattern_audio_map[startPatternTmp][1] * looper.SampleOffset;
-	(GET_ACTIVE_CHANNEL)->SamplesRead = pattern_audio_map[startPatternTmp][1];
-	(GET_ACTIVE_CHANNEL)->SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
-	if((GET_INACTIVE_CHANNEL)->SamplesWritten > 0){
-		(GET_INACTIVE_CHANNEL)->SamplesRead = pattern_audio_map[startPatternTmp][1];
-		(GET_INACTIVE_CHANNEL)->SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
+	sdram_pointer =  sdramPointerTmp = pattern_audio_map[startPatternTmp].audio_position * looper.SampleOffset;
+	(GET_ACTIVE_CHANNEL)->SamplesRead = pattern_audio_map[startPatternTmp].audio_position;
+	(GET_ACTIVE_CHANNEL)->SamplesWritten = pattern_audio_map[endPatternTmp + 1].audio_position;
+	for(;start <= end;start++){
+		if(ACTIVE_CHANNEL_1)
+			pattern_audio_map[start].ch1rec = TRUE;
+		else if(ACTIVE_CHANNEL_2)
+			pattern_audio_map[start].ch2rec = TRUE;
 	}
+//	if((GET_INACTIVE_CHANNEL)->SamplesWritten > 0){
+//		(GET_INACTIVE_CHANNEL)->SamplesRead = pattern_audio_map[startPatternTmp][1];
+//		(GET_INACTIVE_CHANNEL)->SamplesWritten = pattern_audio_map[endPatternTmp + 1][1];
+//	}
 }
 
 void inline resetSamples(){
