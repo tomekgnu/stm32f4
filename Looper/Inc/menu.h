@@ -69,7 +69,7 @@ void menuMultiLine(uint8_t lines, uint8_t offset, ...);
 void menuInitMsg();
 void menuStatusLine(char *text);
 void menuShowStatus();
-void drumMenuInput(uint32_t (*map)[2],uint32_t numOfPatterns, BOOL *play);
+void drumMenuInput(uint32_t numOfPatterns, BOOL *play);
 void setCurrentMenuNode(uint8_t node);
 void connectChildNode(uint8_t parent,uint8_t opt_key,uint8_t child);
 // menu macros

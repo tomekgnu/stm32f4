@@ -453,7 +453,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				}
 				else {
 					record_samples(sample16s,&looper.ch1,&looper.ch2);
-					play_sample(GET_INACTIVE_CHANNEL);
+					if(pattern_audio_map[looper.StartPattern].channel_recorded[INACTIVE_CHANNEL_INDEX] == TRUE)
+						play_sample(GET_INACTIVE_CHANNEL);
 				}
 
 			}

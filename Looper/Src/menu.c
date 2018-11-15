@@ -211,25 +211,25 @@ void menuShowTimers(){
 }
 static inline void forwardBar(BOOL start,uint32_t numOfPatterns){
 	if(start == TRUE){
-		if(looper.startPattern < looper.endPattern)
-			looper.startPattern++;
+		if(looper.StartPattern < looper.EndPattern)
+			looper.StartPattern++;
 		}
-		else if(looper.endPattern < (numOfPatterns - 1))
-			looper.endPattern++;
+		else if(looper.EndPattern < (numOfPatterns - 1))
+			looper.EndPattern++;
 
 }
 
 
 static inline void backwardBar(BOOL start){
 	if(start == TRUE){
-		if(looper.startPattern > 0)
-			looper.startPattern--;
+		if(looper.StartPattern > 0)
+			looper.StartPattern--;
 		}
-	else if(looper.endPattern > looper.startPattern)
-		looper.endPattern--;
+	else if(looper.EndPattern > looper.StartPattern)
+		looper.EndPattern--;
 }
 
-void drumMenuInput(uint32_t (*map)[2],uint32_t numOfPatterns,BOOL *play){
+void drumMenuInput(uint32_t numOfPatterns,BOOL *play){
 	BOOL input = TRUE;
 	BOOL startBar = TRUE;
 
@@ -287,15 +287,15 @@ void drumMenuInput(uint32_t (*map)[2],uint32_t numOfPatterns,BOOL *play){
 
 			if(input == TRUE){
 				if(startBar == TRUE){
-					sprintf(lcdline,"*Start: %-4u",(unsigned int)(looper.startPattern + 1));
+					sprintf(lcdline,"*Start: %-4u",(unsigned int)(looper.StartPattern + 1));
 					TM_ILI9341_Puts(10, 170, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-					sprintf(lcdline," End: %-4u",(unsigned int)(looper.endPattern + 1));
+					sprintf(lcdline," End: %-4u",(unsigned int)(looper.EndPattern + 1));
 					TM_ILI9341_Puts(10, 190, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 				}
 				else{
-					sprintf(lcdline," Start: %-4u",(unsigned int)(looper.startPattern + 1));
+					sprintf(lcdline," Start: %-4u",(unsigned int)(looper.StartPattern + 1));
 					TM_ILI9341_Puts(10, 170, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
-					sprintf(lcdline,"*End: %-4u",(unsigned int)(looper.endPattern + 1));
+					sprintf(lcdline,"*End: %-4u",(unsigned int)(looper.EndPattern + 1));
 					TM_ILI9341_Puts(10, 190, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 
 				}

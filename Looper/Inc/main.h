@@ -57,7 +57,6 @@
 /* USER CODE BEGIN Includes */
 #include "stm32f4xx.h"
 #include "stdint.h"
-#include "drums.h"
 #include "audio.h"
 #include "tm_stm32f4_keypad.h"
 
@@ -67,6 +66,8 @@
 #define READ_SIZE			((SAMPLE_BYTES) / 4)
 #define WRITE_SIZE			((SAMPLE_BYTES) / 4)
 #define MEM_BLOCK			READ_SIZE
+
+typedef enum{DRUMS_STOPPED,DRUMS_STARTED,DRUMS_READY,DRUMS_PAUSED}DrumFunction;
 
 typedef enum {
 	FALSE, TRUE
@@ -98,8 +99,8 @@ typedef struct {
 	__IO BOOL StartLooper;
 	__IO BOOL TwoChannels;
 	__IO uint32_t SampleOffset;
-	__IO uint32_t startPattern;
-	__IO uint32_t endPattern;
+	__IO uint32_t StartPattern;
+	__IO uint32_t EndPattern;
 	__IO DrumFunction DrumState;
 	__IO FUNCTION Function;
 	__IO CHANNEL ch1;

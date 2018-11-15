@@ -57,23 +57,23 @@ static void seekPattern(PatternData *pattern_audio_map,uint32_t ind){
 }
 
 void drumAudioSync(){
-	looper.ch1.SamplesRead = pattern_audio_map[looper.startPattern].audio_position;
+	looper.ch1.SamplesRead = pattern_audio_map[looper.StartPattern].audio_position;
 	sdram_pointer = looper.ch1.SamplesRead * 2;
-	looper.ch1.SamplesWritten = pattern_audio_map[looper.endPattern + 1].audio_position;
+	looper.ch1.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].audio_position;
 }
 
 void drumLoop(){
-	uint32_t tmp = looper.startPattern;
+	uint32_t tmp = looper.StartPattern;
 	switch_buff = FALSE;
 	first_beat = FALSE;
-	seekPattern(pattern_audio_map,looper.startPattern);
+	seekPattern(pattern_audio_map,looper.StartPattern);
 	resetDrums();
 	HAL_TIM_Base_Start_IT(&htim2);
 	looper.Function = AUDIO_DRUMS;
 	looper.DrumState = DRUMS_STARTED;
-	setStartEndPatterns(looper.startPattern,looper.endPattern);
+	setStartEndPatterns(looper.StartPattern,looper.EndPattern);
 
-	while(looper.DrumState == DRUMS_STARTED && looper.startPattern < (looper.startPattern + 1)){
+	while(looper.DrumState == DRUMS_STARTED && looper.StartPattern < (looper.EndPattern + 1)){
 
 			looper.StartLooper = TRUE;
 
@@ -83,7 +83,7 @@ void drumLoop(){
 					patptr = &pat1;
 					drumBuffPtr = drumBuffA;
 					menuShowStatus();
-					if(looper.startPattern == looper.endPattern)
+					if(looper.StartPattern == looper.EndPattern)
 						goto wait_first_beat;
 					readSRAM((uint8_t *)&pat2,sizeof(PatternBeats));
 					setPatternTime(&pat2,&tim2);
@@ -95,7 +95,7 @@ void drumLoop(){
 					timptr = &tim2;
 					patptr = &pat2;
 					drumBuffPtr = drumBuffB;
-					if(looper.startPattern == looper.endPattern)
+					if(looper.StartPattern == looper.EndPattern)
 						goto wait_first_beat;
 					readSRAM((uint8_t *)&pat1,sizeof(PatternBeats));
 					setPatternTime(&pat1,&tim1);
@@ -104,7 +104,7 @@ void drumLoop(){
 				}
 
 				wait_first_beat:
-				sprintf(lcdline," Playing bar: %-4u",(unsigned int)(looper.startPattern + 1));
+				sprintf(lcdline," Playing bar: %-4u",(unsigned int)(looper.StartPattern + 1));
 				TM_ILI9341_Puts(10, 150, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 
 				while(first_beat == FALSE){
@@ -114,20 +114,21 @@ void drumLoop(){
 				}
 
 				first_beat = FALSE;
+				if(looper.Recording == TRUE)
+					pattern_audio_map[looper.StartPattern].channel_recorded[ACTIVE_CHANNEL_INDEX] = TRUE;
+				looper.StartPattern++;
 
-				looper.startPattern++;
-
-				if(looper.startPattern == (looper.endPattern + 1)){
+				if(looper.StartPattern == (looper.EndPattern + 1)){
 					if(looper.Recording == TRUE){
 						looper.Recording = FALSE;
 						goto end_drum_loop;
 					}
 
-					looper.startPattern = tmp;	// restore original start pattern number
+					looper.StartPattern = tmp;	// restore original start pattern number
 					// setStartEndPatterns in read_sample and read_samples
 					switch_buff = FALSE;
 					first_beat = FALSE;
-					seekPattern(pattern_audio_map,looper.startPattern);
+					seekPattern(pattern_audio_map,looper.StartPattern);
 
 				}
 
@@ -136,7 +137,7 @@ void drumLoop(){
 
 		end_drum_loop:
 		stopDrums();
-		looper.startPattern = tmp;
+		looper.StartPattern = tmp;
 		looper.StartLooper = FALSE;
 		looper.Playback = FALSE;
 		looper.Recording = FALSE;
@@ -163,7 +164,11 @@ void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolut
 
 	// create memory map
 	pattern_audio_map[0].audio_position = 0;
+	pattern_audio_map[0].channel_recorded[_CH1] = FALSE;
+	pattern_audio_map[0].channel_recorded[_CH2] = FALSE;
 	for(currPat = 0; currPat < *numOfPatterns; currPat++){
+		pattern_audio_map[currPat].channel_recorded[_CH1] = FALSE;
+		pattern_audio_map[currPat].channel_recorded[_CH2] = FALSE;
 		pattern_audio_map[currPat].sram_position = SRAM_readerPosition();
 		readSRAM((uint8_t *)&tmp,sizeof(PatternBeats));
 		readSRAM((uint8_t *)drumBuffA,tmp.beats * tmp.division * NUM_ALL_TRACKS);

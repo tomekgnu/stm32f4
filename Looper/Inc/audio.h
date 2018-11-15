@@ -4,11 +4,14 @@
 #include "stm32f429xx.h"
 
 #define	SIGNED16_UNSIGNED12(x)		((x / 4) + 2048)
-
+#define _CH1						0
+#define _CH2						1
 #define ACTIVE_CHANNEL_1			(looper.ch1.Active == TRUE && looper.ch2.Active == FALSE?TRUE:FALSE)
 #define ACTIVE_CHANNEL_2			(looper.ch1.Active == FALSE && looper.ch2.Active == TRUE?TRUE:FALSE)
 #define GET_ACTIVE_CHANNEL			looper.ch1.Active == TRUE?&looper.ch1:&looper.ch2
 #define GET_INACTIVE_CHANNEL		looper.ch1.Active == FALSE?&looper.ch1:&looper.ch2
+#define ACTIVE_CHANNEL_INDEX		(looper.ch1.Active == TRUE?_CH1:_CH2)
+#define INACTIVE_CHANNEL_INDEX		(looper.ch1.Active == FALSE?_CH1:_CH2)
 #define MONITOR_CHANNEL_1			looper.ch1.Monitor == TRUE
 #define MONITOR_CHANNEL_2			looper.ch2.Monitor == TRUE
 #define ACTIVE_BOTH_CHANNELS		looper.ch1.Active == TRUE && looper.ch2.Active == TRUE?TRUE:FALSE

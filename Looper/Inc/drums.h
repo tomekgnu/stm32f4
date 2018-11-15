@@ -1,32 +1,33 @@
 #ifndef __DRUMS_H
 #define __DRUMS_H
 
+#include "main.h"
 #include "stm32f429xx.h"
-#include "ff.h"
 
-typedef enum{DRUMS_STOPPED,DRUMS_STARTED,DRUMS_READY,DRUMS_PAUSED}DrumFunction;
 
 typedef struct{
-	uint32_t beats;	// number of beats
-	uint32_t division; // number of smaller parts in single beat
-	uint32_t beattime;	// beat time e.g. 60..120
-	uint32_t repeat;
+	uint32_t sram_position;			// pattern offset in sram in bytes
+	uint32_t audio_position;		// pattern sample offset
+	BOOL channel_recorded[2];		// index 0: channel one, index 1: channel two
+} PatternData;
+
+
+typedef struct{
+	uint32_t beats;		// number of beats in pattern
+	uint32_t division; 	// number of smaller parts in single beat
+	uint32_t beattime;	// beat time e.g. 60..120 (beats per minute)
+	uint32_t repeat;	// not used yet
 }PatternBeats;
 
 typedef struct{
-	uint32_t subbeats;
-	uint32_t barDuration;
-	uint32_t remainder;
-	uint32_t subBeatDuration;
+	uint32_t subbeats;			// number of beats * division
+	uint32_t barDuration;		// pattern duration in milliseconds
+	uint32_t remainder;			// remaining milliseconds of bar duration % subbeats
+	uint32_t subBeatDuration;	// bar duration / subbeats
 
 }PatternTimes;
 
-typedef struct{
-	uint32_t sram_position;		// pattern offset in sram in bytes
-	uint32_t audio_position;	// audio sample offset
-	uint8_t ch1rec:1;
-	uint8_t ch2rec:1;
-}PatternData;
+
 
 void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution);
 void drumLoop();

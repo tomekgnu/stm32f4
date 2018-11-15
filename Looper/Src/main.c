@@ -153,7 +153,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  looper.Function = AUDIO_ONLY;
+  looper.Function = NONE;
   looper.TwoChannels = FALSE;
   looper.ch1.Active = TRUE;
   looper.ch1.Monitor = FALSE;

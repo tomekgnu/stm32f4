@@ -65,7 +65,10 @@ void download_rhythm() {
 }
 
 void record_select_loops(){
-
+	looper.Function = AUDIO_ONLY;
+	looper.StartPattern = 0;
+	looper.EndPattern = 0;
+	setStartEndPatterns(looper.StartPattern,looper.EndPattern);
 
 }
 
@@ -130,7 +133,7 @@ void select_bars() {
 	memset(pattern_audio_map,0,sizeof(pattern_audio_map));
 	readDrums(&numOfPatterns,&numOfBytes,&maxResolution);
 	// restore previous values of start/end bars
-	getStartEndPatterns(&looper.startPattern,&looper.endPattern);
+	getStartEndPatterns(&looper.StartPattern,&looper.EndPattern);
 	//looper.endPattern = numOfPatterns - 1;
 
 	if(numOfPatterns == 0){
@@ -154,7 +157,7 @@ void select_bars() {
 		// return star and end patterns and use them as parameters to drum loop
 		// waits until play == TRUE (button "3" or joystick)
 		menuShowStatus();
-		drumMenuInput(pattern_audio_map,numOfPatterns,&play);
+		drumMenuInput(numOfPatterns,&play);
 		if(play == FALSE)
 			goto end_play_rhythm;
 		drumLoop();
