@@ -501,7 +501,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 			if(looper.Function == AUDIO_ONLY){
 				pattern_audio_map[looper.StartPattern].channel_recorded[ACTIVE_CHANNEL_INDEX] = TRUE;
-				pattern_audio_map[looper.StartPattern + 1].audio_position = looper.SamplesWritten;
+				pattern_audio_map[looper.StartPattern + 1].sample_position = looper.SamplesWritten;
 				looper.SamplesRead = 0;
 				sdram_pointer = 0;
 			}

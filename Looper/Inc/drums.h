@@ -7,7 +7,7 @@
 
 typedef struct{
 	uint32_t sram_position;			// pattern offset in sram in bytes
-	uint32_t audio_position;		// pattern sample offset
+	uint32_t sample_position;		// pattern sample offset
 	BOOL channel_recorded[2];		// index 0: channel one, index 1: channel two
 } PatternData;
 

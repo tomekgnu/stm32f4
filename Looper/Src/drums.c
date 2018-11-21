@@ -57,9 +57,9 @@ static void seekPattern(PatternData *pattern_audio_map,uint32_t ind){
 }
 
 void drumAudioSync(){
-	looper.SamplesRead = pattern_audio_map[looper.StartPattern].audio_position;
+	looper.SamplesRead = pattern_audio_map[looper.StartPattern].sample_position;
 	sdram_pointer = looper.SamplesRead * 2;
-	looper.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].audio_position;
+	looper.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
 }
 
 void drumLoop(){
@@ -163,7 +163,7 @@ void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolut
 		return;
 
 	// create memory map
-	pattern_audio_map[0].audio_position = 0;
+	pattern_audio_map[0].sample_position = 0;
 	pattern_audio_map[0].channel_recorded[_CH1] = FALSE;
 	pattern_audio_map[0].channel_recorded[_CH2] = FALSE;
 	for(currPat = 0; currPat < *numOfPatterns; currPat++){
@@ -174,7 +174,7 @@ void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolut
 		readSRAM((uint8_t *)drumBuffA,tmp.beats * tmp.division * NUM_ALL_TRACKS);
 		if(currPat < *numOfPatterns){
 			uint32_t millis = BEAT_MILLIS(tmp.beattime);
-			pattern_audio_map[currPat + 1].audio_position = pattern_audio_map[currPat].audio_position + (millis * tmp.beats * 15);
+			pattern_audio_map[currPat + 1].sample_position = pattern_audio_map[currPat].sample_position + (millis * tmp.beats * 15);
 		}
 	}
 

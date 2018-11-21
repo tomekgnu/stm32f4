@@ -28,9 +28,9 @@ void getStartEndPatterns(uint32_t *start,uint32_t *end){
 void setStartEndPatterns(uint32_t start,uint32_t end){
 	startPatternTmp = start;
 	endPatternTmp = end;
-	sdram_pointer =  sdramPointerTmp = pattern_audio_map[startPatternTmp].audio_position * looper.SampleOffset;
-	looper.SamplesRead = pattern_audio_map[startPatternTmp].audio_position;
-	looper.SamplesWritten = pattern_audio_map[endPatternTmp + 1].audio_position;
+	sdram_pointer =  sdramPointerTmp = pattern_audio_map[startPatternTmp].sample_position * looper.SampleOffset;
+	looper.SamplesRead = pattern_audio_map[startPatternTmp].sample_position;
+	looper.SamplesWritten = pattern_audio_map[endPatternTmp + 1].sample_position;
 
 }
 
@@ -129,6 +129,7 @@ void play_sample_dac(__IO CHANNEL *cha){
 
 void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 	int16_t sread;
+
 	if(looper.StartLooper == FALSE ){
 		return;
 	}
@@ -158,13 +159,14 @@ void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 		looper.SamplesWritten++;
 	}
 
-	if(pattern_audio_map[looper.StartPattern + 1].audio_position > 0 && looper.SamplesWritten >= pattern_audio_map[looper.StartPattern + 1].audio_position){
-		BSP_LED_Off(LED_RED);
-		looper.SamplesRead = 0;
-		sdram_pointer = 0;
-		show_status_line = TRUE;
-		looper.StartLooper = FALSE;
-		return;
+	if(pattern_audio_map[looper.StartPattern + 1].sample_position > pattern_audio_map[looper.StartPattern].sample_position &&
+		looper.SamplesWritten >= pattern_audio_map[looper.StartPattern + 1].sample_position){
+			BSP_LED_Off(LED_RED);
+			looper.SamplesRead = 0;
+			sdram_pointer = 0;
+			show_status_line = TRUE;
+			looper.StartLooper = FALSE;
+			return;
 	}
 	if(sdram_pointer == SDRAM_SIZE){
 		sdram_pointer = 0;
