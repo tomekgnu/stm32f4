@@ -470,7 +470,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			if(looper.DrumState == DRUMS_STARTED)
 				return;
 			looper.StartLooper = FALSE;
-			//
+			looper.SamplesRead = 0;
+			looper.SamplesWritten = 0;
 
 			if(looper.Function == AUDIO_ONLY){
 				resetChannel(GET_ACTIVE_CHANNEL);
@@ -495,12 +496,13 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				return;
 			if(looper.DrumState == DRUMS_STARTED)
 				return;
-			if(looper.ch1.SamplesWritten == 0 && looper.ch2.SamplesWritten == 0)
+			if(looper.SamplesWritten == 0)
 				return;
 
 			if(looper.Function == AUDIO_ONLY){
-				looper.ch1.SamplesRead = 0;
-				looper.ch2.SamplesRead = 0;
+				pattern_audio_map[looper.StartPattern].channel_recorded[ACTIVE_CHANNEL_INDEX] = TRUE;
+				pattern_audio_map[looper.StartPattern + 1].audio_position = looper.SamplesWritten;
+				looper.SamplesRead = 0;
 				sdram_pointer = 0;
 			}
 
@@ -533,7 +535,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			if(IS_BUT_DOWN(BUT_OVERDUB) == TRUE)
 				return;
 			BUT_DOWN(BUT_OVERDUB);
-			if(looper.ch1.SamplesWritten == 0 && looper.ch2.SamplesWritten == 0)
+			if(looper.SamplesWritten == 0 && looper.SamplesWritten == 0)
 				return;
 			if(looper.ch1.Active == TRUE){
 				if(looper.ch1.Overdub == FALSE)

@@ -101,6 +101,8 @@ typedef struct {
 	__IO uint32_t SampleOffset;
 	__IO uint32_t StartPattern;
 	__IO uint32_t EndPattern;
+	__IO uint32_t SamplesRead;
+	__IO uint32_t SamplesWritten;
 	__IO DrumFunction DrumState;
 	__IO FUNCTION Function;
 	__IO CHANNEL ch1;

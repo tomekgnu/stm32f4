@@ -112,7 +112,7 @@ void SRAM_readSingleTrack() {
 }
 
 void SRAM_writeSingleTrack(__IO CHANNEL *ch){
-	uint32_t allbytes = ch->SamplesWritten * 2;
+	uint32_t allbytes = looper.SamplesWritten * 2;
 	uint32_t remainder = allbytes % BYTE_SIZE;
 	SRAM_seekWrite(0,SRAM_SET);
 	sdram_pointer = 0;
@@ -255,7 +255,7 @@ void SF3_readSingleTrack(spiffs * fs,spiffs_file fh){
 }
 void SF3_writeSingleTrack(__IO CHANNEL *ch,spiffs * fs,spiffs_file fh){
 
-	uint32_t allbytes = ch->SamplesWritten * 2;
+	uint32_t allbytes = looper.SamplesWritten * 2;
 	uint32_t remainder = allbytes % BYTE_SIZE;
 
 	sdram_pointer = 0;
@@ -310,7 +310,7 @@ void SD_readToSDRAM(FIL *fp){
 	while(1){
 		f_read(fp,(uint8_t *)_buf,8192,&bytes_read);
 		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t*)_buf,bytes_read / 2);
-		looper.ch1.SamplesWritten += (bytes_read / 2);
+		looper.SamplesWritten += (bytes_read / 2);
 		sdram_pointer += bytes_read;
 		if(f_eof(fp))
 			break;
@@ -322,7 +322,7 @@ void SD_readToSDRAM(FIL *fp){
 
 void SD_writeSingleTrack(__IO CHANNEL *ch,FIL *fp){
 	uint8_t *_buf;
-	uint32_t bytesRemaining = ch->SamplesWritten * 2;
+	uint32_t bytesRemaining = looper.SamplesWritten * 2;
 	_buf = (uint8_t *)malloc(8192);
 	bytes_written = 0;
 	sdram_pointer = 0;

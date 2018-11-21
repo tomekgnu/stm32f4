@@ -92,23 +92,16 @@ void select_channel(){
 			case TM_KEYPAD_Button_0: goto end_select_channel;
 			case TM_KEYPAD_Button_A:
 				 setActiveChannelOne();
-				 looper.ch2.SamplesRead = 0;
-				 looper.ch1.SamplesRead = 0;
-				 looper.ch1.SamplesWritten = 0;
 				 menuMultiLine(1,110,"Record channel 1");
 				 break;
 
 			case TM_KEYPAD_Button_B:
 				setActiveChannelTwo();
-				looper.ch1.SamplesRead = 0;
-				looper.ch2.SamplesRead = 0;
-				looper.ch2.SamplesWritten = 0;
 				menuMultiLine(1,110,"Record channel 2");
 				break;
 
 			case TM_KEYPAD_Button_C:
 				toggleActiveBothChannels();
-				looper.ch1.SamplesRead = looper.ch2.SamplesRead = 0;
 				if(looper.TwoChannels == TRUE)
 					menuMultiLine(1,130,"Output on both ");
 				else

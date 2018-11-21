@@ -29,20 +29,20 @@ void setStartEndPatterns(uint32_t start,uint32_t end){
 	startPatternTmp = start;
 	endPatternTmp = end;
 	sdram_pointer =  sdramPointerTmp = pattern_audio_map[startPatternTmp].audio_position * looper.SampleOffset;
-	(GET_ACTIVE_CHANNEL)->SamplesRead = pattern_audio_map[startPatternTmp].audio_position;
-	(GET_ACTIVE_CHANNEL)->SamplesWritten = pattern_audio_map[endPatternTmp + 1].audio_position;
+	looper.SamplesRead = pattern_audio_map[startPatternTmp].audio_position;
+	looper.SamplesWritten = pattern_audio_map[endPatternTmp + 1].audio_position;
 
 }
 
 void inline resetSamples(){
 	if(looper.Playback == TRUE){
-				looper.ch1.SamplesRead = 0;
-				looper.ch2.SamplesRead = 0;
-			}
-			if(looper.Recording == TRUE){
-				looper.ch1.SamplesRead = 0;
-				looper.ch2.SamplesRead = 0;
-			}
+				looper.SamplesRead = 0;
+				looper.SamplesRead = 0;
+	}
+	if(looper.Recording == TRUE){
+		looper.SamplesRead = 0;
+		looper.SamplesRead = 0;
+	}
 }
 
 void signed16_unsigned12(int16_t *buf,int32_t start,int32_t stop){
@@ -51,27 +51,23 @@ void signed16_unsigned12(int16_t *buf,int32_t start,int32_t stop){
 }
 
 void record_sample(int16_t swrite,__IO CHANNEL *cha){
-	if(looper.StartLooper == FALSE ){
+	if(looper.StartLooper == FALSE){
 		return;
 	}
 
-
-	BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer + cha->Offset,(uint16_t *) &swrite, 1);
-	sdram_pointer += looper.SampleOffset;
-
-	cha->SamplesWritten++;
-	if(sdram_pointer >= SDRAM_SIZE){
-		sdram_pointer = 0;
-		cha->SamplesRead = 0;
-		//resetDrums();
+	if(sdram_pointer < SDRAM_SIZE){
+		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer + cha->Offset,(uint16_t *) &swrite, 1);
+		sdram_pointer += looper.SampleOffset;
+		looper.SamplesWritten++;
 	}
+
 }
 
 void read_sample(int16_t swrite,__IO CHANNEL *cha){
 	int16_t sread;
 
 	if(looper.StartLooper == FALSE ){
-			return;
+		return;
 	}
 
 	BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer + cha->Offset,(uint16_t *) &sread, 1);
@@ -88,10 +84,10 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha){
 	if(cha->Overdub == TRUE)
 		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer + cha->Offset,(uint16_t *) &cha->mix32tmp, 1);
 
-	cha->SamplesRead++;
+	looper.SamplesRead++;
 	sdram_pointer += looper.SampleOffset;
 
-	if(cha->SamplesRead >= cha->SamplesWritten){
+	if(looper.SamplesRead >= looper.SamplesWritten){
 		if(cha->Overdub == TRUE && cha->mix32Max > 16383){
 			cha->Clipping = TRUE;
 			cha->gain = 16383.00 / cha->mix32Max;
@@ -108,7 +104,7 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha){
 		}
 		else{
 			sdram_pointer = 0;
-			cha->SamplesRead = 0;
+			looper.SamplesRead = 0;
 		}
 		//
 		return;
@@ -122,8 +118,8 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha){
 
 
 void play_sample(__IO CHANNEL *cha){
-	if(cha->SamplesWritten > 0 && cha->SamplesRead <= cha->SamplesWritten)
-		Write_DAC8552(channel_A,(uint16_t)(cha->CurrentSample + 16383));
+	//if(cha->SamplesWritten > 0 && cha->SamplesRead <= cha->SamplesWritten)
+	Write_DAC8552(channel_A,(uint16_t)(cha->CurrentSample + 16383));
 
 }
 
@@ -136,48 +132,43 @@ void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 	if(looper.StartLooper == FALSE ){
 		return;
 	}
-	if(cha->Active == TRUE){
-		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer + cha->Offset,(uint16_t *) &swrite, 1);
-		cha->SamplesWritten++;
-		// read other track if it has any samples
-		if(chb->SamplesRead < chb->SamplesWritten){
-			BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer + chb->Offset,(uint16_t *)&sread,1);
-			chb->CurrentSample = sread;
-			chb->SamplesRead++;
+
+	if(sdram_pointer < SDRAM_SIZE){
+		if(cha->Active == TRUE){
+			BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer + cha->Offset,(uint16_t *) &swrite, 1);
+
+			// read other track if it has any samples
+			if(pattern_audio_map[looper.StartPattern].channel_recorded[INACTIVE_CHANNEL_INDEX] == TRUE){
+				BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer + chb->Offset,(uint16_t *)&sread,1);
+				chb->CurrentSample = sread;
+			}
+
+		}
+		else if(chb->Active == TRUE){
+			BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer  + chb->Offset,(uint16_t *) &swrite, 1);
+
+			// read other track if it has any samples
+			if(pattern_audio_map[looper.StartPattern].channel_recorded[INACTIVE_CHANNEL_INDEX] == TRUE){
+				BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer + cha->Offset,(uint16_t *)&sread,1);
+				cha->CurrentSample = sread;
+			}
 		}
 
+		sdram_pointer += looper.SampleOffset;
+		looper.SamplesWritten++;
 	}
-	else if(chb->Active == TRUE){
-		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer  + chb->Offset,(uint16_t *) &swrite, 1);
-		chb->SamplesWritten++;
-		// read other track if it has any samples
-		if(cha->SamplesRead < cha->SamplesWritten){
-			BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer + cha->Offset,(uint16_t *)&sread,1);
-			cha->CurrentSample = sread;
-			cha->SamplesRead++;
-		}
-	}
-	else return;
 
-	sdram_pointer += looper.SampleOffset;
-	if(cha->SamplesWritten == chb->SamplesWritten){
-		looper.StartLooper = FALSE;
-		BSP_LED_On(LED_GREEN);
+	if(pattern_audio_map[looper.StartPattern + 1].audio_position > 0 && looper.SamplesWritten >= pattern_audio_map[looper.StartPattern + 1].audio_position){
 		BSP_LED_Off(LED_RED);
-		looper.Playback = TRUE;
-		looper.Recording = FALSE;
-		cha->SamplesRead = 0;
-		chb->SamplesRead = 0;
+		looper.SamplesRead = 0;
 		sdram_pointer = 0;
 		show_status_line = TRUE;
-		looper.StartLooper = TRUE;
+		looper.StartLooper = FALSE;
 		return;
 	}
 	if(sdram_pointer == SDRAM_SIZE){
 		sdram_pointer = 0;
-		cha->SamplesRead = 0;
-		chb->SamplesRead = 0;
-		//resetDrums();
+		looper.SamplesRead = 0;
 	}
 }
 
@@ -205,20 +196,18 @@ void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 	cha->CurrentSample = sread[0];
 	chb->CurrentSample = sread[1];
 
-	cha->SamplesRead++;
-	chb->SamplesRead++;
+	looper.SamplesRead++;
 
 	sdram_pointer += looper.SampleOffset;
 
-	if((cha->Active == TRUE && cha->SamplesRead >= cha->SamplesWritten) || (chb->Active == TRUE && chb->SamplesRead >= chb->SamplesWritten)){
+	if(looper.SamplesRead >= looper.SamplesWritten){
 		if(looper.Function == AUDIO_DRUMS){
 			setStartEndPatterns(startPatternTmp,endPatternTmp);
 			looper.StartLooper = FALSE;
 		}
 		else{
 			sdram_pointer = 0;
-			cha->SamplesRead = 0;
-			chb->SamplesRead = 0;
+			looper.SamplesRead = 0;
 		}
 	}
 	if(sdram_pointer == SDRAM_SIZE)
@@ -231,8 +220,8 @@ void initChannels(){
 	looper.ch1.Monitor = looper.ch2.Monitor = FALSE;
 	looper.ch1.mix32Max = looper.ch2.mix32Max = FALSE;
 	looper.ch1.gain = looper.ch2.gain = 1.0;
-	looper.ch1.SamplesRead = looper.ch2.SamplesRead = 0;
-	looper.ch1.SamplesWritten = looper.ch2.SamplesWritten = 0;
+	looper.SamplesRead = 0;
+	looper.SamplesWritten = 0;
 	looper.ch1.CurrentSample = looper.ch2.CurrentSample = 0;
 }
 
@@ -273,8 +262,6 @@ void resetChannel(__IO CHANNEL *ch){
 	ch->Overdub = FALSE;
 	ch->mix32Max = 16383;
 	ch->gain = 1.0;
-	ch->SamplesRead = 0;
-	ch->SamplesWritten = 0;
 	ch->CurrentSample = 0;
 }
 

@@ -57,9 +57,9 @@ static void seekPattern(PatternData *pattern_audio_map,uint32_t ind){
 }
 
 void drumAudioSync(){
-	looper.ch1.SamplesRead = pattern_audio_map[looper.StartPattern].audio_position;
-	sdram_pointer = looper.ch1.SamplesRead * 2;
-	looper.ch1.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].audio_position;
+	looper.SamplesRead = pattern_audio_map[looper.StartPattern].audio_position;
+	sdram_pointer = looper.SamplesRead * 2;
+	looper.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].audio_position;
 }
 
 void drumLoop(){
