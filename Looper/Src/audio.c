@@ -28,7 +28,7 @@ void getStartEndPatterns(uint32_t *start,uint32_t *end){
 void setStartEndPatterns(uint32_t start,uint32_t end){
 	startPatternTmp = start;
 	endPatternTmp = end;
-	sdram_pointer =  sdramPointerTmp = pattern_audio_map[startPatternTmp].sample_position * looper.SampleOffset;
+	sdram_pointer =  sdramPointerTmp = pattern_audio_map[startPatternTmp].sample_position * looper.SampleBytes;
 	looper.SamplesRead = pattern_audio_map[startPatternTmp].sample_position;
 	looper.SamplesWritten = pattern_audio_map[endPatternTmp + 1].sample_position;
 
@@ -57,7 +57,7 @@ void record_sample(int16_t swrite,__IO CHANNEL *cha){
 
 	if(sdram_pointer < SDRAM_SIZE){
 		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer + cha->Offset,(uint16_t *) &swrite, 1);
-		sdram_pointer += looper.SampleOffset;
+		sdram_pointer += looper.SampleBytes;
 		looper.SamplesWritten++;
 	}
 
@@ -85,7 +85,7 @@ void read_sample(int16_t swrite,__IO CHANNEL *cha){
 		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer + cha->Offset,(uint16_t *) &cha->mix32tmp, 1);
 
 	looper.SamplesRead++;
-	sdram_pointer += looper.SampleOffset;
+	sdram_pointer += looper.SampleBytes;
 
 	if(looper.SamplesRead >= looper.SamplesWritten){
 		if(cha->Overdub == TRUE && cha->mix32Max > 16383){
@@ -155,12 +155,13 @@ void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 			}
 		}
 
-		sdram_pointer += looper.SampleOffset;
+		sdram_pointer += looper.SampleBytes;
+		looper.SamplesRead++;
 		looper.SamplesWritten++;
 	}
 
-	if(pattern_audio_map[looper.StartPattern + 1].sample_position > pattern_audio_map[looper.StartPattern].sample_position &&
-		looper.SamplesWritten >= pattern_audio_map[looper.StartPattern + 1].sample_position){
+	if(pattern_audio_map[looper.EndPattern + 1].sample_position > pattern_audio_map[looper.StartPattern].sample_position &&
+		looper.SamplesRead >= pattern_audio_map[looper.EndPattern + 1].sample_position){
 			BSP_LED_Off(LED_RED);
 			looper.SamplesRead = 0;
 			sdram_pointer = 0;
@@ -200,7 +201,7 @@ void read_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 
 	looper.SamplesRead++;
 
-	sdram_pointer += looper.SampleOffset;
+	sdram_pointer += looper.SampleBytes;
 
 	if(looper.SamplesRead >= looper.SamplesWritten){
 		if(looper.Function == AUDIO_DRUMS){
@@ -253,9 +254,9 @@ void setActiveChannelTwo(){
 void toggleActiveBothChannels(){
 	looper.TwoChannels = !looper.TwoChannels;
 	if(looper.TwoChannels == TRUE)
-		looper.SampleOffset = 4;
+		looper.SampleBytes = 4;
 	else
-		looper.SampleOffset = 2;
+		looper.SampleBytes = 2;
 }
 
 

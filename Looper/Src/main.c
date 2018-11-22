@@ -160,7 +160,7 @@ int main(void)
   looper.ch2.Active = FALSE;
   looper.ch2.Monitor = FALSE;
   looper.timeIncrement = 0;
-  looper.SampleOffset = 2;
+  looper.SampleBytes = 2;
   /* USER CODE END Init */
 
   /* Configure the system clock */
