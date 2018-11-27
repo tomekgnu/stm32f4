@@ -73,6 +73,7 @@ void record_select_loops(){
 }
 
 void select_channel(){
+	looper.StartLooper = FALSE;
 	if(ACTIVE_CHANNEL_1)
 		menuMultiLine(1,110,"Record channel 1");
 	else if(ACTIVE_CHANNEL_2)

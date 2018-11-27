@@ -157,7 +157,7 @@ void menuShowStatus(){
 	}
 	sprintf(tmp + strlen(tmp),activeLabel);
 	if(looper.TwoChannels == TRUE){
-		if(looper.SamplesWritten > 0){
+		if(inactive->SamplesWritten > 0){
 			sprintf(tmp + strlen(tmp),"|Playback ");
 			sprintf(tmp + strlen(tmp),inactiveLabel);
 		}
@@ -195,15 +195,15 @@ void menuShowTimers(){
 	uint16_t seconds;
 	uint8_t cs;	// centiseconds
 
-	if(looper.Recording == TRUE && looper.SamplesWritten % 150 == 0){
-		seconds = looper.SamplesWritten / 15000;
-		cs = ((float)((looper.SamplesWritten % 15000) / 15000.00)) * 100;
+	if(looper.Recording == TRUE && (GET_ACTIVE_CHANNEL)->SamplesWritten % 150 == 0){
+		seconds = (GET_ACTIVE_CHANNEL)->SamplesWritten / 15000;
+		cs = ((float)(((GET_ACTIVE_CHANNEL)->SamplesWritten % 15000) / 15000.00)) * 100;
 		sprintf(lcdline,"Rec:  %02u:%02u:%02u sec.",(unsigned int)(seconds / 60),(unsigned int)seconds,(unsigned int)cs);
 		TM_ILI9341_Puts(10, 10, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	}
-	else if(looper.Playback == TRUE && looper.SamplesRead % 150 == 0){
-		seconds = looper.SamplesRead / 15000;
-		cs = ((float)((looper.SamplesRead % 15000) / 15000.00)) * 100;
+	else if(looper.Playback == TRUE && (GET_ACTIVE_CHANNEL)->SamplesRead % 150 == 0){
+		seconds = (GET_ACTIVE_CHANNEL)->SamplesRead / 15000;
+		cs = ((float)(((GET_ACTIVE_CHANNEL)->SamplesRead % 15000) / 15000.00)) * 100;
 		sprintf(lcdline,"Play: %02u:%02u:%02u sec.",(unsigned int)(seconds / 60),(unsigned int)seconds,(unsigned int)cs);
 		TM_ILI9341_Puts(10, 10, lcdline, &TM_Font_11x18, ILI9341_COLOR_BLACK, ILI9341_COLOR_BLUE2);
 	}

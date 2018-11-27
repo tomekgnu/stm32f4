@@ -57,9 +57,9 @@ static void seekPattern(PatternData *pattern_audio_map,uint32_t ind){
 }
 
 void drumAudioSync(){
-	looper.SamplesRead = pattern_audio_map[looper.StartPattern].sample_position;
-	sdram_pointer = looper.SamplesRead * 2;
-	looper.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
+	//looper.SampleOffset = pattern_audio_map[looper.StartPattern].sample_position;
+	//sdram_pointer = looper.SampleOffset * 2;
+	//looper.SampleCount = pattern_audio_map[looper.EndPattern + 1].sample_position;
 }
 
 void drumLoop(){
@@ -71,7 +71,7 @@ void drumLoop(){
 	HAL_TIM_Base_Start_IT(&htim2);
 	looper.Function = AUDIO_DRUMS;
 	looper.DrumState = DRUMS_STARTED;
-	setStartEndPatterns(looper.StartPattern,looper.EndPattern);
+	//setStartEndPatterns(looper.StartPattern,looper.EndPattern);
 
 	while(looper.DrumState == DRUMS_STARTED && looper.StartPattern < (looper.EndPattern + 1)){
 
