@@ -227,7 +227,7 @@ void setActiveChannelOne(){
 	looper.StartLooper = FALSE;
 	looper.ch1.Active = TRUE;
 	looper.ch2.Active = FALSE;
-	looper.ch1.Offset = 0;
+	setSampleBytesAndOffset();
 	ADS1256_SetDiffChannel(0);
 	ADS1256_WriteCmd(CMD_SELFCAL);
 	ADS1256_WriteCmd(CMD_SELFOCAL);
@@ -237,21 +237,29 @@ void setActiveChannelTwo(){
 	looper.StartLooper = FALSE;
 	looper.ch2.Active = TRUE;
 	looper.ch1.Active = FALSE;
-	if(looper.TwoChannels == TRUE)
-		looper.ch2.Offset = 2;
-	else
-		looper.ch2.Offset = 0;
+	setSampleBytesAndOffset();
 	ADS1256_SetDiffChannel(1);
 	ADS1256_WriteCmd(CMD_SELFCAL);
 	ADS1256_WriteCmd(CMD_SELFOCAL);
 }
 
+void setSampleBytesAndOffset(){
+	if(looper.TwoChannels == TRUE){
+		looper.SampleBytes = 4;
+		looper.ch1.Offset = 0;
+		looper.ch2.Offset = 2;
+	}
+	else{
+		looper.SampleBytes = 2;
+		looper.ch1.Offset = 0;
+		if(looper.ch2.Active == TRUE)
+			looper.ch2.Offset = 0;
+	}
+}
+
 void toggleActiveBothChannels(){
 	looper.TwoChannels = !looper.TwoChannels;
-	if(looper.TwoChannels == TRUE)
-		looper.SampleBytes = 4;
-	else
-		looper.SampleBytes = 2;
+	setSampleBytesAndOffset();
 }
 
 

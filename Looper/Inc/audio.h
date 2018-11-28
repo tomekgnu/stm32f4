@@ -46,6 +46,7 @@ void play_sample(__IO CHANNEL *cha);
 void play_sample_dac(__IO CHANNEL *cha);
 void setActiveChannelOne();
 void setActiveChannelTwo();
+void setSampleBytesAndOffset();
 void toggleActiveBothChannels();
 void initChannels();
 void resetChannel(__IO CHANNEL *ch);

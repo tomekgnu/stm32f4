@@ -412,7 +412,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 					return;
 				BUT_DOWN(BUT_JOYSTICK);
 				Update_Joystick();
-				looper.StartLooper = FALSE;
+				if(looper.StartLooper == TRUE)
+					looper.StartLooper = FALSE;
+				else
+					looper.StartLooper = TRUE;
 				if(looper.DrumState == DRUMS_STARTED)
 					looper.DrumState = DRUMS_PAUSED;
 				else if(looper.DrumState == DRUMS_PAUSED)
