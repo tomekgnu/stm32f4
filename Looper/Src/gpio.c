@@ -473,15 +473,17 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			if(looper.DrumState == DRUMS_STARTED)
 				return;
 			looper.StartLooper = FALSE;
-			if(looper.Function == AUDIO_ONLY)
-				resetChannel(GET_ACTIVE_CHANNEL);
-			setStartEndPatterns(looper.StartPattern,looper.EndPattern);
+			//if(looper.Function == AUDIO_ONLY)
+				//resetChannel(GET_ACTIVE_CHANNEL);
 
 			BSP_LED_On(LED_RED);
 			BSP_LED_Off(LED_GREEN);
 
 			looper.Recording = TRUE;
 			looper.Playback = FALSE;
+			// start counting samples from current loop's start
+			setSampleCounter(pattern_audio_map[looper.StartPattern].sample_position);
+			setStartEndPatterns(looper.StartPattern,looper.EndPattern);
 			looper.StartLooper = TRUE;
 			show_status_line = TRUE;
 			break;
@@ -493,13 +495,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				return;
 			if(looper.DrumState == DRUMS_STARTED)
 				return;
-			setStartEndPatterns(looper.StartPattern,looper.EndPattern);
-			if((GET_ACTIVE_CHANNEL)->SamplesWritten == 0)
-				return;
-			pattern_audio_map[looper.StartPattern].channel_recorded[ACTIVE_CHANNEL_INDEX] = TRUE;
-
-			looper.StartLooper = TRUE;
-
+			looper.StartLooper = FALSE;
 			if(looper.ch1.Active == TRUE){
 				looper.ch1.Clipping = FALSE;
 				looper.ch1.Overdub = FALSE;
@@ -513,10 +509,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 			BSP_LED_On(LED_GREEN);
 			BSP_LED_Off(LED_RED);
-			//midiDrumPointer = 0;
-			//midiDrumClock = 0;
-			looper.Recording = FALSE;
+
+			// this sequence is important!!
 			looper.Playback = TRUE;
+			setStartEndPatterns(looper.StartPattern,looper.EndPattern);
+			looper.Recording = FALSE;
+
+			if((GET_ACTIVE_CHANNEL)->SamplesWritten == 0)
+				return;
+			pattern_audio_map[looper.StartPattern].channel_recorded[ACTIVE_CHANNEL_INDEX] = TRUE;
+
 			looper.StartLooper = TRUE;
 			show_status_line = TRUE;
 			break;

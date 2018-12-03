@@ -64,12 +64,56 @@ void download_rhythm() {
 	Skip_Read_Button = TRUE;
 }
 
-void record_select_loops(){
+void select_loops(){
 	looper.Function = AUDIO_ONLY;
 	looper.StartPattern = 0;
 	looper.EndPattern = 0;
-	setStartEndPatterns(looper.StartPattern,looper.EndPattern);
+	menuMultiLine(2,60,"[1] Skip loop backward","[2] Skip loop forward");
+	while(TM_KEYPAD_Read() == TM_KEYPAD_Button_2)
+		continue;
+	sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
+	menuMultiLine(1,130,lcdline);
 
+	while(TRUE){
+		Keypad_Button = TM_KEYPAD_Read();
+
+		switch(Keypad_Button){
+			case TM_KEYPAD_Button_0: goto end_select_loop;
+			case TM_KEYPAD_Button_1:
+				 looper.StartLooper = FALSE;
+				 looper.Playback = FALSE;
+				 looper.Recording = FALSE;
+				 if(pattern_audio_map[looper.StartPattern].sample_position > 0){
+					 looper.StartPattern--;
+					 looper.EndPattern--;
+					 (GET_ACTIVE_CHANNEL)->SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
+					 (GET_INACTIVE_CHANNEL)->SamplesWritten = 0;
+				 }
+
+				 break;
+			case TM_KEYPAD_Button_2:
+				looper.StartLooper = FALSE;
+				looper.Playback = FALSE;
+				looper.Recording = FALSE;
+				if(pattern_audio_map[looper.EndPattern + 1].sample_position > 0){
+					 looper.StartPattern++;
+					 looper.EndPattern++;
+					 (GET_ACTIVE_CHANNEL)->SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
+					 (GET_INACTIVE_CHANNEL)->SamplesWritten = 0;
+				 }
+
+				break;
+		}
+
+		if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
+			sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
+			menuMultiLine(1,130,lcdline);
+		}
+	}
+
+
+	end_select_loop:
+	Skip_Read_Button = TRUE;
 }
 
 void select_channel(){

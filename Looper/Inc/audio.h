@@ -31,6 +31,7 @@ typedef struct {
 	float gain;
 } CHANNEL;
 
+void setSampleCounter(uint32_t cnt);
 void getStartEndPatterns(uint32_t *start,uint32_t *end);
 void setStartEndPatterns(uint32_t start,uint32_t end);
 void resetSamples();

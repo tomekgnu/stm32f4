@@ -19,6 +19,11 @@ int16_t sample16s;	// sample obtained from ADS1256
 static uint32_t startPatternTmp = 0;
 static uint32_t endPatternTmp = 0;
 static uint32_t sdramPointerTmp = 0;
+static uint32_t sampleCounter = 0;
+
+void setSampleCounter(uint32_t cnt){
+	sampleCounter = cnt;
+}
 
 void getStartEndPatterns(uint32_t *start,uint32_t *end){
 	*start = startPatternTmp;
@@ -28,13 +33,18 @@ void getStartEndPatterns(uint32_t *start,uint32_t *end){
 void setStartEndPatterns(uint32_t start,uint32_t end){
 	startPatternTmp = start;
 	endPatternTmp = end;
+
+	// happens only when playback button is pressed immediately after recording
+	if(looper.Function == AUDIO_ONLY && looper.Playback == TRUE && looper.Recording == TRUE)
+		pattern_audio_map[endPatternTmp + 1].sample_position = sampleCounter;
+
 	sdram_pointer =  sdramPointerTmp = pattern_audio_map[startPatternTmp].sample_position * looper.SampleBytes;
 	(GET_ACTIVE_CHANNEL)->SamplesRead = pattern_audio_map[startPatternTmp].sample_position;
 	(GET_INACTIVE_CHANNEL)->SamplesRead = pattern_audio_map[startPatternTmp].sample_position;
-	if(looper.Function == AUDIO_DRUMS){
+	//if(looper.Function == AUDIO_DRUMS){
 		(GET_ACTIVE_CHANNEL)->SamplesWritten = pattern_audio_map[endPatternTmp + 1].sample_position;
 		(GET_INACTIVE_CHANNEL)->SamplesWritten = pattern_audio_map[endPatternTmp + 1].sample_position;
-	}
+	//}
 }
 
 void inline resetSamples(){
@@ -60,7 +70,8 @@ void record_sample(int16_t swrite,__IO CHANNEL *cha){
 		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer + cha->Offset,(uint16_t *) &swrite, 1);
 		sdram_pointer += looper.SampleBytes;
 		if(looper.Function == AUDIO_ONLY)
-			(GET_ACTIVE_CHANNEL)->SamplesWritten++;
+			sampleCounter++;
+			//(GET_ACTIVE_CHANNEL)->SamplesWritten++;
 	}
 
 }
@@ -97,7 +108,8 @@ void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 
 		sdram_pointer += looper.SampleBytes;
 		if(looper.Function == AUDIO_ONLY)
-			(GET_ACTIVE_CHANNEL)->SamplesWritten++;
+			sampleCounter++;
+			//(GET_ACTIVE_CHANNEL)->SamplesWritten++;
 	}
 
 	if((GET_INACTIVE_CHANNEL)->SamplesWritten > 0 && (GET_INACTIVE_CHANNEL)->SamplesRead >= (GET_INACTIVE_CHANNEL)->SamplesWritten){
@@ -293,6 +305,7 @@ void stopAll(){
 	resetChannel(&looper.ch2);
 	pattern_audio_map[looper.StartPattern].channel_recorded[_CH1] = FALSE;
 	pattern_audio_map[looper.StartPattern].channel_recorded[_CH2] = FALSE;
+	setSampleCounter(0);
 	stopDrums();
 	BSP_LED_Off(LED_RED);
 	BSP_LED_Off(LED_GREEN);

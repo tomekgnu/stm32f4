@@ -9,6 +9,6 @@ void print_letters(void);
 void download_rhythm(void);
 void select_bars(void);
 void select_channel(void);
-void record_select_loops(void);
+void select_loops(void);
 
 #endif
