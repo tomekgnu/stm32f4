@@ -98,6 +98,8 @@ typedef struct {
 	__IO BOOL Overdubbing;
 	__IO BOOL StartLooper;
 	__IO BOOL TwoChannels;
+	__IO uint32_t SamplesRead;
+	__IO uint32_t SamplesWritten;
 	__IO uint32_t SampleBytes;
 	__IO uint32_t StartPattern;
 	__IO uint32_t EndPattern;

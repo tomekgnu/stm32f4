@@ -86,8 +86,8 @@ void select_loops(){
 				 if(pattern_audio_map[looper.StartPattern].sample_position > 0){
 					 looper.StartPattern--;
 					 looper.EndPattern--;
-					 (GET_ACTIVE_CHANNEL)->SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
-					 (GET_INACTIVE_CHANNEL)->SamplesWritten = 0;
+					 looper.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
+					 looper.SamplesWritten = 0;
 				 }
 
 				 break;
@@ -98,8 +98,8 @@ void select_loops(){
 				if(pattern_audio_map[looper.EndPattern + 1].sample_position > 0){
 					 looper.StartPattern++;
 					 looper.EndPattern++;
-					 (GET_ACTIVE_CHANNEL)->SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
-					 (GET_INACTIVE_CHANNEL)->SamplesWritten = 0;
+					 looper.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
+					 looper.SamplesWritten = 0;
 				 }
 
 				break;

@@ -23,8 +23,6 @@ typedef struct {
 	uint8_t Clipping: 1;
 	uint8_t Overdub: 1;
 	uint8_t Offset: 4;
-	uint32_t SamplesRead;
-	uint32_t SamplesWritten;
 	int16_t CurrentSample;
 	int32_t mix32Max;
 	int16_t mix32tmp;

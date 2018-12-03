@@ -515,7 +515,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			setStartEndPatterns(looper.StartPattern,looper.EndPattern);
 			looper.Recording = FALSE;
 
-			if((GET_ACTIVE_CHANNEL)->SamplesWritten == 0)
+			if(looper.SamplesWritten == 0)
 				return;
 			pattern_audio_map[looper.StartPattern].channel_recorded[ACTIVE_CHANNEL_INDEX] = TRUE;
 
@@ -526,7 +526,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			if(IS_BUT_DOWN(BUT_OVERDUB) == TRUE)
 				return;
 			BUT_DOWN(BUT_OVERDUB);
-			if((GET_ACTIVE_CHANNEL)->SamplesWritten == 0)
+			if(looper.SamplesWritten == 0)
 				return;
 			if(looper.ch1.Active == TRUE){
 				if(looper.ch1.Overdub == FALSE)
