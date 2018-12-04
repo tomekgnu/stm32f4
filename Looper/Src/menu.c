@@ -13,7 +13,7 @@ static menuNodeType menu_nodes[TOTAL_MENU_NODES];
 static uint8_t current_node_index;	// current option
 extern TM_KEYPAD_Button_t Keypad_Button;
 
-static void menuShowOptions(){
+void menuShowOptions(){
 	TM_KEYPAD_Button_t option_index;
 	NODE_TYPE node_index;
 	uint16_t offset = 10;
@@ -74,7 +74,6 @@ void menuInit(){
 	// top 3 nodes: AUDIO RHYTHM AUDIO+RHYTHM
 	initParentNode(MAIN_MENU,messages[MAIN],NULL);
 		initParentNode(AUDIO_NODE,"Audio",audio_only);									// [AUDIO]
-			initParentNode(SELECT_AUDIO_CHANNEL_NODE,messages[CHANNEL_SELECT],select_channel);				// [SELECT CHANNEL]
 			initParentNode(RECORD_SELECT_LOOPS_NODE,messages[REC_SEL_LOOPS],select_loops);
 		initParentNode(RHYTHM_NODE,messages[AUDIO_RHYTHM],audio_rhythm);				// [AUDIO AND RHYTHM]
 			initParentNode(DOWNLOAD_RHYTHM_NODE,messages[DOWNL_RTH],download_rhythm);		// [DOWNLOAD RHYTHM
@@ -88,8 +87,8 @@ void menuInit(){
 					initParentNode(MOVE_BAR_FORW_END_NODE,messages[ONE_BAR_FORW_END],NULL);			// [MOVE BAR FORW]
 
 		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,AUDIO_NODE);
-			connectChildNode(AUDIO_NODE,TM_KEYPAD_Button_1,SELECT_AUDIO_CHANNEL_NODE);
-			connectChildNode(AUDIO_NODE,TM_KEYPAD_Button_2,RECORD_SELECT_LOOPS_NODE);
+
+			connectChildNode(AUDIO_NODE,TM_KEYPAD_Button_1,RECORD_SELECT_LOOPS_NODE);
 		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,RHYTHM_NODE);
 			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_1,DOWNLOAD_RHYTHM_NODE);
 			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_2,SELECT_BARS_NODE);

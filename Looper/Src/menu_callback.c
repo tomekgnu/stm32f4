@@ -68,9 +68,10 @@ void select_loops(){
 	looper.Function = AUDIO_ONLY;
 	looper.StartPattern = 0;
 	looper.EndPattern = 0;
-	menuMultiLine(2,60,"[1] Skip loop backward","[2] Skip loop forward");
+
 	while(TM_KEYPAD_Read() == TM_KEYPAD_Button_2)
 		continue;
+	menuMultiLine(3,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Select channel");
 	sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
 	menuMultiLine(1,130,lcdline);
 
@@ -103,9 +104,15 @@ void select_loops(){
 				 }
 
 				break;
+			case TM_KEYPAD_Button_3:	select_channel();
+										menuShowOptions();
+										menuShowStatus();
 		}
 
 		if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
+			menuMultiLine(3,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Select channel");
+			sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
+			menuMultiLine(1,130,lcdline);
 			sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
 			menuMultiLine(1,130,lcdline);
 		}
@@ -123,7 +130,7 @@ void select_channel(){
 	else if(ACTIVE_CHANNEL_2)
 		menuMultiLine(1,110,"Record channel 2");
 	if(looper.TwoChannels == TRUE)
-		menuMultiLine(1,130,"Output on both ");
+		menuMultiLine(1,130,"Output on both  ");
 	else
 		menuMultiLine(1,130,"Output on single");
 

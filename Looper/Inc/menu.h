@@ -62,6 +62,7 @@ typedef struct {
 } menuNodeType;
 
 void menuShowTimers();
+void menuShowOptions();
 void menuShow(TM_KEYPAD_Button_t);
 void menuInit();
 void menuWaitReturn();
