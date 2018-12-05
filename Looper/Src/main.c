@@ -118,7 +118,7 @@ TM_KEYPAD_Button_t Keypad_Button;
 BOOL Skip_Read_Button = FALSE;
 BOOL show_status_line = FALSE;
 
-__IO uint32_t joystick_data[2];
+uint32_t joystick_data[2];
 /* USER CODE END 0 */
 
 /**
@@ -236,8 +236,8 @@ int main(void)
   menuShow(0);
 
   // TODO: write initial rhythm header to SRAM
-  //SRAM_seekWrite(0,SRAM_SET);
-  //writeSRAM((unsigned char *)"\0\0\0\0\0\0\0\0\0\0\0\0",12);
+  SRAM_seekWrite(0,SRAM_SET);
+  writeSRAM((unsigned char *)"\0\0\0\0\0\0\0\0\0\0\0\0",12);
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -255,10 +255,7 @@ int main(void)
 
 	  }// end of key pressed
 
-	  if(show_status_line == TRUE){
-		  menuShowStatus();
-		  show_status_line = FALSE;
-	  }
+	  SHOW_STATUS_LINE();
 
   /* USER CODE END WHILE */
 

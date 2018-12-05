@@ -12,6 +12,11 @@ extern char *messages[];
 #define TOTAL_MENU_NODES	20
 #define MAX_NUM_OPTS		16
 
+#define SHOW_STATUS_LINE()	if(show_status_line == TRUE){		\
+								menuShowStatus();				\
+									show_status_line = FALSE;	\
+							}									\
+
 typedef enum {
 	NODE_EMPTY = -1,
 	MAIN_MENU,

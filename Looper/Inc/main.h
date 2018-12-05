@@ -121,7 +121,7 @@ void Error_Handler(void);
 extern LooperApplication looper;
 extern uint8_t switches;
 extern char lcdline[];
-extern __IO uint32_t joystick_data[];
+extern uint32_t joystick_data[];
 extern BOOL show_status_line;
 uint32_t sdram_pointer;
 

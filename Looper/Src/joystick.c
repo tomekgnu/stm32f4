@@ -42,7 +42,7 @@ void Wait_Joystick(){
 	if(jstick.but == TRUE)
 		wait = 1000;
 	// not in any extreme position
-	if((jstick.xpos < MAX && jstick.xpos > MIN) && (jstick.ypos < MAX && jstick.ypos > MIN))
+	if((jstick.xpos < MAX_JOY && jstick.xpos > MIN_JOY) && (jstick.ypos < MAX_JOY && jstick.ypos > MIN_JOY))
 		wait = 200;
 	else	// extreme position
 		wait = 100;

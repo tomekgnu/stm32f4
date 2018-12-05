@@ -71,7 +71,7 @@ void select_loops(){
 
 	while(TM_KEYPAD_Read() == TM_KEYPAD_Button_2)
 		continue;
-	menuMultiLine(3,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Select channel");
+	menuMultiLine(4,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Select channel","[4] Reset loop");
 	sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
 	menuMultiLine(1,130,lcdline);
 
@@ -87,8 +87,8 @@ void select_loops(){
 				 if(pattern_audio_map[looper.StartPattern].sample_position > 0){
 					 looper.StartPattern--;
 					 looper.EndPattern--;
-					 looper.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
-					 looper.SamplesWritten = 0;
+					 //looper.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
+					 //looper.SamplesWritten = 0;
 				 }
 
 				 break;
@@ -99,23 +99,31 @@ void select_loops(){
 				if(pattern_audio_map[looper.EndPattern + 1].sample_position > 0){
 					 looper.StartPattern++;
 					 looper.EndPattern++;
-					 looper.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
-					 looper.SamplesWritten = 0;
+					 //looper.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
+					 //looper.SamplesWritten = 0;
 				 }
 
 				break;
 			case TM_KEYPAD_Button_3:	select_channel();
 										menuShowOptions();
-										menuShowStatus();
+										break;
+			case TM_KEYPAD_Button_4:	pattern_audio_map[looper.EndPattern + 1].sample_position = 0;
+										pattern_audio_map[looper.StartPattern].channel_recorded[_CH1] = FALSE;
+										pattern_audio_map[looper.StartPattern].channel_recorded[_CH2] = FALSE;
+										break;
+
 		}
 
 		if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
-			menuMultiLine(3,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Select channel");
+			menuMultiLine(4,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Select channel","[4] Reset loop");
 			sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
 			menuMultiLine(1,130,lcdline);
 			sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
 			menuMultiLine(1,130,lcdline);
+			show_status_line = TRUE;
 		}
+
+		SHOW_STATUS_LINE();
 	}
 
 
@@ -187,12 +195,12 @@ void select_bars() {
 		goto end_play_rhythm;
 	}
 	if(numOfPatterns > MAX_PATTERNS){
-		menuMultiLine(1,130,messages[TOO_MANY_PATTS]);
+		menuMultiLine(1,150,messages[TOO_MANY_PATTS]);
 		menuWaitReturn();
 		goto end_play_rhythm;
 	}
 	if(maxResolution > MAX_SUBBEATS){
-		menuMultiLine(1,130,messages[TOO_MANY_SUBB]);
+		menuMultiLine(1,150,messages[TOO_MANY_SUBB]);
 		menuWaitReturn();
 		goto end_play_rhythm;
 	}

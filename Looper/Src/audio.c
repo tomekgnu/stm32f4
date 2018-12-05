@@ -109,7 +109,7 @@ void record_samples(int16_t swrite,__IO CHANNEL *cha,__IO CHANNEL *chb){
 		looper.SamplesRead++;
 	}
 
-	if(looper.SamplesRead >= looper.SamplesWritten){
+	if(looper.SamplesWritten > 0 && looper.SamplesRead >= looper.SamplesWritten){
 			BSP_LED_Off(LED_RED);
 			show_status_line = TRUE;
 			looper.StartLooper = FALSE;
