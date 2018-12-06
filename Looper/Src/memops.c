@@ -284,6 +284,7 @@ void SF3_readSample(){
 		word_count = 0;		//Reset the count
 		need_new_data = TRUE;
 	}
+
 	looper.ch1.CurrentSample = buf_pointer[word_count];
 	play_sample(&looper.ch1);
 	word_count += 1;

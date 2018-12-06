@@ -78,7 +78,6 @@ void menuInit(){
 		initParentNode(RHYTHM_NODE,messages[AUDIO_RHYTHM],audio_rhythm);				// [AUDIO AND RHYTHM]
 			initParentNode(DOWNLOAD_RHYTHM_NODE,messages[DOWNL_RTH],download_rhythm);		// [DOWNLOAD RHYTHM
 
-				initParentNode(SELECT_AUDIO_RHYTHM_CHANNEL_NODE,messages[CHANNEL_SELECT],select_channel);	// [SELECT CHANNEL]
 				initParentNode(SELECT_BARS_NODE,"Select bars",select_bars);						// [SELECT BARS]
 					initParentNode(MOVE_BAR_BACK_START_NODE,messages[ONE_BAR_BACK_START],NULL);		// [MOVE BAR BACK]
 					initParentNode(MOVE_BAR_FORW_START_NODE,messages[ONE_BAR_FORW_START],NULL);		// [MOVE BAR FORW]
@@ -98,7 +97,7 @@ void menuInit(){
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_3,START_RHYTHM_NODE);
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_4,MOVE_BAR_BACK_END_NODE);
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_5,MOVE_BAR_FORW_END_NODE);
-				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_6,SELECT_AUDIO_RHYTHM_CHANNEL_NODE);
+
 }
 
 void menuShow(TM_KEYPAD_Button_t opt_key){
@@ -252,7 +251,9 @@ void drumMenuInput(uint32_t numOfPatterns,BOOL *play){
 												break;
 					case TM_KEYPAD_Button_5:	startBar = FALSE;
 												forwardBar(startBar,numOfPatterns); break;
-					case TM_KEYPAD_Button_6:	select_channel();
+					case TM_KEYPAD_Button_A:
+					case TM_KEYPAD_Button_B:
+												select_channel(Keypad_Button);
 												menuShowOptions();
 												menuShowStatus();
 

@@ -20,6 +20,8 @@ static uint32_t startPatternTmp = 0;
 static uint32_t endPatternTmp = 0;
 static uint32_t sdramPointerTmp = 0;
 static uint32_t sampleCounter = 0;
+static BOOL recordState = FALSE;
+static BOOL playbackState = FALSE;
 
 void setSampleCounter(uint32_t cnt){
 	sampleCounter = cnt;
@@ -266,7 +268,7 @@ void setSampleBytesAndOffset(){
 	}
 }
 
-void toggleActiveBothChannels(){
+void toggleActiveBothChannels(uint8_t state){
 	looper.TwoChannels = !looper.TwoChannels;
 	setSampleBytesAndOffset();
 }
@@ -292,6 +294,33 @@ void showMinMaxSamples(int32_t max,int32_t min){
 	TM_HD44780_Puts(0,1,minstr);
 }
 
+void resetLoop() {
+	pattern_audio_map[looper.EndPattern + 1].sample_position = 0;
+	pattern_audio_map[looper.StartPattern].channel_recorded[_CH1] = FALSE;
+	pattern_audio_map[looper.StartPattern].channel_recorded[_CH2] = FALSE;
+}
+
+
+void pauseLoop() {
+	if(looper.StartLooper == TRUE){
+		looper.StartLooper = FALSE;
+		if(looper.Recording == TRUE)
+			recordState = looper.Recording;
+		if(looper.Playback == TRUE)
+			playbackState = looper.Playback;
+		looper.Recording = FALSE;
+		looper.Playback = FALSE;
+	}
+	else{
+		looper.StartLooper = TRUE;
+		looper.Recording = recordState;
+		looper.Playback = playbackState;
+		recordState = FALSE;
+		playbackState = FALSE;
+	}
+}
+
+
 void stopAll(){
 	looper.Recording = FALSE;
 	looper.Playback = FALSE;
@@ -300,8 +329,7 @@ void stopAll(){
 	//looper.Function = NONE;
 	resetChannel(&looper.ch1);
 	resetChannel(&looper.ch2);
-	pattern_audio_map[looper.StartPattern].channel_recorded[_CH1] = FALSE;
-	pattern_audio_map[looper.StartPattern].channel_recorded[_CH2] = FALSE;
+	resetLoop();
 	setSampleCounter(0);
 	stopDrums();
 	BSP_LED_Off(LED_RED);

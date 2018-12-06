@@ -46,9 +46,11 @@ void play_sample_dac(__IO CHANNEL *cha);
 void setActiveChannelOne();
 void setActiveChannelTwo();
 void setSampleBytesAndOffset();
-void toggleActiveBothChannels();
+void toggleActiveBothChannels(uint8_t state);
 void initChannels();
 void resetChannel(__IO CHANNEL *ch);
 void stopAll();
+void resetLoop();
+void pauseLoop();
 
 #endif
