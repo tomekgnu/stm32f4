@@ -478,9 +478,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 			BSP_LED_On(LED_RED);
 			BSP_LED_Off(LED_GREEN);
-
+			looper.ch1.Overdub = FALSE;
+			looper.ch2.Overdub = FALSE;
 			looper.Recording = TRUE;
 			looper.Playback = FALSE;
+
 			// start counting samples from current loop's start
 			setSampleCounter(pattern_audio_map[looper.StartPattern].sample_position);
 			setStartEndPatterns(looper.StartPattern,looper.EndPattern);
@@ -498,12 +500,12 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			looper.StartLooper = FALSE;
 			if(looper.ch1.Active == TRUE){
 				looper.ch1.Clipping = FALSE;
-				looper.ch1.Overdub = FALSE;
+				//looper.ch1.Overdub = FALSE;
 				looper.ch1.CurrentSample = 0;
 			}
 			if(looper.ch2.Active == TRUE){
 				looper.ch2.Clipping = FALSE;
-				looper.ch2.Overdub = FALSE;
+				//looper.ch2.Overdub = FALSE;
 				looper.ch2.CurrentSample = 0;
 			}
 
@@ -546,8 +548,9 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			if(IS_BUT_DOWN(BUT_TOGFUN) == TRUE)
 				return;
 			BUT_DOWN(BUT_TOGFUN);
-
-
+			if(looper.Function == AUDIO_ONLY)
+				pauseLoop();
+			show_status_line = TRUE;
 		}
 
 }

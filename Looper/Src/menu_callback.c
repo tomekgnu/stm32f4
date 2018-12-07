@@ -137,7 +137,8 @@ void select_loops(){
 
 
 void select_channel(TM_KEYPAD_Button_t key){
-	pauseLoop();
+	if(looper.Playback == TRUE || looper.Recording == TRUE)
+		pauseLoop();
 	switch(key){
 		case TM_KEYPAD_Button_A:
 			if(ACTIVE_CHANNEL_2){
