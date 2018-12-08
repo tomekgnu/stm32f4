@@ -95,7 +95,6 @@ typedef uint8_t byte;
 typedef struct {
 	__IO BOOL Recording;
 	__IO BOOL Playback;
-	__IO BOOL Overdubbing;
 	__IO BOOL StartLooper;
 	__IO BOOL TwoChannels;
 	__IO uint32_t SamplesRead;

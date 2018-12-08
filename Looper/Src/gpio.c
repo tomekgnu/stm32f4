@@ -528,7 +528,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			if(IS_BUT_DOWN(BUT_OVERDUB) == TRUE)
 				return;
 			BUT_DOWN(BUT_OVERDUB);
+			if(looper.Recording == TRUE)
+				return;
 			if(looper.SamplesWritten == 0)
+				return;
+			if(looper.TwoChannels == TRUE)
 				return;
 			if(looper.ch1.Active == TRUE){
 				if(looper.ch1.Overdub == FALSE)

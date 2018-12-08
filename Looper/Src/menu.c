@@ -123,43 +123,34 @@ void menuShow(TM_KEYPAD_Button_t opt_key){
 }
 
 void menuShowStatus(){
-	char *activeLabel = "";
+	char *channelLabel = "";
 	char *inactiveLabel = "";
-	CHANNEL *inactive = (GET_INACTIVE_CHANNEL);
+
 	char tmp[31];
-	if(looper.ch1.Active == TRUE){
-		activeLabel = "CH1";
-		inactiveLabel = "CH2";
+	if(looper.TwoChannels == TRUE){
+		if(looper.ch1.Active == TRUE)
+			channelLabel = " [A]B";
+		else if(looper.ch2.Active == TRUE)
+			channelLabel = " A[B]";
 	}
 	else{
-		activeLabel = "CH2";
-		inactiveLabel = "CH1";
+		if(looper.ch1.Active == TRUE)
+			channelLabel = " [A] ";
+		else if(looper.ch2.Active == TRUE)
+			channelLabel = " [B] ";
 	}
-
-	if(looper.Recording == FALSE && looper.Playback == FALSE){
-		sprintf(tmp,"Stopped Active ");
-		sprintf(tmp + strlen(tmp),activeLabel);
-		if(looper.TwoChannels == TRUE)
-			sprintf(tmp + strlen(tmp)," Dual");
-		menuStatusLine(tmp);
-		return;
-	}
-	if(looper.Recording == TRUE){
+	// display action
+	if(looper.Recording == FALSE && looper.Playback == FALSE)
+		sprintf(tmp,"Stopped   ");
+	else if(looper.Recording == TRUE)
 		sprintf(tmp,"Recording ");
-	}
-	else if(looper.ch1.Overdub == TRUE || looper.ch2.Overdub == TRUE){
-		sprintf(tmp,"Overdubbing ");
-	}
-	else if(looper.Playback == TRUE){
-		sprintf(tmp,"Playback ");
-	}
-	sprintf(tmp + strlen(tmp),activeLabel);
-	if(looper.TwoChannels == TRUE){
-		if(looper.SamplesWritten > 0){
-			sprintf(tmp + strlen(tmp),"|Playback ");
-			sprintf(tmp + strlen(tmp),inactiveLabel);
-		}
-	}
+	else if(looper.Playback == TRUE)
+		sprintf(tmp,"Playback  ");
+	// display channel(s)
+	sprintf(tmp + strlen(tmp),channelLabel);
+
+	if(looper.ch1.Overdub == TRUE || looper.ch2.Overdub == TRUE)
+		sprintf(tmp + strlen(tmp),"Overdub");
 
 	menuStatusLine(tmp);
 }
