@@ -10,5 +10,7 @@ void download_rhythm(void);
 void select_bars(void);
 void select_channel(TM_KEYPAD_Button_t key);
 void select_loops(void);
-
+void saveSingleLoop(uint32_t n);
+void saveAllLoops();
+void get_string(char *outstr);
 #endif

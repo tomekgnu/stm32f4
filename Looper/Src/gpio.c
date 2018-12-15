@@ -433,6 +433,8 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 	//		}
 			if(looper.StartLooper == FALSE)
 				return;
+			if(looper.Function == NONE)
+				return;
 			sample16s = (int16_t)(ADS1256_ReadData() >> 8);
 
 			if(looper.Playback == TRUE){

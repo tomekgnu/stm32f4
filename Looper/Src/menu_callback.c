@@ -22,6 +22,8 @@
 extern TM_KEYPAD_Button_t Keypad_Button;
 extern BOOL Skip_Read_Button;
 
+
+
 void audio_rhythm(){
 	looper.Function = AUDIO_DRUMS;
 
@@ -38,6 +40,121 @@ void drums_only(void){
 
 void audio_drums(void){
 	looper.Function = AUDIO_DRUMS;
+}
+
+void get_string(char *outstr) {
+	uint8_t nameIndex = 0;
+	TM_KEYPAD_Button_t tmpKey = TM_KEYPAD_Button_NOPRESSED;
+	uint8_t charIndex = 0;
+	BOOL keyChar = FALSE;
+	BOOL keyBack = FALSE;
+	BOOL keyForw = FALSE;
+	BOOL keyDel = FALSE;
+
+	// array indexed by TM_KEYPAD_Button_t
+	static char* keychars[10] = { "0", "1", "2ABCabc", "3DEFdef", "4GHIghi",
+			"5JKLjkl", "6MNOmno", "7PRSprs", "8TUVtuv", "9WXYZwxyz" };
+	memset(outstr, '\0', 26);
+	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
+	TM_ILI9341_Puts(10, 10, "Enter filename:", &TM_Font_7x10,
+			ILI9341_COLOR_YELLOW, ILI9341_COLOR_MAGENTA);
+	while (TM_KEYPAD_Read() == TM_KEYPAD_Button_4)
+		continue;
+	TM_ILI9341_Putc(10 + (nameIndex * 11), 30, ' ', &TM_Font_11x18,
+			ILI9341_COLOR_BLACK, ILI9341_COLOR_YELLOW);
+	while ((Keypad_Button = TM_KEYPAD_Read()) != TM_KEYPAD_Button_HASH) {
+		switch (Keypad_Button) {
+			case TM_KEYPAD_Button_0:
+			case TM_KEYPAD_Button_1:
+			case TM_KEYPAD_Button_2:
+			case TM_KEYPAD_Button_3:
+			case TM_KEYPAD_Button_4:
+			case TM_KEYPAD_Button_5:
+			case TM_KEYPAD_Button_6:
+			case TM_KEYPAD_Button_7:
+			case TM_KEYPAD_Button_8:
+			case TM_KEYPAD_Button_9:
+				keyChar = TRUE;
+				if (Keypad_Button != tmpKey) {
+					tmpKey = Keypad_Button;
+					charIndex = 0;
+				} else if (keychars[Keypad_Button][charIndex + 1] != '\0')
+					charIndex++;
+				else
+					charIndex = 0;
+
+				outstr[nameIndex] = keychars[Keypad_Button][charIndex];
+				break;
+			case TM_KEYPAD_Button_A:
+				keyForw = TRUE;
+				break;
+			case TM_KEYPAD_Button_B:
+				keyBack = TRUE;
+				break;
+			case TM_KEYPAD_Button_C:
+				keyDel = TRUE;
+				break;
+		}
+		if (Keypad_Button != TM_KEYPAD_Button_NOPRESSED) {
+			TM_ILI9341_Puts(10, 30, outstr, &TM_Font_11x18,
+					ILI9341_COLOR_BLACK, ILI9341_COLOR_CYAN);
+			if (keyChar == TRUE) {
+				keyChar = FALSE;
+				TM_ILI9341_Putc(10 + (nameIndex * 11), 30, outstr[nameIndex],
+						&TM_Font_11x18, ILI9341_COLOR_BLACK,
+						ILI9341_COLOR_YELLOW);
+			} else if (keyForw == TRUE) {
+				keyForw = FALSE;
+				if (nameIndex < 24 && outstr[nameIndex] != '\0')
+					nameIndex++;
+				else
+					TM_ILI9341_Putc(10 + (nameIndex * 11), 30, ' ',
+							&TM_Font_11x18, ILI9341_COLOR_BLACK,
+							ILI9341_COLOR_YELLOW);
+			} else if (keyBack == TRUE) {
+				keyBack = FALSE;
+				if (outstr[nameIndex] == '\0')
+					TM_ILI9341_Putc(10 + (nameIndex * 11), 30, ' ',
+							&TM_Font_11x18, ILI9341_COLOR_MAGENTA,
+							ILI9341_COLOR_MAGENTA);
+
+				if (nameIndex > 0)
+					nameIndex--;
+
+				TM_ILI9341_Putc(10 + (nameIndex * 11), 30, outstr[nameIndex],
+						&TM_Font_11x18, ILI9341_COLOR_BLACK,
+						ILI9341_COLOR_YELLOW);
+			} else if (keyDel == TRUE) {
+				keyDel = FALSE;
+				strcpy(outstr + nameIndex, outstr + nameIndex + 1);
+				TM_ILI9341_Puts(10, 30, outstr, &TM_Font_11x18,
+						ILI9341_COLOR_BLACK, ILI9341_COLOR_CYAN);
+				TM_ILI9341_Putc(10 + (strlen(outstr) * 11), 30, ' ',
+						&TM_Font_11x18, ILI9341_COLOR_MAGENTA,
+						ILI9341_COLOR_MAGENTA);
+			}
+
+			if (outstr[nameIndex] != '\0')
+				TM_ILI9341_Putc(10 + (nameIndex * 11), 30, outstr[nameIndex],
+						&TM_Font_11x18, ILI9341_COLOR_BLACK,
+						ILI9341_COLOR_YELLOW);
+			else
+				TM_ILI9341_Putc(10 + (nameIndex * 11), 30, ' ', &TM_Font_11x18,
+						ILI9341_COLOR_BLACK, ILI9341_COLOR_YELLOW);
+		}
+	}
+}
+
+void saveSingleLoop(uint32_t n){
+	char filename[26];
+	get_string(filename);
+
+	return;
+}
+
+void saveAllLoops()
+{
+
 }
 void print_letters(void) {
 
@@ -71,14 +188,14 @@ void select_loops(){
 	looper.StartPattern = 0;
 	looper.EndPattern = 0;
 
-	while(TM_KEYPAD_Read() == TM_KEYPAD_Button_2)
+	while(TM_KEYPAD_Read() != TM_KEYPAD_Button_NOPRESSED)
 		continue;
 	show_status_line = TRUE;
 	SHOW_STATUS_LINE();
 
-	menuMultiLine(3,30,"[1] Skip loop backward","[2] Skip loop forward","[AB] Select channels");
+	menuMultiLine(6,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Pause/Resume loop","[4] Save current loop","[5] Save all","[AB] Select channels");
 	sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
-	menuMultiLine(1,130,lcdline);
+	menuMultiLine(1,160,lcdline);
 
 	while(TRUE){
 		Keypad_Button = TM_KEYPAD_Read();
@@ -115,19 +232,23 @@ void select_loops(){
 
 			case TM_KEYPAD_Button_3:	pauseLoop();
 										break;
+			case TM_KEYPAD_Button_4:	saveSingleLoop(looper.StartPattern);
+										menuShowOptions();
+										break;
+			case TM_KEYPAD_Button_5:
+										break;
 
 		}
 
 		if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
-			menuMultiLine(3,30,"[1] Skip loop backward","[2] Skip loop forward","[AB] Select channels");
+			menuMultiLine(6,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Pause/Resume loop","[4] Save current loop","[5] Save all","[AB] Select channels");
 			sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
-			menuMultiLine(1,130,lcdline);
-			sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
-			menuMultiLine(1,130,lcdline);
+			menuMultiLine(1,160,lcdline);
 			show_status_line = TRUE;
 		}
 
 		SHOW_STATUS_LINE();
+
 	}
 
 
