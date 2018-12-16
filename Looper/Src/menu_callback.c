@@ -148,6 +148,20 @@ void get_string(char *outstr) {
 void saveSingleLoop(uint32_t n){
 	char filename[26];
 	get_string(filename);
+	FIL fil;
+	FATFS FatFs;
+	if (f_mount(&FatFs, "", 1) == FR_OK) {
+		//Mounted OK, turn on RED LED
+		BSP_LED_On(LED_RED);
+		if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
+			SD_WriteAudio(pattern_audio_map[n].sample_position,pattern_audio_map[n + 1].sample_position,&fil);
+			f_close(&fil);
+			BSP_LED_Off(LED_GREEN);
+			//Unmount drive, don't forget this!
+			f_mount(0, "", 1);
+			BSP_LED_Off(LED_RED);
+		}
+	 }
 
 	return;
 }

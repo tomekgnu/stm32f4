@@ -321,12 +321,13 @@ void SD_readToSDRAM(FIL *fp){
 
 }
 
-void SD_writeSingleTrack(__IO CHANNEL *ch,FIL *fp){
+
+void SD_WriteAudio(uint32_t start,uint32_t end,FIL *fp){
 	uint8_t *_buf;
-	uint32_t bytesRemaining = looper.SamplesWritten * 2;
+	uint32_t bytesRemaining = (end - start) * 2;
 	_buf = (uint8_t *)malloc(8192);
 	bytes_written = 0;
-	sdram_pointer = 0;
+	sdram_pointer = start * 2;
 	f_truncate(fp);
 	while(bytesRemaining > 0){
 		if(bytesRemaining >= 8192){

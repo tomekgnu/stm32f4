@@ -10,7 +10,7 @@
 #define BYTE_SIZE	(WORD_SIZE * 2)
 
 void SD_readSingleTrack(FIL *fp);
-void SD_writeSingleTrack(__IO CHANNEL *ch,FIL *fp);
+void SD_WriteAudio(uint32_t start,uint32_t end,FIL *fp);
 void SD_readToSDRAM(FIL *fp);
 
 void SF3_readSingleTrack(spiffs * fs,spiffs_file fh);
