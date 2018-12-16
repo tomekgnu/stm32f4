@@ -11,7 +11,7 @@
 
 void SD_readSingleTrack(FIL *fp);
 void SD_WriteAudio(uint32_t start,uint32_t end,FIL *fp);
-void SD_readToSDRAM(FIL *fp);
+uint32_t SD_ReadAudio(uint32_t start,FIL *fp);
 
 void SF3_readSingleTrack(spiffs * fs,spiffs_file fh);
 void SF3_writeSingleTrack(__IO CHANNEL *ch,spiffs * fs,spiffs_file fh);

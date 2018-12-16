@@ -301,24 +301,23 @@ void SF3_readSample(){
 //	return sample;
 //}
 
-void SD_readToSDRAM(FIL *fp){
+uint32_t SD_ReadAudio(uint32_t start,FIL *fp){
 	uint8_t *_buf;
+	uint32_t samples = 0;
 	fil = fp;
-	resetChannels();
 	_buf = (uint8_t *)malloc(8192);
 	bytes_read = 0;
-	sdram_pointer = 0;
+	sdram_pointer = start * 2;
 	while(1){
 		f_read(fp,(uint8_t *)_buf,8192,&bytes_read);
 		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t*)_buf,bytes_read / 2);
-		looper.SamplesWritten += (bytes_read / 2);
+		samples += (bytes_read / 2);
 		sdram_pointer += bytes_read;
 		if(f_eof(fp))
 			break;
 	}
 	free(_buf);
-	sdram_pointer = 0;
-
+	return samples;
 }
 
 

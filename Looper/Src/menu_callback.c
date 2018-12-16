@@ -153,7 +153,7 @@ void saveSingleLoop(uint32_t n){
 	if (f_mount(&FatFs, "", 1) == FR_OK) {
 		//Mounted OK, turn on RED LED
 		BSP_LED_On(LED_RED);
-		if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_READ | FA_WRITE) == FR_OK){
+		if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_WRITE) == FR_OK){
 			SD_WriteAudio(pattern_audio_map[n].sample_position,pattern_audio_map[n + 1].sample_position,&fil);
 			f_close(&fil);
 			BSP_LED_Off(LED_GREEN);
@@ -164,6 +164,28 @@ void saveSingleLoop(uint32_t n){
 	 }
 
 	return;
+}
+
+void readFromSD(uint32_t n){
+	char filename[26];
+	get_string(filename);
+	FIL fil;
+	FATFS FatFs;
+	if (f_mount(&FatFs, "", 1) == FR_OK) {
+		//Mounted OK, turn on RED LED
+		BSP_LED_On(LED_RED);
+		if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_READ) == FR_OK){
+			pattern_audio_map[n + 1].sample_position = pattern_audio_map[n].sample_position + SD_ReadAudio(pattern_audio_map[n].sample_position,&fil);
+			f_close(&fil);
+			BSP_LED_Off(LED_GREEN);
+			//Unmount drive, don't forget this!
+			f_mount(0, "", 1);
+			BSP_LED_Off(LED_RED);
+		}
+	 }
+
+	return;
+
 }
 
 void saveAllLoops()
@@ -207,7 +229,7 @@ void select_loops(){
 	show_status_line = TRUE;
 	SHOW_STATUS_LINE();
 
-	menuMultiLine(6,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Pause/Resume loop","[4] Save current loop","[5] Save all","[AB] Select channels");
+	menuMultiLine(6,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Pause/Resume loop","[4] Save current loop","[5] Read loop from SD","[AB] Select channels");
 	sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
 	menuMultiLine(1,160,lcdline);
 
@@ -249,13 +271,13 @@ void select_loops(){
 			case TM_KEYPAD_Button_4:	saveSingleLoop(looper.StartPattern);
 										menuShowOptions();
 										break;
-			case TM_KEYPAD_Button_5:
+			case TM_KEYPAD_Button_5:	readFromSD(looper.StartPattern);
 										break;
 
 		}
 
 		if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
-			menuMultiLine(6,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Pause/Resume loop","[4] Save current loop","[5] Save all","[AB] Select channels");
+			menuMultiLine(6,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Pause/Resume loop","[4] Save current loop","[5] Read loop from SD","[AB] Select channels");
 			sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
 			menuMultiLine(1,160,lcdline);
 			show_status_line = TRUE;
