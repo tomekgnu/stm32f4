@@ -1,6 +1,8 @@
 #ifndef __MENU_CALLBACK_H__
 #define  __MENU_CALLBACK_H__
 
+#include "ff.h"
+
 void audio_only(void);
 void audio_rhythm(void);
 void drums_only(void);
@@ -13,4 +15,5 @@ void select_loops(void);
 void saveSingleLoop(uint32_t n);
 void saveAllLoops();
 void get_string(char *outstr);
+void get_file(FATFS *fs,char *outstr);
 #endif

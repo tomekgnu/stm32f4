@@ -18,6 +18,7 @@
 #include "ads1256_test.h"
 #include "audio.h"
 #include "stm32f429i_discovery.h"
+#include "tm_stm32f4_fatfs.h"
 
 extern TM_KEYPAD_Button_t Keypad_Button;
 extern BOOL Skip_Read_Button;
@@ -40,6 +41,29 @@ void drums_only(void){
 
 void audio_drums(void){
 	looper.Function = AUDIO_DRUMS;
+}
+
+void get_file(FATFS *fs,char *outstr){
+	uint8_t idx = 10;
+	TCHAR path[8];
+	FILINFO fno;
+	DIR dir;
+	FRESULT res = f_getcwd(path,8);
+	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
+
+	if(res == FR_OK){
+		f_opendir(&dir,path);
+		while((res = f_readdir(&dir, &fno)) == FR_OK && fno.fname[0] != 0){
+			if(fno.fattrib & AM_DIR)
+				continue;
+			TM_ILI9341_Puts(10, idx, fno.fname, &TM_Font_7x10,ILI9341_COLOR_WHITE, ILI9341_COLOR_MAGENTA);
+			idx += 10;
+		}
+
+		f_closedir(&dir);
+	}
+
+	return;
 }
 
 void get_string(char *outstr) {
@@ -167,21 +191,23 @@ void saveSingleLoop(uint32_t n){
 }
 
 void readFromSD(uint32_t n){
-	char filename[26];
-	get_string(filename);
-	FIL fil;
+	char filename[26];	// filename to open
+
 	FATFS FatFs;
 	if (f_mount(&FatFs, "", 1) == FR_OK) {
 		//Mounted OK, turn on RED LED
 		BSP_LED_On(LED_RED);
-		if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_READ) == FR_OK){
-			pattern_audio_map[n + 1].sample_position = pattern_audio_map[n].sample_position + SD_ReadAudio(pattern_audio_map[n].sample_position,&fil);
-			f_close(&fil);
-			BSP_LED_Off(LED_GREEN);
-			//Unmount drive, don't forget this!
-			f_mount(0, "", 1);
-			BSP_LED_Off(LED_RED);
-		}
+		get_file(&FatFs,filename);
+//		if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_READ) == FR_OK){
+//			pattern_audio_map[n + 1].sample_position = pattern_audio_map[n].sample_position + SD_ReadAudio(pattern_audio_map[n].sample_position,&fil);
+//			f_close(&fil);
+//			BSP_LED_Off(LED_GREEN);
+//			//Unmount drive, don't forget this!
+//
+//		}
+
+		f_mount(0, "", 1);
+		BSP_LED_Off(LED_RED);
 	 }
 
 	return;
