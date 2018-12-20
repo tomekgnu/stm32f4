@@ -15,5 +15,12 @@ void select_loops(void);
 void saveSingleLoop(uint32_t n);
 void saveAllLoops();
 void get_string(char *outstr);
-void get_file(FATFS *fs,char *outstr);
+void get_file(char *outstr);
+
+typedef struct FileEntry{
+	char filename[13];
+	uint16_t number;
+	struct FileEntry *prev;
+	struct FileEntry *next;
+} FileEntry;
 #endif

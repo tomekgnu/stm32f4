@@ -43,25 +43,65 @@ void audio_drums(void){
 	looper.Function = AUDIO_DRUMS;
 }
 
-void get_file(FATFS *fs,char *outstr){
-	uint8_t idx = 10;
+
+static void display_list(FileEntry *head,uint32_t startIndex,uint32_t size){
+	FileEntry *current;
+	uint32_t index = 0;
+	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
+	for(current = head; current != NULL && current->number < startIndex; current = current->next)
+		continue;
+	for(;current != NULL && current->number < (startIndex + size); current = current->next,index++)
+		TM_ILI9341_Puts(10, 10 + (index * 10), current->filename, &TM_Font_7x10, ILI9341_COLOR_YELLOW, ILI9341_COLOR_MAGENTA);
+
+}
+
+
+
+void get_file(char *outstr){
+	uint16_t idx = 0;
 	TCHAR path[8];
 	FILINFO fno;
 	DIR dir;
+
+	FileEntry *current, *head, *node, *tail;
+	current = NULL;
+	head = NULL;
 	FRESULT res = f_getcwd(path,8);
-	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
 
 	if(res == FR_OK){
 		f_opendir(&dir,path);
 		while((res = f_readdir(&dir, &fno)) == FR_OK && fno.fname[0] != 0){
-			if(fno.fattrib & AM_DIR)
+			if(fno.fattrib & AM_DIR)	// directory
 				continue;
-			TM_ILI9341_Puts(10, idx, fno.fname, &TM_Font_7x10,ILI9341_COLOR_WHITE, ILI9341_COLOR_MAGENTA);
-			idx += 10;
+			 node = (FileEntry *)malloc(sizeof(FileEntry));
+			 strcpy(node->filename,fno.fname);
+			 node->number = idx++;
+			 node->next = node->prev = NULL;
+			 if(head == NULL){
+			    current = head = tail = node;
+			 }
+			 else{
+			     current = current->next = node;
+				 current->prev = tail;
+				 tail = current;
+			 }
+
 		}
 
 		f_closedir(&dir);
+
+		display_list(head,0,10);
+		display_list(head,10,10);
+		display_list(head,20,10);
+		display_list(head,30,10);
+
+		// free linked list memory
+		for(current = head; current ; current=current->next)
+			free(current);
+
 	}
+	else
+		TM_ILI9341_Puts(10, 10, "Error reading SD card", &TM_Font_7x10,	ILI9341_COLOR_YELLOW, ILI9341_COLOR_MAGENTA);
 
 	return;
 }
@@ -197,7 +237,7 @@ void readFromSD(uint32_t n){
 	if (f_mount(&FatFs, "", 1) == FR_OK) {
 		//Mounted OK, turn on RED LED
 		BSP_LED_On(LED_RED);
-		get_file(&FatFs,filename);
+		get_file(filename);
 //		if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_READ) == FR_OK){
 //			pattern_audio_map[n + 1].sample_position = pattern_audio_map[n].sample_position + SD_ReadAudio(pattern_audio_map[n].sample_position,&fil);
 //			f_close(&fil);
