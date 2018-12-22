@@ -43,22 +43,57 @@ void audio_drums(void){
 	looper.Function = AUDIO_DRUMS;
 }
 
+inline static uint32_t item_index(FileEntry *node,uint32_t size){
+	return node->number % size;
+}
 
-static void display_list(FileEntry *head,uint32_t startIndex,uint32_t size){
-	FileEntry *current;
-	uint32_t index = 0;
+static void highlight_on(FileEntry *current){
+	TM_ILI9341_Puts(10, 10 + (current->list_pos * 11), current->filename, &TM_Font_7x10, ILI9341_COLOR_YELLOW, ILI9341_COLOR_CYAN);
+}
+
+static void highlight_off(FileEntry *current){
+	TM_ILI9341_Puts(10, 10 + (current->list_pos * 11), current->filename, &TM_Font_7x10, ILI9341_COLOR_YELLOW, ILI9341_COLOR_MAGENTA);
+}
+
+static void display_list_desc(FileEntry *head,uint16_t size){
+	FileEntry *current = head;
 	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
-	for(current = head; current != NULL && current->number < startIndex; current = current->next)
-		continue;
-	for(;current != NULL && current->number < (startIndex + size); current = current->next,index++)
-		TM_ILI9341_Puts(10, 10 + (index * 10), current->filename, &TM_Font_7x10, ILI9341_COLOR_YELLOW, ILI9341_COLOR_MAGENTA);
+	current = head;
+	do{
+		if(current->list_pos == (size - 1))
+			TM_ILI9341_Puts(10, 10 + (current->list_pos * 11), current->filename, &TM_Font_7x10, ILI9341_COLOR_YELLOW, ILI9341_COLOR_CYAN);
+		else
+			TM_ILI9341_Puts(10, 10 + (current->list_pos * 11), current->filename, &TM_Font_7x10, ILI9341_COLOR_YELLOW, ILI9341_COLOR_MAGENTA);
+
+		current = current->prev;
+	}
+	while(current != NULL && current->list_pos != (size - 1));
+
+	menuMultiLine(2,180,"[2]Up [8]Down","[5]Select [0]Cancel");
+}
+
+static void display_list_asc(FileEntry *head,uint16_t size){
+	FileEntry *current = head;
+	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
+	current = head;
+	do{
+		if(current->list_pos == 0)
+			TM_ILI9341_Puts(10, 10 + (current->list_pos * 11), current->filename, &TM_Font_7x10, ILI9341_COLOR_YELLOW, ILI9341_COLOR_CYAN);
+		else
+			TM_ILI9341_Puts(10, 10 + (current->list_pos * 11), current->filename, &TM_Font_7x10, ILI9341_COLOR_YELLOW, ILI9341_COLOR_MAGENTA);
+		current = current->next;
+	}
+	while(current != NULL && current->list_pos != 0);
+
+	menuMultiLine(2,180,"[2]Up [8]Down","[5]Select [0]Cancel");
 
 }
 
 
-
 void get_file(char *outstr){
-	uint16_t idx = 0;
+	uint32_t idx = 0;
+	uint32_t list_size = 10;
+	KeyDir keydir = KEY_NONE;
 	TCHAR path[8];
 	FILINFO fno;
 	DIR dir;
@@ -68,42 +103,76 @@ void get_file(char *outstr){
 	head = NULL;
 	FRESULT res = f_getcwd(path,8);
 
-	if(res == FR_OK){
-		f_opendir(&dir,path);
-		while((res = f_readdir(&dir, &fno)) == FR_OK && fno.fname[0] != 0){
-			if(fno.fattrib & AM_DIR)	// directory
-				continue;
-			 node = (FileEntry *)malloc(sizeof(FileEntry));
-			 strcpy(node->filename,fno.fname);
-			 node->number = idx++;
-			 node->next = node->prev = NULL;
-			 if(head == NULL){
-			    current = head = tail = node;
-			 }
-			 else{
-			     current = current->next = node;
-				 current->prev = tail;
-				 tail = current;
-			 }
+	f_opendir(&dir,path);
+	if(res != FR_OK){
+			TM_ILI9341_Puts(10, 10, "Error reading SD card", &TM_Font_7x10,	ILI9341_COLOR_YELLOW, ILI9341_COLOR_MAGENTA);
+			return;
+	}
+
+	while((res = f_readdir(&dir, &fno)) == FR_OK && fno.fname[0] != 0){
+		if(fno.fattrib & AM_DIR)	// directory
+			continue;
+		 node = (FileEntry *)malloc(sizeof(FileEntry));
+		 strcpy(node->filename,fno.fname);
+		 node->number = idx++;
+		 node->list_pos = node->number % list_size;
+		 node->next = node->prev = NULL;
+		 if(head == NULL){
+			current = head = tail = node;
+		 }
+		 else{
+			 current = current->next = node;
+			 current->prev = tail;
+			 tail = current;
+		 }
+	}
+
+	f_closedir(&dir);
+
+	current = head;
+	display_list_asc(current,list_size);
+
+	// read keys and display file list and cursor
+	while ((Keypad_Button = TM_KEYPAD_Read()) != TM_KEYPAD_Button_5) {
+		switch (Keypad_Button) {
+			case TM_KEYPAD_Button_2:	keydir = KEY_UP;
+										if(current->prev != NULL)
+											current = current->prev;
+										break;
+			case TM_KEYPAD_Button_8:	keydir = KEY_DOWN;
+										if(current->next != NULL)
+											current = current->next;
+										break;
+			case TM_KEYPAD_Button_0:	goto end_get_file;
 
 		}
 
-		f_closedir(&dir);
+		if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
+			if(keydir == KEY_DOWN){
+				if(current->list_pos == 0)
+					display_list_asc(current,list_size);
+				else{
+					highlight_on(current);
+					highlight_off(current->prev);
+				}
+			}
+			else if(keydir == KEY_UP){
+				if(current->list_pos == (list_size - 1))
+					display_list_desc(current,list_size);
+				else{
+					highlight_on(current);
+					highlight_off(current->next);
+				}
+			}
+		}
+	}	// end of while
 
-		display_list(head,0,10);
-		display_list(head,10,10);
-		display_list(head,20,10);
-		display_list(head,30,10);
-
-		// free linked list memory
-		for(current = head; current ; current=current->next)
-			free(current);
-
-	}
-	else
-		TM_ILI9341_Puts(10, 10, "Error reading SD card", &TM_Font_7x10,	ILI9341_COLOR_YELLOW, ILI9341_COLOR_MAGENTA);
-
-	return;
+	strcpy(outstr,current->filename);
+	end_get_file:
+	// free linked list memory
+	for(current = head; current;current=current->next)
+		free(current);
+	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
 }
 
 void get_string(char *outstr) {
@@ -234,17 +303,18 @@ void readFromSD(uint32_t n){
 	char filename[26];	// filename to open
 
 	FATFS FatFs;
+	FIL fil;
 	if (f_mount(&FatFs, "", 1) == FR_OK) {
 		//Mounted OK, turn on RED LED
 		BSP_LED_On(LED_RED);
 		get_file(filename);
-//		if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_READ) == FR_OK){
-//			pattern_audio_map[n + 1].sample_position = pattern_audio_map[n].sample_position + SD_ReadAudio(pattern_audio_map[n].sample_position,&fil);
-//			f_close(&fil);
-//			BSP_LED_Off(LED_GREEN);
-//			//Unmount drive, don't forget this!
-//
-//		}
+		if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_READ) == FR_OK){
+			pattern_audio_map[n + 1].sample_position = pattern_audio_map[n].sample_position + SD_ReadAudio(pattern_audio_map[n].sample_position,&fil);
+			f_close(&fil);
+			BSP_LED_Off(LED_GREEN);
+			//Unmount drive, don't forget this!
+
+		}
 
 		f_mount(0, "", 1);
 		BSP_LED_Off(LED_RED);
@@ -338,6 +408,7 @@ void select_loops(){
 										menuShowOptions();
 										break;
 			case TM_KEYPAD_Button_5:	readFromSD(looper.StartPattern);
+										menuShowOptions();
 										break;
 
 		}

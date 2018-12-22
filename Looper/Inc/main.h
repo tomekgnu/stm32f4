@@ -69,6 +69,7 @@
 
 typedef enum{DRUMS_STOPPED,DRUMS_STARTED,DRUMS_READY,DRUMS_PAUSED}DrumFunction;
 
+typedef enum{KEY_UP,KEY_DOWN,KEY_LEFT,KEY_RIGHT,KEY_NONE}KeyDir;
 typedef enum {
 	FALSE, TRUE
 } BOOL;

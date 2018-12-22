@@ -20,6 +20,7 @@ void get_file(char *outstr);
 typedef struct FileEntry{
 	char filename[13];
 	uint16_t number;
+	uint16_t list_pos;
 	struct FileEntry *prev;
 	struct FileEntry *next;
 } FileEntry;
