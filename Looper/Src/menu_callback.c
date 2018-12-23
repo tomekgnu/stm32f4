@@ -409,6 +409,7 @@ void select_loops(){
 										break;
 			case TM_KEYPAD_Button_5:	readFromSD(looper.StartPattern);
 										menuShowOptions();
+										setStartEndPatterns(looper.StartPattern,looper.EndPattern);
 										break;
 
 		}
