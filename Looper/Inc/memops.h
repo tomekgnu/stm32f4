@@ -9,12 +9,15 @@
 #define WORD_HALF_SIZE	(WORD_SIZE / 2)
 #define BYTE_SIZE	(WORD_SIZE * 2)
 
+extern FATFS FatFs;
+
 void SD_readSingleTrack(FIL *fp);
 void SD_WriteAudio(uint32_t start,uint32_t end,FIL *fp);
 uint32_t SD_ReadAudio(uint32_t start,FIL *fp);
+void checkSD();
 
-void SF3_readSingleTrack(spiffs * fs,spiffs_file fh);
-void SF3_writeSingleTrack(__IO CHANNEL *ch,spiffs * fs,spiffs_file fh);
+uint32_t SF3_ReadAudio(uint32_t start,spiffs * fs,spiffs_file fh);
+void SF3_WriteAudio(uint32_t start,uint32_t end,spiffs * fs,spiffs_file fh);
 void SF3_readSample();
 
 void SRAM_readSingleTrack();

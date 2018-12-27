@@ -15,6 +15,7 @@
 #include "usbd_cdc_if.h"
 #include "stdlib.h"
 #include "string.h"
+#include "drums.h"
 
 static __IO uint8_t play_buffer = 0;					//Keeps track of which buffer is currently being used
 static __IO BOOL need_new_data = FALSE;
@@ -196,111 +197,6 @@ void SD_readSingleTrack(FIL *fp){
 
 }
 
-void SF3_readSingleTrack(spiffs * fs,spiffs_file fh){
-	HAL_TIM_Base_Start(&htim8);
-		SPIFFS_read(fs,fh,(uint8_t *)audio_buf,WORD_SIZE);
-		SPIFFS_read(fs,fh,(uint8_t *)audio_buf + WORD_SIZE,WORD_SIZE);
-		signed16_unsigned12(audio_buf,0,WORD_SIZE);
-		play_buffer = 0;
-		word_count = 0;
-		while(looper.Function != PLAY_SF3)
-			continue;
-
-		HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
-		HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_2,(uint32_t*)audio_buf,WORD_SIZE,DAC_ALIGN_12B_R);
-
-		while(looper.Function == PLAY_SF3){
-
-			 while(need_new_data == FALSE){
-				 if(looper.Function != PLAY_SF3){
-					 HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_2);
-					 HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
-					// HAL_TIM_Base_Stop(&htim8);
-					 return;
-				 }
-			 }
-
-			need_new_data = FALSE;
-		   	if(play_buffer == 0)	//play_buffer indicates which buffer is now empty
-		    {
-		    	SPIFFS_read(fs,fh,(uint8_t *)audio_buf + WORD_SIZE,WORD_SIZE);
-		    	signed16_unsigned12(audio_buf,WORD_HALF_SIZE,WORD_SIZE);
-		    }
-		     else
-		     {
-		    	 SPIFFS_read(fs,fh,(uint8_t *)audio_buf,WORD_SIZE);
-		    	 signed16_unsigned12(audio_buf,0,WORD_HALF_SIZE);
-		     }
-
-		      if(SPIFFS_eof(fs,fh))
-		      {
-		    	  HAL_DAC_Stop_DMA(&hdac,DAC_CHANNEL_2);
-		    	  HAL_DAC_Stop(&hdac,DAC_CHANNEL_2);
-		    	 // HAL_TIM_Base_Stop(&htim8);
-		    	  SPIFFS_lseek(fs,fh,0,SPIFFS_SEEK_SET);
-		    	  SPIFFS_read(fs,fh,(uint8_t *)audio_buf,WORD_SIZE);
-		    	  SPIFFS_read(fs,fh,(uint8_t *)audio_buf + WORD_SIZE,WORD_SIZE);
-		    	  signed16_unsigned12(audio_buf,0,WORD_SIZE);
-		    	  need_new_data = FALSE;
-		    	  word_count = 0;
-		    	  play_buffer = 0;
-		    	  HAL_TIM_Base_Start(&htim8);
-		    	  HAL_DAC_Start(&hdac,DAC_CHANNEL_2);
-		    	  HAL_DAC_Start_DMA(&hdac,DAC_CHANNEL_2,(uint32_t*)audio_buf,WORD_SIZE,DAC_ALIGN_12B_R);
-		      }
-
-		}
-
-		HAL_TIM_Base_Stop(&htim8);
-}
-void SF3_writeSingleTrack(__IO CHANNEL *ch,spiffs * fs,spiffs_file fh){
-
-	uint32_t allbytes = looper.SamplesWritten * 2;
-	uint32_t remainder = allbytes % BYTE_SIZE;
-
-	sdram_pointer = 0;
-
-		while(allbytes > 0){
-			if(allbytes > remainder){
-				BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *)audio_buf, WORD_SIZE);
-				SPIFFS_write(fs,fh,(uint8_t *)audio_buf,BYTE_SIZE);
-				allbytes -= BYTE_SIZE;
-				sdram_pointer += BYTE_SIZE;
-			}
-			else{
-				BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *)audio_buf, remainder / 2);
-				SPIFFS_write(fs,fh,(uint8_t *)audio_buf,remainder);
-				allbytes -= remainder;
-				sdram_pointer += remainder;
-			}
-
-			SPIFFS_fflush(fs,fh);
-
-		}
-}
-
-void SF3_readSample(){
-	if(word_count == WORD_SIZE){
-		word_count = 0;		//Reset the count
-		need_new_data = TRUE;
-	}
-
-	looper.ch1.CurrentSample = buf_pointer[word_count];
-	play_sample(&looper.ch1);
-	word_count += 1;
-}
-//int16_t readSampleSD(){
-//	int16_t sample;
-//
-//	BSP_SDRAM_ReadData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t *)&sample,1);
-//	sdram_pointer += 2;
-//	if(sdram_pointer == fil->fsize || sdram_pointer == SDRAM_SIZE){
-//		sdram_pointer = 0;
-//
-//	}
-//	return sample;
-//}
-
 uint32_t SD_ReadAudio(uint32_t start,FIL *fp){
 	uint8_t *_buf;
 	uint32_t samples = 0;
@@ -341,8 +237,30 @@ void SD_WriteAudio(uint32_t start,uint32_t end,FIL *fp){
 		sdram_pointer += bytes_written;
 	}
 
+
 	free(_buf);
 
+}
+
+void checkSD(){
+	if(HAL_GPIO_ReadPin(uSD_CD_GPIO_Port,uSD_CD_Pin) == GPIO_PIN_RESET){
+		  if(fs_mounted == FALSE){
+			  if (f_mount(&FatFs, "", 1) != FR_OK){
+				  TM_HD44780_Puts(0,1,"SD card error   ");//
+			  }
+		  else{
+				fs_mounted = TRUE;
+				TM_HD44780_Puts(0,1,"SD card ready  ");
+			  }
+		  }
+	  }
+	  else{
+		  TM_HD44780_Puts(0,1,"SD card removed");
+		  if(fs_mounted == TRUE){
+			  f_mount(0, "", 1);
+			  fs_mounted = FALSE;
+		  }
+	  }
 }
 
 void SRAM_download_rhythm(void){
@@ -386,3 +304,43 @@ void SRAM_download_rhythm(void){
 		TM_HD44780_Puts(0, 1, "Download error  ");
 
 }
+
+void readFromSD(uint32_t n,char *filename){
+
+	FIL fil;
+	if(filename[0] == '\0')
+		return;
+	//Mounted OK, turn on RED LED
+	BSP_LED_On(LED_RED);
+
+	if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_READ) == FR_OK){
+		pattern_audio_map[n + 1].sample_position = pattern_audio_map[n].sample_position + SD_ReadAudio(pattern_audio_map[n].sample_position,&fil);
+		f_close(&fil);
+		BSP_LED_Off(LED_GREEN);
+		//Unmount drive, don't forget this!
+
+	}
+
+	BSP_LED_Off(LED_RED);
+
+	return;
+
+}
+
+void saveLoopSD(uint32_t n,char *filename){
+	FIL fil;
+	if(filename[0] == '\0')
+		return;
+	//Mounted OK, turn on RED LED
+	BSP_LED_On(LED_RED);
+	if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_WRITE) == FR_OK){
+		SD_WriteAudio(pattern_audio_map[n].sample_position,pattern_audio_map[n + 1].sample_position,&fil);
+		f_close(&fil);
+		BSP_LED_Off(LED_GREEN);
+		BSP_LED_Off(LED_RED);
+	}
+
+
+	return;
+}
+

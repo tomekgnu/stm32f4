@@ -23,8 +23,6 @@
 extern TM_KEYPAD_Button_t Keypad_Button;
 extern BOOL Skip_Read_Button;
 
-
-
 void audio_rhythm(){
 	looper.Function = AUDIO_DRUMS;
 
@@ -41,10 +39,6 @@ void drums_only(void){
 
 void audio_drums(void){
 	looper.Function = AUDIO_DRUMS;
-}
-
-inline static uint32_t item_index(FileEntry *node,uint32_t size){
-	return node->number % size;
 }
 
 static void highlight_on(FileEntry *current){
@@ -69,7 +63,7 @@ static void display_list_desc(FileEntry *head,uint16_t size){
 	}
 	while(current != NULL && current->list_pos != (size - 1));
 
-	menuMultiLine(2,180,"[2]Up [8]Down","[5]Select [0]Cancel");
+	menuMultiLine(2,180,"[2]Up [8]Down [5]Select","[6]Delete [0]Cancel");
 }
 
 static void display_list_asc(FileEntry *head,uint16_t size){
@@ -85,12 +79,12 @@ static void display_list_asc(FileEntry *head,uint16_t size){
 	}
 	while(current != NULL && current->list_pos != 0);
 
-	menuMultiLine(2,180,"[2]Up [8]Down","[5]Select [0]Cancel");
+	menuMultiLine(2,180,"[2]Up [8]Down [5]Select","[6]Delete [0]Cancel");
 
 }
 
 
-void get_file(char *outstr){
+BOOL get_file_sd(char *outstr){
 	uint32_t idx = 0;
 	uint32_t list_size = 10;
 	KeyDir keydir = KEY_NONE;
@@ -101,16 +95,17 @@ void get_file(char *outstr){
 	FileEntry *current, *head, *node, *tail;
 	current = NULL;
 	head = NULL;
+	BOOL delete = FALSE;
 	FRESULT res = f_getcwd(path,8);
 
 	f_opendir(&dir,path);
 	if(res != FR_OK){
 			TM_ILI9341_Puts(10, 10, "Error reading SD card", &TM_Font_7x10,	ILI9341_COLOR_YELLOW, ILI9341_COLOR_MAGENTA);
-			return;
+			return FALSE;
 	}
 
 	while((res = f_readdir(&dir, &fno)) == FR_OK && fno.fname[0] != 0){
-		if(fno.fattrib & AM_DIR)	// directory
+		if((fno.fattrib & AM_DIR) || (fno.fsize == 0))	// directory
 			continue;
 		 node = (FileEntry *)malloc(sizeof(FileEntry));
 		 strcpy(node->filename,fno.fname);
@@ -128,6 +123,12 @@ void get_file(char *outstr){
 	}
 
 	f_closedir(&dir);
+	if(head == NULL){
+		TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
+		menuMultiLine(2,10,"No files","Press [0] key");
+		menuWaitReturn();
+		return FALSE;
+	}
 
 	current = head;
 	display_list_asc(current,list_size);
@@ -139,11 +140,16 @@ void get_file(char *outstr){
 										if(current->prev != NULL)
 											current = current->prev;
 										break;
+			case TM_KEYPAD_Button_6:	if(f_unlink(current->filename) == FR_OK){
+											delete = TRUE;
+											goto end_get_file;
+										}
+										break;
 			case TM_KEYPAD_Button_8:	keydir = KEY_DOWN;
 										if(current->next != NULL)
 											current = current->next;
 										break;
-			case TM_KEYPAD_Button_0:	goto end_get_file;
+			case TM_KEYPAD_Button_0:	outstr[0] = '\0'; goto end_get_file;
 
 		}
 
@@ -172,8 +178,10 @@ void get_file(char *outstr){
 	// free linked list memory
 	for(current = head; current;current=current->next)
 		free(current);
-	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
+
+	return delete;
 }
+
 
 void get_string(char *outstr) {
 	uint8_t nameIndex = 0;
@@ -189,7 +197,7 @@ void get_string(char *outstr) {
 			"5JKLjkl", "6MNOmno", "7PRSprs", "8TUVtuv", "9WXYZwxyz" };
 	memset(outstr, '\0', 26);
 	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
-	TM_ILI9341_Puts(10, 10, "Enter filename:", &TM_Font_7x10,
+	TM_ILI9341_Puts(10, 10, "Type filename and/or press [#]", &TM_Font_7x10,
 			ILI9341_COLOR_YELLOW, ILI9341_COLOR_MAGENTA);
 	while (TM_KEYPAD_Read() == TM_KEYPAD_Button_4)
 		continue;
@@ -238,7 +246,7 @@ void get_string(char *outstr) {
 						ILI9341_COLOR_YELLOW);
 			} else if (keyForw == TRUE) {
 				keyForw = FALSE;
-				if (nameIndex < 24 && outstr[nameIndex] != '\0')
+				if (nameIndex < 11 && outstr[nameIndex] != '\0')
 					nameIndex++;
 				else
 					TM_ILI9341_Putc(10 + (nameIndex * 11), 30, ' ',
@@ -278,71 +286,9 @@ void get_string(char *outstr) {
 	}
 }
 
-void saveSingleLoop(uint32_t n){
-	char filename[26];
-	get_string(filename);
-	FIL fil;
-	FATFS FatFs;
-	if (f_mount(&FatFs, "", 1) == FR_OK) {
-		//Mounted OK, turn on RED LED
-		BSP_LED_On(LED_RED);
-		if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_WRITE) == FR_OK){
-			SD_WriteAudio(pattern_audio_map[n].sample_position,pattern_audio_map[n + 1].sample_position,&fil);
-			f_close(&fil);
-			BSP_LED_Off(LED_GREEN);
-			//Unmount drive, don't forget this!
-			f_mount(0, "", 1);
-			BSP_LED_Off(LED_RED);
-		}
-	 }
-
-	return;
-}
-
-void readFromSD(uint32_t n){
-	char filename[26];	// filename to open
-
-	FATFS FatFs;
-	FIL fil;
-	if (f_mount(&FatFs, "", 1) == FR_OK) {
-		//Mounted OK, turn on RED LED
-		BSP_LED_On(LED_RED);
-		get_file(filename);
-		if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_READ) == FR_OK){
-			pattern_audio_map[n + 1].sample_position = pattern_audio_map[n].sample_position + SD_ReadAudio(pattern_audio_map[n].sample_position,&fil);
-			f_close(&fil);
-			BSP_LED_Off(LED_GREEN);
-			//Unmount drive, don't forget this!
-
-		}
-
-		f_mount(0, "", 1);
-		BSP_LED_Off(LED_RED);
-	 }
-
-	return;
-
-}
 
 void saveAllLoops()
 {
-
-}
-void print_letters(void) {
-
-	int c = '0';
-	sprintf(lcdline, "%c", c);
-	TM_HD44780_Puts(0, 1, lcdline);
-	while ((Keypad_Button = TM_KEYPAD_Read()) != TM_KEYPAD_Button_0) {
-		if (Keypad_Button == TM_KEYPAD_Button_5) {
-			c++;
-			sprintf(lcdline, "%c", c);
-			TM_HD44780_Puts(0, 1, lcdline);
-		}
-
-	}
-
-	Skip_Read_Button = TRUE;
 
 }
 
@@ -359,6 +305,7 @@ void select_loops(){
 	looper.Function = AUDIO_ONLY;
 	looper.StartPattern = 0;
 	looper.EndPattern = 0;
+	char filename[13];
 
 	while(TM_KEYPAD_Read() != TM_KEYPAD_Button_NOPRESSED)
 		continue;
@@ -367,10 +314,11 @@ void select_loops(){
 
 	menuMultiLine(6,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Pause/Resume loop","[4] Save current loop","[5] Read loop from SD","[AB] Select channels");
 	sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
-	menuMultiLine(1,160,lcdline);
+	menuMultiLine(1,170,lcdline);
 
 	while(TRUE){
 		Keypad_Button = TM_KEYPAD_Read();
+		checkSD();
 
 		switch(Keypad_Button){
 			case TM_KEYPAD_Button_0: goto end_select_loop;
@@ -404,12 +352,17 @@ void select_loops(){
 
 			case TM_KEYPAD_Button_3:	pauseLoop();
 										break;
-			case TM_KEYPAD_Button_4:	saveSingleLoop(looper.StartPattern);
+			case TM_KEYPAD_Button_4:	filename[0] = '\0';
+										get_string(filename);
+										saveLoopSD(looper.StartPattern,filename);
 										menuShowOptions();
 										break;
-			case TM_KEYPAD_Button_5:	readFromSD(looper.StartPattern);
-										menuShowOptions();
+			case TM_KEYPAD_Button_5:	filename[0] = '\0';
+										while(get_file_sd(filename) == TRUE)
+											continue;
+										readFromSD(looper.StartPattern,filename);
 										setStartEndPatterns(looper.StartPattern,looper.EndPattern);
+										menuShowOptions();
 										break;
 
 		}
@@ -417,9 +370,10 @@ void select_loops(){
 		if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
 			menuMultiLine(6,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Pause/Resume loop","[4] Save current loop","[5] Read loop from SD","[AB] Select channels");
 			sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
-			menuMultiLine(1,160,lcdline);
+			menuMultiLine(1,170,lcdline);
 			show_status_line = TRUE;
 		}
+
 
 		SHOW_STATUS_LINE();
 

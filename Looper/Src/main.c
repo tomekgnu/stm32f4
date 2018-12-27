@@ -74,9 +74,6 @@
 #include "drums.h"
 #include "stdlib.h"
 #include "audio.h"
-#include "SF3.h"
-#include "spi_flash.h"
-#include "spiffs.h"
 #include "SRAMDriver.h"
 #include "tm_stm32f4_fatfs.h"
 #include "memops.h"
@@ -103,16 +100,15 @@ void SystemClock_Config(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-static void my_spiffs_mount();
+
 
 
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
-static u8_t spiffs_work_buf[LOG_PAGE_SIZE*2];
-static u8_t spiffs_fds[32*4];
-static u8_t spiffs_cache_buf[(LOG_PAGE_SIZE+32)*4];
-static spiffs fs;
+
+FATFS FatFs;
+BOOL fs_mounted = FALSE;
 
 TM_KEYPAD_Button_t Keypad_Button;
 BOOL Skip_Read_Button = FALSE;
@@ -134,12 +130,6 @@ int main(void)
 	uint32_t data = 0,bytesWritten = 0;
 	HAL_StatusTypeDef status;
 	spiffs_file fd1;
-	//Fatfs object
-	FATFS FatFs;
-	//File object
-	FIL fil;
-	FRESULT fres;
-
 
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
@@ -187,8 +177,6 @@ int main(void)
   MX_ADC3_Init();
   /* USER CODE BEGIN 2 */
 
-  sFLASH_Init();
-  my_spiffs_mount();
   BSP_SDRAM_Init();
   HAL_NVIC_DisableIRQ(EXTI2_IRQn);
   //HAL_GPIO_WritePin(GPIOC,GPIO_PIN_1,GPIO_PIN_SET);
@@ -238,6 +226,7 @@ int main(void)
   // TODO: write initial rhythm header to SRAM
   SRAM_seekWrite(0,SRAM_SET);
   writeSRAM((unsigned char *)"\0\0\0\0\0\0\0\0\0\0\0\0",12);
+
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -245,7 +234,7 @@ int main(void)
 
   while (1)
   {
-
+	  checkSD();
 	  if(Skip_Read_Button == FALSE)
 		  Keypad_Button = TM_KEYPAD_Read();
 	  Skip_Read_Button = FALSE;
@@ -263,6 +252,8 @@ int main(void)
 
 
 	}
+
+
   /* USER CODE END 3 */
 
 }
@@ -326,43 +317,6 @@ void SystemClock_Config(void)
 
 /* USER CODE BEGIN 4 */
 
-static s32_t my_spiffs_read(u32_t addr, u32_t size, u8_t *dst) {
-    sFLASH_ReadBuffer(dst,addr,size);
-    return SPIFFS_OK;
-  }
-
-  static s32_t my_spiffs_write(u32_t addr, u32_t size, u8_t *src) {
-	sFLASH_WriteBuffer(src,addr,size);
-    return SPIFFS_OK;
-  }
-
-  static s32_t my_spiffs_erase(u32_t addr, u32_t size) {
-
-    return sFLASH_Erase(addr, size);
-  }
-
-void my_spiffs_mount() {
-    spiffs_config cfg;
-    cfg.phys_size = N25Q256A_FLASH_SIZE; // use all spi flash
-    cfg.phys_addr = 0; // start spiffs at start of spi flash
-    cfg.phys_erase_block = N25Q256A_SECTOR_SIZE; // according to datasheet
-    cfg.log_block_size = N25Q256A_SECTOR_SIZE; // let us not complicate things
-    cfg.log_page_size = N25Q256A_PAGE_SIZE; // as we said
-
-    cfg.hal_read_f = my_spiffs_read;
-    cfg.hal_write_f = my_spiffs_write;
-    cfg.hal_erase_f = my_spiffs_erase;
-
-    int res = SPIFFS_mount(&fs,
-      &cfg,
-      spiffs_work_buf,
-      spiffs_fds,
-      sizeof(spiffs_fds),
-      spiffs_cache_buf,
-      sizeof(spiffs_cache_buf),
-      0);
-    printf("mount res: %i\n", res);
-  }
 
 FRESULT open_append (
     FIL* fp,            /* [OUT] File object to create */
