@@ -421,6 +421,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 					looper.DrumState = DRUMS_STARTED;
 				break;
 		case GPIO_PIN_0:	// user button stops everything
+				looper.Function = NONE;
 				stopAll();
 				break;
 
@@ -510,20 +511,21 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				looper.ch2.CurrentSample = 0;
 			}
 
-			BSP_LED_On(LED_GREEN);
-			BSP_LED_Off(LED_RED);
-
 			// this sequence is important!!
 			looper.Playback = TRUE;
 			setStartEndPatterns(looper.StartPattern,looper.EndPattern);
 			looper.Recording = FALSE;
 
-			if(looper.SamplesWritten == 0)
+			if(looper.SamplesWritten == 0){
+				looper.Playback = FALSE;
 				return;
+			}
 			pattern_audio_map[looper.StartPattern].channel_recorded[ACTIVE_CHANNEL_INDEX] = TRUE;
 
 			looper.StartLooper = TRUE;
 			show_status_line = TRUE;
+			BSP_LED_On(LED_GREEN);
+			BSP_LED_Off(LED_RED);
 			break;
 		case Overdubbing_Pin:
 			if(IS_BUT_DOWN(BUT_OVERDUB) == TRUE)

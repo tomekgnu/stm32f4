@@ -63,7 +63,6 @@ static void display_list_desc(FileEntry *head,uint16_t size){
 	}
 	while(current != NULL && current->list_pos != (size - 1));
 
-	menuMultiLine(2,180,"[2]Up [8]Down [5]Select","[6]Delete [0]Cancel");
 }
 
 static void display_list_asc(FileEntry *head,uint16_t size){
@@ -79,8 +78,6 @@ static void display_list_asc(FileEntry *head,uint16_t size){
 	}
 	while(current != NULL && current->list_pos != 0);
 
-	menuMultiLine(2,180,"[2]Up [8]Down [5]Select","[6]Delete [0]Cancel");
-
 }
 
 
@@ -91,7 +88,7 @@ BOOL get_file_sd(char *outstr){
 	TCHAR path[8];
 	FILINFO fno;
 	DIR dir;
-
+	FIL fil;
 	FileEntry *current, *head, *node, *tail;
 	current = NULL;
 	head = NULL;
@@ -132,6 +129,7 @@ BOOL get_file_sd(char *outstr){
 
 	current = head;
 	display_list_asc(current,list_size);
+	menuMultiLine(3,180,"[2]Up [8]Down [5]Select","[3]Listen [U]ser button stop","[6]Delete [0]Cancel");
 
 	// read keys and display file list and cursor
 	while ((Keypad_Button = TM_KEYPAD_Read()) != TM_KEYPAD_Button_5) {
@@ -139,6 +137,12 @@ BOOL get_file_sd(char *outstr){
 			case TM_KEYPAD_Button_2:	keydir = KEY_UP;
 										if(current->prev != NULL)
 											current = current->prev;
+										break;
+			case TM_KEYPAD_Button_3:	f_open(&fil,current->filename,FA_OPEN_ALWAYS | FA_READ);
+										looper.Function = PLAY_SD;
+										SD_readSingleTrack(&fil);
+										looper.Function = AUDIO_ONLY;
+										f_close(&fil);
 										break;
 			case TM_KEYPAD_Button_6:	if(f_unlink(current->filename) == FR_OK){
 											delete = TRUE;
@@ -170,6 +174,8 @@ BOOL get_file_sd(char *outstr){
 					highlight_off(current->next);
 				}
 			}
+
+			menuMultiLine(3,180,"[2]Up [8]Down [5]Select","[3]Listen [U]ser button stop","[6]Delete [0]Cancel");
 		}
 	}	// end of while
 
@@ -317,6 +323,7 @@ void select_loops(){
 	menuMultiLine(1,170,lcdline);
 
 	while(TRUE){
+		filename[0] = '\0';
 		Keypad_Button = TM_KEYPAD_Read();
 		checkSD();
 
@@ -329,8 +336,6 @@ void select_loops(){
 				 if(pattern_audio_map[looper.StartPattern].sample_position > 0){
 					 looper.StartPattern--;
 					 looper.EndPattern--;
-					 //looper.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
-					 //looper.SamplesWritten = 0;
 				 }
 
 				 break;
@@ -341,8 +346,6 @@ void select_loops(){
 				if(pattern_audio_map[looper.EndPattern + 1].sample_position > 0){
 					 looper.StartPattern++;
 					 looper.EndPattern++;
-					 //looper.SamplesWritten = pattern_audio_map[looper.EndPattern + 1].sample_position;
-					 //looper.SamplesWritten = 0;
 				 }
 
 				break;
@@ -352,12 +355,14 @@ void select_loops(){
 
 			case TM_KEYPAD_Button_3:	pauseLoop();
 										break;
-			case TM_KEYPAD_Button_4:	filename[0] = '\0';
+			case TM_KEYPAD_Button_4:	if(looper.Playback == TRUE || looper.Recording == TRUE || looper.SamplesWritten == 0)
+											break;
 										get_string(filename);
 										saveLoopSD(looper.StartPattern,filename);
 										menuShowOptions();
 										break;
-			case TM_KEYPAD_Button_5:	filename[0] = '\0';
+			case TM_KEYPAD_Button_5:	if(looper.Playback == TRUE || looper.Recording == TRUE)
+											break;
 										while(get_file_sd(filename) == TRUE)
 											continue;
 										readFromSD(looper.StartPattern,filename);
@@ -381,6 +386,7 @@ void select_loops(){
 
 
 	end_select_loop:
+	stopAll();
 	Skip_Read_Button = TRUE;
 }
 
