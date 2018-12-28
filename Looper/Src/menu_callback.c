@@ -23,6 +23,8 @@
 extern TM_KEYPAD_Button_t Keypad_Button;
 extern BOOL Skip_Read_Button;
 
+static char filename[13];
+
 void audio_rhythm(){
 	looper.Function = AUDIO_DRUMS;
 
@@ -141,7 +143,6 @@ BOOL get_file_sd(char *outstr){
 			case TM_KEYPAD_Button_3:	f_open(&fil,current->filename,FA_OPEN_ALWAYS | FA_READ);
 										looper.Function = PLAY_SD;
 										SD_readSingleTrack(&fil);
-										looper.Function = AUDIO_ONLY;
 										f_close(&fil);
 										break;
 			case TM_KEYPAD_Button_6:	if(f_unlink(current->filename) == FR_OK){
@@ -199,7 +200,7 @@ void get_string(char *outstr) {
 	BOOL keyDel = FALSE;
 
 	// array indexed by TM_KEYPAD_Button_t
-	static char* keychars[10] = { "0", "1", "2ABCabc", "3DEFdef", "4GHIghi",
+	static char* keychars[10] = { "0", "1._", "2ABCabc", "3DEFdef", "4GHIghi",
 			"5JKLjkl", "6MNOmno", "7PRSprs", "8TUVtuv", "9WXYZwxyz" };
 	memset(outstr, '\0', 26);
 	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
@@ -300,18 +301,46 @@ void saveAllLoops()
 
 void download_rhythm() {
 	looper.Function = DOWNLOAD_SRAM;
-	menuMultiLine(2,110,"Press [Send via USB] button","in Rhythm application.");
-	SRAM_download_rhythm();
+	uint32_t bytes_written = 0;
+
+	while(TRUE){
+		begin_download:
+			filename[0] = '\0';
+			menuMultiLine(2,110,"Press [Send via USB] button","in Rhythm application.");
+			if((bytes_written = SRAM_download_rhythm()) > 0){
+				TM_ILI9341_DrawFilledRectangle(10,110,320,150,ILI9341_COLOR_MAGENTA);
+				menuMultiLine(2,110,"[1] Save rhythm to SD card","[2] Repeat download");
+				while(TRUE){
+					filename[0] = '\0';
+					Keypad_Button = TM_KEYPAD_Read();
+
+					switch(Keypad_Button){
+						case TM_KEYPAD_Button_0:	goto end_download;
+						case TM_KEYPAD_Button_1:	get_string(filename);
+													writeSRAMtoSD(bytes_written,filename);
+													menuShowOptions();
+													goto end_download;
+													goto begin_download;
+						case TM_KEYPAD_Button_2:	goto begin_download;
+					}
+				}
+
+			}
+			else goto end_download;
+
+
+	}
+
+	end_download:
 	looper.Function = NONE;
 	Skip_Read_Button = TRUE;
 }
 
 
 void select_loops(){
-	looper.Function = AUDIO_ONLY;
+
 	looper.StartPattern = 0;
 	looper.EndPattern = 0;
-	char filename[13];
 
 	while(TM_KEYPAD_Read() != TM_KEYPAD_Button_NOPRESSED)
 		continue;
@@ -324,6 +353,7 @@ void select_loops(){
 
 	while(TRUE){
 		filename[0] = '\0';
+		looper.Function = AUDIO_ONLY;
 		Keypad_Button = TM_KEYPAD_Read();
 		checkSD();
 

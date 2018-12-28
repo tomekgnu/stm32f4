@@ -263,7 +263,7 @@ void checkSD(){
 	  }
 }
 
-void SRAM_download_rhythm(void){
+uint32_t SRAM_download_rhythm(void){
 	BOOL header_received = FALSE;
 	uint32_t bytes_total = 0;
 	bytes_written = 0;
@@ -303,6 +303,10 @@ void SRAM_download_rhythm(void){
 	else
 		TM_HD44780_Puts(0, 1, "Download error  ");
 
+	if(bytes_total != 0 && bytes_written != bytes_total)
+		return 0;
+	else
+		return bytes_written;
 }
 
 void readFromSD(uint32_t n,char *filename){
@@ -325,6 +329,35 @@ void readFromSD(uint32_t n,char *filename){
 
 	return;
 
+}
+
+void writeSRAMtoSD(uint32_t bts,char *filename){
+	FIL fil;
+	bytes_written = 0;
+	if(filename[0] == '\0')
+		return;
+
+	if(f_open(&fil, filename, FA_OPEN_ALWAYS | FA_WRITE) == FR_OK){
+		BSP_LED_On(LED_RED);
+		BSP_LED_On(LED_GREEN);
+		SRAM_seekRead(0,SRAM_SET);
+		while(bts > 0){
+			if(bts > BYTE_SIZE){
+				readSRAM((unsigned char *)audio_buf,BYTE_SIZE);
+				f_write(&fil,audio_buf,BYTE_SIZE,&bytes_written);
+			}
+			else{
+				readSRAM((unsigned char *)audio_buf,bts);
+				f_write(&fil,audio_buf,bts,&bytes_written);
+			}
+
+			bts -= bytes_written;
+		}
+
+		f_close(&fil);
+		BSP_LED_Off(LED_GREEN);
+		BSP_LED_Off(LED_RED);
+	}
 }
 
 void saveLoopSD(uint32_t n,char *filename){
