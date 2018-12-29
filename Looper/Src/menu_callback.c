@@ -97,6 +97,7 @@ BOOL get_file_sd(char *outstr){
 	BOOL delete = FALSE;
 	FRESULT res = f_getcwd(path,8);
 
+
 	f_opendir(&dir,path);
 	if(res != FR_OK){
 			TM_ILI9341_Puts(10, 10, "Error reading SD card", &TM_Font_7x10,	ILI9341_COLOR_YELLOW, ILI9341_COLOR_MAGENTA);
@@ -134,17 +135,35 @@ BOOL get_file_sd(char *outstr){
 	menuMultiLine(3,180,"[2]Up [8]Down [5]Select","[3]Listen [U]ser button stop","[6]Delete [0]Cancel");
 
 	// read keys and display file list and cursor
-	while ((Keypad_Button = TM_KEYPAD_Read()) != TM_KEYPAD_Button_5) {
+	while ((Keypad_Button = TM_KEYPAD_Read())) {
 		switch (Keypad_Button) {
 			case TM_KEYPAD_Button_2:	keydir = KEY_UP;
 										if(current->prev != NULL)
 											current = current->prev;
 										break;
-			case TM_KEYPAD_Button_3:	f_open(&fil,current->filename,FA_OPEN_ALWAYS | FA_READ);
-										looper.Function = PLAY_SD;
-										SD_readSingleTrack(&fil);
-										f_close(&fil);
+			case TM_KEYPAD_Button_3:	if(looper.Function == AUDIO_ONLY){
+											f_open(&fil,current->filename,FA_OPEN_ALWAYS | FA_READ);
+											looper.Function = PLAY_SD;
+											SD_readSingleTrack(&fil);
+											f_close(&fil);
+										}
+										else if(looper.Function == AUDIO_DRUMS){
+											uint32_t numOfPatterns;
+											uint32_t numOfBytes;
+											uint32_t maxResolution;
+											readRhythmFromSD(current->filename);
+											memset(pattern_audio_map,0,sizeof(pattern_audio_map));
+											readDrums(&numOfPatterns,&numOfBytes,&maxResolution);
+											looper.StartPattern = 0;
+											looper.EndPattern = (numOfPatterns > 4?3:(numOfPatterns - 1));
+											drumLoop();
+											looper.Function = AUDIO_DRUMS;
+										}
 										break;
+			case TM_KEYPAD_Button_5:	if(looper.Function == AUDIO_DRUMS){
+											readRhythmFromSD(current->filename);
+										}
+										goto end_get_file;
 			case TM_KEYPAD_Button_6:	if(f_unlink(current->filename) == FR_OK){
 											delete = TRUE;
 											goto end_get_file;
@@ -180,8 +199,9 @@ BOOL get_file_sd(char *outstr){
 		}
 	}	// end of while
 
-	strcpy(outstr,current->filename);
+
 	end_get_file:
+	strcpy(outstr,current->filename);
 	// free linked list memory
 	for(current = head; current;current=current->next)
 		free(current);
@@ -332,10 +352,33 @@ void download_rhythm() {
 	}
 
 	end_download:
-	looper.Function = NONE;
+	looper.Function = IDLE;
 	Skip_Read_Button = TRUE;
 }
 
+void load_rhythm_sd(){
+
+	menuMultiLine(1,30,"[1] Select file");
+	while(TRUE){
+			filename[0] = '\0';
+			Keypad_Button = TM_KEYPAD_Read();
+			checkSD();
+			switch(Keypad_Button){
+				case TM_KEYPAD_Button_0: 	goto end_select_loop;
+				case TM_KEYPAD_Button_1:	while(get_file_sd(filename) == TRUE)
+												continue;
+											menuShowOptions();
+											break;
+			}
+			if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
+				menuMultiLine(1,30,"[1] Select file");
+			}
+
+	}
+
+	end_select_loop:
+	Skip_Read_Button = TRUE;
+}
 
 void select_loops(){
 
@@ -353,7 +396,7 @@ void select_loops(){
 
 	while(TRUE){
 		filename[0] = '\0';
-		looper.Function = AUDIO_ONLY;
+		set_function(AUDIO_ONLY);
 		Keypad_Button = TM_KEYPAD_Read();
 		checkSD();
 
@@ -388,14 +431,14 @@ void select_loops(){
 			case TM_KEYPAD_Button_4:	if(looper.Playback == TRUE || looper.Recording == TRUE || looper.SamplesWritten == 0)
 											break;
 										get_string(filename);
-										saveLoopSD(looper.StartPattern,filename);
+										saveLoopToSD(looper.StartPattern,filename);
 										menuShowOptions();
 										break;
 			case TM_KEYPAD_Button_5:	if(looper.Playback == TRUE || looper.Recording == TRUE)
 											break;
 										while(get_file_sd(filename) == TRUE)
 											continue;
-										readFromSD(looper.StartPattern,filename);
+										readLoopFromSD(looper.StartPattern,filename);
 										setStartEndPatterns(looper.StartPattern,looper.EndPattern);
 										menuShowOptions();
 										break;
@@ -462,7 +505,6 @@ void select_bars() {
 	BOOL play = FALSE;
 	//looper.startPattern = 0;
 	sdram_pointer = 0;
-	looper.Function = AUDIO_DRUMS;
 	//map = (uint32_t (*)[])
 	memset(pattern_audio_map,0,sizeof(pattern_audio_map));
 	readDrums(&numOfPatterns,&numOfBytes,&maxResolution);
@@ -505,3 +547,5 @@ void select_bars() {
 	looper.DrumState = DRUMS_STOPPED;
 	Skip_Read_Button = TRUE;
 }
+
+

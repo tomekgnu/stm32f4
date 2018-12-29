@@ -77,14 +77,13 @@ typedef enum {
 	BUT_UP, BUT_DOWN
 } BUTTON;
 typedef enum {
-	NONE,
+	IDLE,
 	AUDIO_ONLY,
 	AUDIO_DRUMS,
 	DRUMS_ONLY,
 	DOWNLOAD_SRAM,
 	PLAY_SRAM,
-	PLAY_SD,
-	PLAY_SF3
+	PLAY_SD
 } FUNCTION;
 //typedef enum{NONE,SINGLE_CHANNEL,CHANNEL_A,CHANNEL_B,READ_SD,PLAY_SD,READ_SF3,PLAY_SF3,READ_SRAM,PLAY_SRAM,DOWNLOAD_SRAM} FUNCTION;
 typedef uint8_t byte;
@@ -108,12 +107,11 @@ typedef struct {
 } LooperApplication;
 
 
-void play_record();
-void lowerMixedSamples(uint32_t * buf);
+
 void buttonHandler();
-uint16_t drumHandler();
 void SystemClock_Config(void);
 void Error_Handler(void);
+void set_function(FUNCTION fun);
 
 extern LooperApplication looper;
 extern BOOL fs_mounted;

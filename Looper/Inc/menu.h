@@ -8,6 +8,7 @@
 #include "stdarg.h"
 
 extern char *messages[];
+extern char *functions[];
 
 #define TOTAL_MENU_NODES	20
 #define MAX_NUM_OPTS		16
@@ -34,7 +35,7 @@ typedef enum {
 	MOVE_BAR_BACK_END_NODE,
 	MOVE_BAR_FORW_END_NODE,
 	SELECT_BARS_NODE,
-	NODE15,
+	LOAD_RHYTHM_FROM_SD,
 	NODE16,
 	NODE17,
 	NODE18,
@@ -73,6 +74,7 @@ void menuInit();
 void menuWaitReturn();
 void menuMultiLine(uint8_t lines, uint8_t offset, ...);
 void menuInitMsg();
+void menuInitFunctions();
 void menuStatusLine(char *text);
 void menuShowStatus();
 void drumMenuInput(uint32_t numOfPatterns, BOOL *play);

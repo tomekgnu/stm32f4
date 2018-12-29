@@ -1,6 +1,18 @@
 #include "menu.h"
 
 char *messages[30];
+char *functions[7];
+
+void menuInitFunctions(){
+	functions[IDLE] = "Idle";
+	functions[AUDIO_ONLY] = "Audio only";
+	functions[AUDIO_DRUMS] = "Audio drums";
+	functions[DRUMS_ONLY] = "Drums only";
+	functions[DOWNLOAD_SRAM] = "Download SRAM";
+	functions[PLAY_SRAM] = "Play SRAM";
+	functions[PLAY_SD] = "Play SD";
+
+}
 
 void menuInitMsg(){
 

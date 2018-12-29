@@ -11,6 +11,7 @@
 #include "tm_stm32f4_ili9341.h"
 #include "joystick.h"
 #include "menu.h"
+#include "stm32f429i_discovery.h"
 
 uint32_t drumBeatIndex;
 __IO BOOL switch_buff;
@@ -141,7 +142,8 @@ void drumLoop(){
 		looper.StartLooper = FALSE;
 		looper.Playback = FALSE;
 		looper.Recording = FALSE;
-
+		BSP_LED_Off(LED_GREEN);
+		BSP_LED_Off(LED_RED);
 }
 
 void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution){

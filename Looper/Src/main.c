@@ -143,7 +143,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  looper.Function = NONE;
+  looper.Function = IDLE;
   looper.TwoChannels = FALSE;
   looper.ch1.Active = TRUE;
   looper.ch1.Monitor = FALSE;
@@ -353,6 +353,13 @@ void buttonHandler() {
 
 	if(IS_BUT_DOWN(BUT_JOYSTICK) && HAL_GPIO_ReadPin(Joystick_SW_GPIO_Port,Joystick_SW_Pin) == GPIO_PIN_SET )
 			BUT_UP(BUT_JOYSTICK);
+}
+
+void set_function(FUNCTION fun){
+	if(looper.Function != fun){
+		looper.Function = fun;
+		show_status_line = TRUE;
+	}
 }
 
 /* USER CODE END 4 */

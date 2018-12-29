@@ -276,8 +276,8 @@ void toggleActiveBothChannels(uint8_t state){
 
 
 void resetChannel(__IO CHANNEL *ch){
-	looper.SamplesWritten = 0;
-	looper.SamplesRead = 0;
+	//looper.SamplesWritten = 0;
+	//looper.SamplesRead = 0;
 	ch->Clipping = FALSE;
 	ch->Overdub = FALSE;
 	ch->mix32Max = 16383;
@@ -330,7 +330,6 @@ void stopAll(){
 	//looper.Function = NONE;
 	resetChannel(&looper.ch1);
 	resetChannel(&looper.ch2);
-	resetLoop();
 	setSampleCounter(0);
 	stopDrums();
 	BSP_LED_Off(LED_RED);

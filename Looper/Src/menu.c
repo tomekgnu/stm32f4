@@ -68,6 +68,7 @@ void setCurrentMenuNode(uint8_t node){
 
 void menuInit(){
 	menuInitMsg();
+	menuInitFunctions();
 	memset(menu_nodes,(int)NODE_EMPTY,sizeof(menu_nodes));
 	current_node_index = MAIN_MENU;
 
@@ -84,13 +85,14 @@ void menuInit(){
 					initParentNode(START_RHYTHM_NODE,messages[START_RHYTHM],NULL);					// [START RHYTHM]
 					initParentNode(MOVE_BAR_BACK_END_NODE,messages[ONE_BAR_BACK_END],NULL);			// [MOVE BAR BACK]
 					initParentNode(MOVE_BAR_FORW_END_NODE,messages[ONE_BAR_FORW_END],NULL);			// [MOVE BAR FORW]
-
+				initParentNode(LOAD_RHYTHM_FROM_SD,"Load from SD card",load_rhythm_sd);
 		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,AUDIO_NODE);
 
 			connectChildNode(AUDIO_NODE,TM_KEYPAD_Button_1,RECORD_SELECT_LOOPS_NODE);
 		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_2,RHYTHM_NODE);
 			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_1,DOWNLOAD_RHYTHM_NODE);
-			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_2,SELECT_BARS_NODE);
+			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_2,LOAD_RHYTHM_FROM_SD);
+			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_3,SELECT_BARS_NODE);
 
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_1,MOVE_BAR_BACK_START_NODE);
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_2,MOVE_BAR_FORW_START_NODE);
@@ -124,7 +126,6 @@ void menuShow(TM_KEYPAD_Button_t opt_key){
 
 void menuShowStatus(){
 	char *channelLabel = "";
-	char *inactiveLabel = "";
 
 	char tmp[31];
 	if(looper.TwoChannels == TRUE){
@@ -153,6 +154,10 @@ void menuShowStatus(){
 		sprintf(tmp + strlen(tmp),"Overdub");
 
 	menuStatusLine(tmp);
+
+	// display current function
+	sprintf(lcdline,"%-16s",functions[looper.Function]);
+	TM_HD44780_Puts(0,1,lcdline);
 }
 
 
@@ -221,11 +226,16 @@ static inline void backwardBar(BOOL start){
 void drumMenuInput(uint32_t numOfPatterns,BOOL *play){
 	BOOL input = TRUE;
 	BOOL startBar = TRUE;
-
+	BOOL overdub = FALSE;
 	while (TRUE){
+		set_function(AUDIO_DRUMS);
+		if((GET_ACTIVE_CHANNEL)->Overdub != overdub){
+			overdub = (GET_ACTIVE_CHANNEL)->Overdub;
+			menuShowStatus();
+		}
 
-			Keypad_Button = TM_KEYPAD_Read();
-			if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
+		Keypad_Button = TM_KEYPAD_Read();
+		if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
 				input = TRUE;
 				switch(Keypad_Button){
 

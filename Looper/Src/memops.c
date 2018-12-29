@@ -309,7 +309,7 @@ uint32_t SRAM_download_rhythm(void){
 		return bytes_written;
 }
 
-void readFromSD(uint32_t n,char *filename){
+void readLoopFromSD(uint32_t n,char *filename){
 
 	FIL fil;
 	if(filename[0] == '\0')
@@ -319,6 +319,33 @@ void readFromSD(uint32_t n,char *filename){
 
 	if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_READ) == FR_OK){
 		pattern_audio_map[n + 1].sample_position = pattern_audio_map[n].sample_position + SD_ReadAudio(pattern_audio_map[n].sample_position,&fil);
+		f_close(&fil);
+		BSP_LED_Off(LED_GREEN);
+		//Unmount drive, don't forget this!
+
+	}
+
+	BSP_LED_Off(LED_RED);
+
+	return;
+
+}
+
+void readRhythmFromSD(char *filename){
+
+	FIL fil;
+	if(filename[0] == '\0')
+		return;
+	//Mounted OK, turn on RED LED
+	BSP_LED_On(LED_RED);
+	SRAM_seekWrite(0,SRAM_SET);
+	if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_READ) == FR_OK){
+		while(1){
+			f_read(&fil,(uint8_t *)audio_buf,BYTE_SIZE,&bytes_read);
+			writeSRAM((unsigned char *)audio_buf,bytes_read);
+			if(f_eof(&fil))
+				break;
+		}
 		f_close(&fil);
 		BSP_LED_Off(LED_GREEN);
 		//Unmount drive, don't forget this!
@@ -360,7 +387,7 @@ void writeSRAMtoSD(uint32_t bts,char *filename){
 	}
 }
 
-void saveLoopSD(uint32_t n,char *filename){
+void saveLoopToSD(uint32_t n,char *filename){
 	FIL fil;
 	if(filename[0] == '\0')
 		return;
