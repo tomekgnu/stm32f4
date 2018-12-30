@@ -85,7 +85,7 @@ void menuInit(){
 					initParentNode(START_RHYTHM_NODE,messages[START_RHYTHM],NULL);					// [START RHYTHM]
 					initParentNode(MOVE_BAR_BACK_END_NODE,messages[ONE_BAR_BACK_END],NULL);			// [MOVE BAR BACK]
 					initParentNode(MOVE_BAR_FORW_END_NODE,messages[ONE_BAR_FORW_END],NULL);			// [MOVE BAR FORW]
-				initParentNode(LOAD_RHYTHM_FROM_SD,"Load from SD card",load_rhythm_sd);
+				initParentNode(LOAD_RHYTHM_FROM_SD,"Select rhythm",select_rhythm);
 		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,AUDIO_NODE);
 
 			connectChildNode(AUDIO_NODE,TM_KEYPAD_Button_1,RECORD_SELECT_LOOPS_NODE);

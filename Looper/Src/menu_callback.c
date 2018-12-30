@@ -160,9 +160,7 @@ BOOL get_file_sd(char *outstr){
 											looper.Function = AUDIO_DRUMS;
 										}
 										break;
-			case TM_KEYPAD_Button_5:	if(looper.Function == AUDIO_DRUMS){
-											readRhythmFromSD(current->filename);
-										}
+			case TM_KEYPAD_Button_5:	strcpy(outstr,current->filename);
 										goto end_get_file;
 			case TM_KEYPAD_Button_6:	if(f_unlink(current->filename) == FR_OK){
 											delete = TRUE;
@@ -173,7 +171,7 @@ BOOL get_file_sd(char *outstr){
 										if(current->next != NULL)
 											current = current->next;
 										break;
-			case TM_KEYPAD_Button_0:	outstr[0] = '\0'; goto end_get_file;
+			case TM_KEYPAD_Button_0:	goto end_get_file;
 
 		}
 
@@ -201,7 +199,6 @@ BOOL get_file_sd(char *outstr){
 
 
 	end_get_file:
-	strcpy(outstr,current->filename);
 	// free linked list memory
 	for(current = head; current;current=current->next)
 		free(current);
@@ -356,7 +353,7 @@ void download_rhythm() {
 	Skip_Read_Button = TRUE;
 }
 
-void load_rhythm_sd(){
+void select_rhythm(){
 
 	menuMultiLine(1,30,"[1] Select file");
 	while(TRUE){
@@ -367,6 +364,7 @@ void load_rhythm_sd(){
 				case TM_KEYPAD_Button_0: 	goto end_select_loop;
 				case TM_KEYPAD_Button_1:	while(get_file_sd(filename) == TRUE)
 												continue;
+											readRhythmFromSD(filename);
 											menuShowOptions();
 											break;
 			}

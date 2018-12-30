@@ -12,7 +12,7 @@ void download_rhythm(void);
 void select_bars(void);
 void select_channel(TM_KEYPAD_Button_t key);
 void select_loops(void);
-void load_rhythm_sd();
+void select_rhythm();
 void readRhythmFromSD(char *filename);
 void writeSRAMtoSD(uint32_t bts,char *filename);
 void saveLoopToSD(uint32_t n,char *filename);
