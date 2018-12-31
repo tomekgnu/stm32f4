@@ -421,7 +421,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 					looper.DrumState = DRUMS_STARTED;
 				break;
 		case GPIO_PIN_0:	// user button stops everything
-				looper.Function = IDLE;
+				looper.Function = saveFunction;
 				stopAll();
 				break;
 

@@ -111,6 +111,7 @@ FATFS FatFs;
 BOOL fs_mounted = FALSE;
 
 TM_KEYPAD_Button_t Keypad_Button;
+FUNCTION saveFunction = IDLE;
 BOOL Skip_Read_Button = FALSE;
 BOOL show_status_line = FALSE;
 
@@ -360,6 +361,7 @@ void set_function(FUNCTION fun){
 		looper.Function = fun;
 		show_status_line = TRUE;
 	}
+	saveFunction = fun;
 }
 
 /* USER CODE END 4 */

@@ -119,7 +119,8 @@ extern uint8_t switches;
 extern char lcdline[];
 extern uint32_t joystick_data[];
 extern BOOL show_status_line;
-uint32_t sdram_pointer;
+extern FUNCTION saveFunction;
+extern uint32_t sdram_pointer;
 
 #define delayUS_ASM(us) do {\
 	asm volatile (	"MOV R0,%[loops]\n\t"\

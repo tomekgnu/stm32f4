@@ -16,6 +16,7 @@ void select_rhythm();
 void readRhythmFromSD(char *filename);
 void writeSRAMtoSD(uint32_t bts,char *filename);
 void saveLoopToSD(uint32_t n,char *filename);
+void saveAllLoopsToSD(char *filename);
 void readLoopFromSD(uint32_t n,char *filename);
 void saveAllLoops();
 void get_string(char *outstr);

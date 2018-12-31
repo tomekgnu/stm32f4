@@ -388,9 +388,9 @@ void select_loops(){
 	show_status_line = TRUE;
 	SHOW_STATUS_LINE();
 
-	menuMultiLine(6,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Pause/Resume loop","[4] Save current loop","[5] Read loop from SD","[AB] Select channels");
+	menuMultiLine(7,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Pause/Resume loop","[4] Save current loop","[5] Read loop from SD","[6] Save all loops","[AB] Select channels");
 	sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
-	menuMultiLine(1,170,lcdline);
+	menuMultiLine(1,200,lcdline);
 
 	while(TRUE){
 		filename[0] = '\0';
@@ -444,9 +444,9 @@ void select_loops(){
 		}
 
 		if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
-			menuMultiLine(6,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Pause/Resume loop","[4] Save current loop","[5] Read loop from SD","[AB] Select channels");
+			menuMultiLine(7,30,"[1] Skip loop backward","[2] Skip loop forward","[3] Pause/Resume loop","[4] Save current loop","[5] Read loop from SD","[6] Save all loops","[AB] Select channels");
 			sprintf(lcdline, "Current loop: %u", (unsigned int)(looper.StartPattern + 1));
-			menuMultiLine(1,170,lcdline);
+			menuMultiLine(1,200,lcdline);
 			show_status_line = TRUE;
 		}
 

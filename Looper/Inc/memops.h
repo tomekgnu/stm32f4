@@ -5,7 +5,7 @@
 #include "ff.h"
 #include "spiffs.h"
 
-#define WORD_SIZE		256
+#define WORD_SIZE		128
 #define WORD_HALF_SIZE	(WORD_SIZE / 2)
 #define BYTE_SIZE	(WORD_SIZE * 2)
 

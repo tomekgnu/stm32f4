@@ -23,7 +23,6 @@ static __IO uint32_t word_count = 0;
 int16_t audio_buf[WORD_SIZE];
 uint32_t audio_pointer = 0;
 BOOL audio_finished = FALSE;
-static int16_t * buf_pointer;
 FIL *fil;
 static UINT bytes_read;
 static UINT bytes_written;
@@ -143,7 +142,7 @@ void SD_readSingleTrack(FIL *fp){
 	signed16_unsigned12(audio_buf,0,WORD_SIZE);
 	play_buffer = 0;
 	word_count = 0;
-
+	need_new_data = FALSE;
 	while(looper.Function != PLAY_SD)	// wait for function switch
 		 continue;
 
@@ -387,6 +386,23 @@ void writeSRAMtoSD(uint32_t bts,char *filename){
 	}
 }
 
+void saveAllLoopsToSD(char *filename){
+	FIL fil;
+		if(filename[0] == '\0')
+			return;
+		//Mounted OK, turn on RED LED
+		BSP_LED_On(LED_RED);
+		if (f_open(&fil, filename, FA_OPEN_ALWAYS | FA_WRITE) == FR_OK){
+			SD_WriteAudio(pattern_audio_map[looper.StartPattern].sample_position,pattern_audio_map[looper.EndPattern + 1].sample_position,&fil);
+			f_close(&fil);
+			BSP_LED_Off(LED_GREEN);
+			BSP_LED_Off(LED_RED);
+		}
+
+		return;
+
+}
+
 void saveLoopToSD(uint32_t n,char *filename){
 	FIL fil;
 	if(filename[0] == '\0')
@@ -399,7 +415,6 @@ void saveLoopToSD(uint32_t n,char *filename){
 		BSP_LED_Off(LED_GREEN);
 		BSP_LED_Off(LED_RED);
 	}
-
 
 	return;
 }

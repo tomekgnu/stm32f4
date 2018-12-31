@@ -9,6 +9,7 @@
 #include "joystick.h"
 #include "tm_stm32f4_keypad.h"
 
+static char filename[13];
 static menuNodeType menu_nodes[TOTAL_MENU_NODES];
 static uint8_t current_node_index;	// current option
 extern TM_KEYPAD_Button_t Keypad_Button;
@@ -85,6 +86,7 @@ void menuInit(){
 					initParentNode(START_RHYTHM_NODE,messages[START_RHYTHM],NULL);					// [START RHYTHM]
 					initParentNode(MOVE_BAR_BACK_END_NODE,messages[ONE_BAR_BACK_END],NULL);			// [MOVE BAR BACK]
 					initParentNode(MOVE_BAR_FORW_END_NODE,messages[ONE_BAR_FORW_END],NULL);			// [MOVE BAR FORW]
+					initParentNode(SAVE_ALL_LOOPS_NODE,"Save all loops",NULL);
 				initParentNode(LOAD_RHYTHM_FROM_SD,"Select rhythm",select_rhythm);
 		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,AUDIO_NODE);
 
@@ -99,6 +101,7 @@ void menuInit(){
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_3,START_RHYTHM_NODE);
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_4,MOVE_BAR_BACK_END_NODE);
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_5,MOVE_BAR_FORW_END_NODE);
+				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_6,SAVE_ALL_LOOPS_NODE);
 
 }
 
@@ -252,6 +255,12 @@ void drumMenuInput(uint32_t numOfPatterns,BOOL *play){
 												break;
 					case TM_KEYPAD_Button_5:	startBar = FALSE;
 												forwardBar(startBar,numOfPatterns); break;
+					case TM_KEYPAD_Button_6:	if(looper.Playback == TRUE || looper.Recording == TRUE || looper.SamplesWritten == 0)
+													break;
+												get_string(filename);
+												saveAllLoopsToSD(filename);
+												menuShowOptions();
+												break;
 					case TM_KEYPAD_Button_A:
 					case TM_KEYPAD_Button_B:
 												select_channel(Keypad_Button);
