@@ -9,7 +9,7 @@ void menuInitFunctions(){
 	functions[AUDIO_DRUMS] = "Audio drums";
 	functions[DRUMS_ONLY] = "Drums only";
 	functions[DOWNLOAD_SRAM] = "Download SRAM";
-	functions[PLAY_SRAM] = "Play SRAM";
+	functions[PLAY_SONG] = "Play Song";
 	functions[PLAY_SD] = "Play SD";
 
 }
