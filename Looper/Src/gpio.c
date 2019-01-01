@@ -400,10 +400,6 @@ void KeyboardConfig(void){
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
-	char keystr[20];
-	//if(function == PLAY_SD || function == PLAY_SF3)
-	//
-
 	switch (GPIO_Pin) {
 
 		case Joystick_SW_Pin:
@@ -426,15 +422,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 				break;
 
 		case ADS1256_DRDY_Pin:
-	//		if(function == PLAY_SD || function == PLAY_SRAM){
-	//			__HAL_TIM_SET_COUNTER(&htim8,0);
-	//			//SD_readSample();
-	//			//return;
-	//		}
-			if(looper.StartLooper == FALSE)
+
+			if(looper.StartLooper == FALSE || looper.Function == IDLE)
 				return;
-			if(looper.Function == IDLE)
-				return;
+
 			sample16s = (int16_t)(ADS1256_ReadData() >> 8);
 
 			if(looper.Playback == TRUE){
@@ -470,7 +461,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			if(IS_BUT_DOWN(BUT_REC) == TRUE)
 				return;
 			BUT_DOWN(BUT_REC);
-			if(looper.Recording == TRUE)
+			if(looper.Recording == TRUE || looper.Function == IDLE)
 				return;
 			if(looper.DrumState == DRUMS_STARTED)
 				return;
@@ -495,7 +486,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			if(IS_BUT_DOWN(BUT_PLAY) == TRUE)
 				return;
 			BUT_DOWN(BUT_PLAY);
-			if(looper.Playback == TRUE)
+			if(looper.Playback == TRUE || looper.Function == IDLE)
 				return;
 			if(looper.DrumState == DRUMS_STARTED)
 				return;
@@ -531,7 +522,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			if(IS_BUT_DOWN(BUT_OVERDUB) == TRUE)
 				return;
 			BUT_DOWN(BUT_OVERDUB);
-			if(looper.Recording == TRUE)
+			if(looper.Recording == TRUE || looper.Function == IDLE)
 				return;
 			if(looper.SamplesWritten == 0)
 				return;

@@ -26,21 +26,21 @@ extern BOOL Skip_Read_Button;
 static char filename[13];
 
 void audio_rhythm(){
-	looper.Function = AUDIO_DRUMS;
+	//looper.Function = AUDIO_DRUMS;
 
 }
 
 void audio_only(){
-	looper.Function = AUDIO_ONLY;
+	//looper.Function = AUDIO_ONLY;
 
 }
 
 void drums_only(void){
-	looper.Function = DRUMS_ONLY;
+	//looper.Function = DRUMS_ONLY;
 }
 
 void audio_drums(void){
-	looper.Function = AUDIO_DRUMS;
+	//looper.Function = AUDIO_DRUMS;
 }
 
 static void highlight_on(FileEntry *current){
@@ -354,7 +354,7 @@ void download_rhythm() {
 }
 
 void select_rhythm(){
-
+	set_function(IDLE);
 	menuMultiLine(1,30,"[1] Select file");
 	while(TRUE){
 			filename[0] = '\0';
