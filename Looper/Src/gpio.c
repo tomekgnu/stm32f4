@@ -555,6 +555,16 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 			if(IS_BUT_DOWN(BUT_TOGFUN) == TRUE)
 				return;
 			BUT_DOWN(BUT_TOGFUN);
+			// finish recording without playing immediately. Allows to switch on overdubbing
+			if(looper.Recording == TRUE){
+				// this sequence is important!!
+				looper.Playback = TRUE;
+				setStartEndPatterns(looper.StartPattern,looper.EndPattern);
+				looper.Recording = FALSE;
+				looper.Playback = FALSE;
+				show_status_line = TRUE;
+				return;
+			}
 			if(looper.Function == AUDIO_ONLY)
 				pauseLoop();
 			show_status_line = TRUE;
