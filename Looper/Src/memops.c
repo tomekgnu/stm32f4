@@ -107,18 +107,29 @@ void SD_readSingleTrack(FIL *fp){
 uint32_t SD_ReadAudio(uint32_t start,FIL *fp){
 	uint8_t *_buf;
 	uint32_t samples = 0;
+	uint32_t total_bytes_read = 0;
+	uint32_t skip = 0,progress = 0;
+	DWORD size_bytes = fp->fsize;
 	fil = fp;
 	_buf = (uint8_t *)malloc(8192);
 	bytes_read = 0;
 	sdram_pointer = start * 2;
+	if((size_bytes + sdram_pointer) > SDRAM_SIZE)
+		size_bytes = SDRAM_SIZE;
+
 	while(1){
 		f_read(fp,(uint8_t *)_buf,8192,&bytes_read);
 		BSP_SDRAM_WriteData16b(SDRAM_DEVICE_ADDR + sdram_pointer,(uint16_t*)_buf,bytes_read / 2);
-		samples += (bytes_read / 2);
+		samples += (bytes_read / looper.SampleBytes);
+		total_bytes_read += bytes_read;
+		progress = (uint32_t)(((float)total_bytes_read / (float)size_bytes) * 256.00);
+		TM_ILI9341_DrawFilledRectangle(10 + skip,120,10 + progress,130,ILI9341_COLOR_YELLOW);
+		skip = progress;
 		sdram_pointer += bytes_read;
 		if(f_eof(fp))
 			break;
 	}
+	TM_ILI9341_DrawFilledRectangle(10 + skip,120,10 + progress,130,ILI9341_COLOR_YELLOW);
 	free(_buf);
 	return samples;
 }
