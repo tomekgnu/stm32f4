@@ -17,29 +17,32 @@ uint32_t drumBeatIndex;
 __IO BOOL switch_buff;
 __IO BOOL first_beat;
 
-uint8_t key_to_drum[16] = {
-		Acoustic_Bass_Drum,
-		Side_Stick,
-		Acoustic_Snare,
-		Cowbell,
-		Low_Floor_Tom,
-		High_Floor_Tom,
-		Low_Mid_Tom,
-		Hi_Mid_Tom,
-		High_Tom,
-		Closed_Hi_Hat,
-		Open_Hi_Hat,
-		Pedal_Hi_Hat,
-		Crash_Cymbal_1,
-		Ride_Cymbal_2,
-		Splash_Cymbal,
-		Chinese_Cymbal
+uint8_t key_to_drum_part[16][2] = {
+		{Acoustic_Bass_Drum,L_FOOT},
+		{Side_Stick,L_HAND},
+		{Acoustic_Snare,L_HAND},
+		{Cowbell,L_HAND},
+		{Low_Floor_Tom,L_HAND},
+		{High_Floor_Tom,L_HAND},
+		{Low_Mid_Tom,L_HAND},
+		{Hi_Mid_Tom,L_HAND},
+		{High_Tom,L_HAND},
+		{Closed_Hi_Hat,L_HAND},
+		{Open_Hi_Hat,L_HAND},
+		{Pedal_Hi_Hat,L_HAND},
+		{Crash_Cymbal_1,L_HAND},
+		{Ride_Cymbal_2,L_HAND},
+		{Splash_Cymbal,L_HAND},
+		{Chinese_Cymbal,L_HAND}
 };
+
 
 PatternData pattern_audio_map[MAX_PATTERNS + 1];
 uint8_t drumBuffA[MAX_SUBBEATS * NUM_ALL_TRACKS];
 uint8_t drumBuffB[MAX_SUBBEATS * NUM_ALL_TRACKS];
-uint8_t * drumBuffPtr;
+uint32_t drumEventTimes[MAX_SUBBEATS];
+uint8_t * drumBuffReadPtr;
+uint8_t * drumBuffWritePtr;
 
 __IO PatternBeats pat1;
 __IO PatternBeats pat2;
@@ -82,7 +85,7 @@ void drumLoop(){
 					updatePatternTime(&pat1,&tim1);
 					timptr = &tim1;
 					patptr = &pat1;
-					drumBuffPtr = drumBuffA;
+					drumBuffReadPtr = drumBuffA;
 					menuShowStatus();
 					if(looper.StartPattern == looper.EndPattern)
 						goto wait_first_beat;
@@ -95,7 +98,7 @@ void drumLoop(){
 					updatePatternTime(&pat2,&tim2);
 					timptr = &tim2;
 					patptr = &pat2;
-					drumBuffPtr = drumBuffB;
+					drumBuffReadPtr = drumBuffB;
 					if(looper.StartPattern == looper.EndPattern)
 						goto wait_first_beat;
 					readSRAM((uint8_t *)&pat1,sizeof(PatternBeats));
@@ -184,6 +187,10 @@ void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolut
 
 }
 
+void startDrums(){
+	HAL_TIM_Base_Start_IT(&htim2);
+	looper.DrumState = DRUMS_STARTED;
+}
 
 void stopDrums(){
 	looper.DrumState = DRUMS_STOPPED;
@@ -212,20 +219,25 @@ void updatePatternTime(__IO PatternBeats *p,__IO PatternTimes *t){
 
 void midiDrumHandler(){
 	uint32_t i;
-
 	if(looper.DrumState != DRUMS_STARTED){
 		return;
+	}
+
+	if(looper.Metronome == TRUE){
+		if(midiDrumClock % 1000 == 0){
+			playPercussion(NOTEON,Metronome_Click);
+		}
 	}
 
 	if(midiDrumClock < timptr->barDuration){
 		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->subBeatDuration + timptr->remainder):timptr->subBeatDuration) == 0){
 			for(i = drumBeatIndex; i < drumBeatIndex + NUM_DRUM_TRACKS; i++){
-				if(drumBuffPtr[i] != 0 && looper.DrumState == DRUMS_STARTED)
-					playPercussion(NOTEON,drumBuffPtr[i]);
+				if(drumBuffReadPtr[i] != 0 && looper.DrumState == DRUMS_STARTED)
+					playPercussion(NOTEON,drumBuffReadPtr[i]);
 			}
 
-			if(drumBuffPtr[i] != 0 && looper.DrumState == DRUMS_STARTED)
-				playBass(NOTEON,drumBuffPtr[i]);
+			if(drumBuffReadPtr[i] != 0 && looper.DrumState == DRUMS_STARTED)
+				playBass(NOTEON,drumBuffReadPtr[i]);
 
 			drumBeatIndex += NUM_ALL_TRACKS;
 
@@ -242,7 +254,54 @@ void midiDrumHandler(){
 
 }
 
+void recordDrums(){
+	PatternTimes pattim;
+	uint32_t barMillis;
+	midiMetronomePointer = 0;
+	  pattim.barDuration = 4000;
+	  pattim.subBeatDuration = 250;
+	  pattim.subbeats = 16;
+	  pattim.remainder = 0;
+	  drumBuffReadPtr = drumBuffA;
+	  drumBuffWritePtr = drumBuffB;
+	  timptr = &pattim;
+	  HAL_TIM_Base_Start_IT(&htim2);
 
+	  while(TRUE){
+		  while(looper.DrumState != DRUMS_STARTED)
+		  	 continue;
+		  BSP_LED_On(LED_GREEN);
+
+		  looper.Metronome = TRUE;
+		  while(midiDrumClock < 4000)
+			  continue;
+		  drumBuffB[midiMetronomePointer] = No_Event;
+		  looper.DrumState = DRUMS_PAUSED;
+		  BSP_LED_Off(LED_GREEN);
+		  drumBeatIndex = 0;
+		  midiMetronomePointer = 0;
+		  while(drumBuffB[midiMetronomePointer] != No_Event){
+
+			  for(barMillis = 0; barMillis < 4000; barMillis += 250){
+				  if(drumEventTimes[midiMetronomePointer] >= barMillis && drumEventTimes[midiMetronomePointer] < (barMillis + 250)){
+					  drumBeatIndex = barMillis / 250;
+					  if(drumEventTimes[midiMetronomePointer] < (barMillis + 125))
+						  drumBuffA[drumBeatIndex * 5] = drumBuffB[midiMetronomePointer];
+					  else
+						  drumBuffA[drumBeatIndex * 5 + 5] = drumBuffB[midiMetronomePointer];
+				  }
+			  }
+
+			  midiMetronomePointer++;
+		  }
+		  drumBeatIndex = 0;
+		  midiDrumClock = 0;
+		  //while(TM_KEYPAD_Read() == TM_KEYPAD_Button_NOPRESSED)
+		  	// continue;
+		  looper.DrumState = DRUMS_STARTED;
+	  }
+
+}
 
 void resetDrums(){
 	midiDrumClock = 0;

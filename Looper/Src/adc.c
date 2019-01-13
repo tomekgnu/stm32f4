@@ -10,7 +10,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2018 STMicroelectronics International N.V. 
+  * Copyright (c) 2019 STMicroelectronics International N.V. 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -68,9 +68,10 @@
 #include "joystick.h"
 
 #define pi 3.14159
-
-extern uint8_t key_to_drum[];
-
+extern uint8_t * drumBuffWritePtr;
+extern uint32_t drumBeatIndex;
+extern __IO uint16_t midiDrumClock;
+extern uint32_t drumEventTimes[MAX_SUBBEATS];
 
 uint32_t adc1val = 0;
 uint32_t adc2val = 0;
@@ -84,6 +85,7 @@ void HAL_ADC_ErrorCallback(ADC_HandleTypeDef * hadc){
 	TM_HD44780_Puts(0,1,strval);
 }
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+
 	if(hadc->Instance == ADC3){
 		Update_Joystick();
 		return;
@@ -97,7 +99,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		case 1:
 		case 2:
 		case 3:adc1val = 1;
-
 				break;
 		case 9:
 		case 10:
@@ -168,7 +169,18 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		TM_HD44780_Clear();
 		utoa(adc1val,strval,10);
 		TM_HD44780_Puts(0,0,strval);
-		//playPercussion(NOTEON,key_to_drum[adc1val - 1]);
+
+		if(looper.DrumState != DRUMS_STARTED){
+			midiDrumClock = 0;
+			drumBeatIndex = 0;
+			midiMetronomePointer = 0;
+			looper.DrumState = DRUMS_STARTED;
+		}
+
+		drumBuffWritePtr[midiMetronomePointer] = key_to_drum_part[adc1val - 1][0];
+		drumEventTimes[midiMetronomePointer] = midiDrumClock;
+		midiMetronomePointer++;
+		playPercussion(NOTEON,key_to_drum_part[adc1val - 1][0]);
 
 	}
 }

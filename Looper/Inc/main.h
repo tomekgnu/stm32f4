@@ -10,7 +10,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2018 STMicroelectronics International N.V. 
+  * Copyright (c) 2019 STMicroelectronics International N.V. 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -67,7 +67,7 @@
 #define WRITE_SIZE			((SAMPLE_BYTES) / 4)
 #define MEM_BLOCK			READ_SIZE
 
-typedef enum{DRUMS_STOPPED,DRUMS_STARTED,DRUMS_READY,DRUMS_PAUSED}DrumFunction;
+typedef enum{DRUMS_STOPPED,DRUMS_STARTED,DRUMS_READY,DRUMS_PAUSED,DRUMS_RECORD}DrumFunction;
 
 typedef enum{KEY_UP,KEY_DOWN,KEY_LEFT,KEY_RIGHT,KEY_NONE}KeyDir;
 typedef enum {
@@ -94,6 +94,7 @@ typedef struct {
 	__IO BOOL Playback;
 	__IO BOOL StartLooper;
 	__IO BOOL TwoChannels;
+	__IO BOOL Metronome;
 	__IO uint32_t SamplesRead;
 	__IO uint32_t SamplesWritten;
 	__IO uint32_t SampleBytes;
@@ -194,9 +195,6 @@ extern uint32_t sdram_pointer;
 #define ACP_RST_GPIO_Port GPIOA
 #define OTG_FS_PSO_Pin GPIO_PIN_4
 #define OTG_FS_PSO_GPIO_Port GPIOC
-#define OTG_FS_OC_Pin GPIO_PIN_5
-#define OTG_FS_OC_GPIO_Port GPIOC
-#define OTG_FS_OC_EXTI_IRQn EXTI9_5_IRQn
 #define SRAM_5_CS_Pin GPIO_PIN_0
 #define SRAM_5_CS_GPIO_Port GPIOB
 #define SRAM_6_CS_Pin GPIO_PIN_1
@@ -245,8 +243,6 @@ extern uint32_t sdram_pointer;
 #define VBUS_FS_GPIO_Port GPIOB
 #define OTG_FS_DP_Pin GPIO_PIN_15
 #define OTG_FS_DP_GPIO_Port GPIOB
-#define D13_Pin GPIO_PIN_8
-#define D13_GPIO_Port GPIOD
 #define D14_Pin GPIO_PIN_9
 #define D14_GPIO_Port GPIOD
 #define D15_Pin GPIO_PIN_10
@@ -267,8 +263,6 @@ extern uint32_t sdram_pointer;
 #define SRAM_0_CS_GPIO_Port GPIOG
 #define BA0_Pin GPIO_PIN_4
 #define BA0_GPIO_Port GPIOG
-#define BA1_Pin GPIO_PIN_5
-#define BA1_GPIO_Port GPIOG
 #define R7_Pin GPIO_PIN_6
 #define R7_GPIO_Port GPIOG
 #define HD44780_D7_Pin GPIO_PIN_7
@@ -289,6 +283,9 @@ extern uint32_t sdram_pointer;
 #define STLINK_RX_GPIO_Port GPIOA
 #define STLINK_TX_Pin GPIO_PIN_10
 #define STLINK_TX_GPIO_Port GPIOA
+#define STLED316_INT_Pin GPIO_PIN_12
+#define STLED316_INT_GPIO_Port GPIOA
+#define STLED316_INT_EXTI_IRQn EXTI15_10_IRQn
 #define SWDIO_Pin GPIO_PIN_13
 #define SWDIO_GPIO_Port GPIOA
 #define SWCLK_Pin GPIO_PIN_14
@@ -347,8 +344,6 @@ extern uint32_t sdram_pointer;
 #define KEYPAD_ROW_1_GPIO_Port GPIOB
 #define KEYPAD_ROW_4_Pin GPIO_PIN_9
 #define KEYPAD_ROW_4_GPIO_Port GPIOB
-#define NBL0_Pin GPIO_PIN_0
-#define NBL0_GPIO_Port GPIOE
 #define NBL1_Pin GPIO_PIN_1
 #define NBL1_GPIO_Port GPIOE
 

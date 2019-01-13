@@ -10,7 +10,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2018 STMicroelectronics International N.V. 
+  * Copyright (c) 2019 STMicroelectronics International N.V. 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -114,7 +114,6 @@ TM_KEYPAD_Button_t Keypad_Button;
 FUNCTION saveFunction = IDLE;
 BOOL Skip_Read_Button = FALSE;
 BOOL show_status_line = FALSE;
-
 uint32_t joystick_data[2];
 /* USER CODE END 0 */
 
@@ -127,10 +126,10 @@ int main(void)
 {
   /* USER CODE BEGIN 1 */
 
-
 	uint32_t data = 0,bytesWritten = 0;
 	HAL_StatusTypeDef status;
-	spiffs_file fd1;
+
+
 
 	CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
 	DWT->CYCCNT = 0;
@@ -233,7 +232,10 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  while (1)
+
+
+
+  while (TRUE)
   {
 	  checkSD();
 	  if(Skip_Read_Button == FALSE)

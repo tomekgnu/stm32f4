@@ -10,7 +10,7 @@
   * inserted by the user or by software development tools
   * are owned by their respective copyright owners.
   *
-  * Copyright (c) 2018 STMicroelectronics International N.V. 
+  * Copyright (c) 2019 STMicroelectronics International N.V. 
   * All rights reserved.
   *
   * Redistribution and use in source and binary forms, with or without 
@@ -130,20 +130,17 @@ static void HAL_FMC_MspInit(void){
   PE13   ------> FMC_D10
   PE14   ------> FMC_D11
   PE15   ------> FMC_D12
-  PD8   ------> FMC_D13
   PD9   ------> FMC_D14
   PD10   ------> FMC_D15
   PD14   ------> FMC_D0
   PD15   ------> FMC_D1
   PG4   ------> FMC_BA0
-  PG5   ------> FMC_BA1
   PG8   ------> FMC_SDCLK
   PD0   ------> FMC_D2
   PD1   ------> FMC_D3
   PG15   ------> FMC_SDNCAS
   PB5   ------> FMC_SDCKE1
   PB6   ------> FMC_SDNE1
-  PE0   ------> FMC_NBL0
   PE1   ------> FMC_NBL1
   */
   /* GPIO_InitStruct */
@@ -167,8 +164,8 @@ static void HAL_FMC_MspInit(void){
   HAL_GPIO_Init(SDNWE_GPIO_Port, &GPIO_InitStruct);
 
   /* GPIO_InitStruct */
-  GPIO_InitStruct.Pin = A10_Pin|A11_Pin|BA0_Pin|BA1_Pin 
-                          |SDCLK_Pin|SDNCAS_Pin;
+  GPIO_InitStruct.Pin = A10_Pin|A11_Pin|BA0_Pin|SDCLK_Pin 
+                          |SDNCAS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -179,7 +176,7 @@ static void HAL_FMC_MspInit(void){
   /* GPIO_InitStruct */
   GPIO_InitStruct.Pin = D4_Pin|D5_Pin|D6_Pin|D7_Pin 
                           |D8_Pin|D9_Pin|D10_Pin|D11_Pin 
-                          |D12_Pin|NBL0_Pin|NBL1_Pin;
+                          |D12_Pin|NBL1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -188,8 +185,8 @@ static void HAL_FMC_MspInit(void){
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /* GPIO_InitStruct */
-  GPIO_InitStruct.Pin = D13_Pin|D14_Pin|D15_Pin|D0_Pin 
-                          |D1_Pin|GPIO_PIN_0|GPIO_PIN_1;
+  GPIO_InitStruct.Pin = D14_Pin|D15_Pin|D0_Pin|D1_Pin 
+                          |GPIO_PIN_0|GPIO_PIN_1;
   GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
@@ -258,20 +255,17 @@ static void HAL_FMC_MspDeInit(void){
   PE13   ------> FMC_D10
   PE14   ------> FMC_D11
   PE15   ------> FMC_D12
-  PD8   ------> FMC_D13
   PD9   ------> FMC_D14
   PD10   ------> FMC_D15
   PD14   ------> FMC_D0
   PD15   ------> FMC_D1
   PG4   ------> FMC_BA0
-  PG5   ------> FMC_BA1
   PG8   ------> FMC_SDCLK
   PD0   ------> FMC_D2
   PD1   ------> FMC_D3
   PG15   ------> FMC_SDNCAS
   PB5   ------> FMC_SDCKE1
   PB6   ------> FMC_SDNE1
-  PE0   ------> FMC_NBL0
   PE1   ------> FMC_NBL1
   */
 
@@ -281,15 +275,15 @@ static void HAL_FMC_MspDeInit(void){
 
   HAL_GPIO_DeInit(SDNWE_GPIO_Port, SDNWE_Pin);
 
-  HAL_GPIO_DeInit(GPIOG, A10_Pin|A11_Pin|BA0_Pin|BA1_Pin 
-                          |SDCLK_Pin|SDNCAS_Pin);
+  HAL_GPIO_DeInit(GPIOG, A10_Pin|A11_Pin|BA0_Pin|SDCLK_Pin 
+                          |SDNCAS_Pin);
 
   HAL_GPIO_DeInit(GPIOE, D4_Pin|D5_Pin|D6_Pin|D7_Pin 
                           |D8_Pin|D9_Pin|D10_Pin|D11_Pin 
-                          |D12_Pin|NBL0_Pin|NBL1_Pin);
+                          |D12_Pin|NBL1_Pin);
 
-  HAL_GPIO_DeInit(GPIOD, D13_Pin|D14_Pin|D15_Pin|D0_Pin 
-                          |D1_Pin|GPIO_PIN_0|GPIO_PIN_1);
+  HAL_GPIO_DeInit(GPIOD, D14_Pin|D15_Pin|D0_Pin|D1_Pin 
+                          |GPIO_PIN_0|GPIO_PIN_1);
 
   HAL_GPIO_DeInit(GPIOB, SDCKE1_Pin|SDNE1_Pin);
 
