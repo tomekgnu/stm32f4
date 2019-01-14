@@ -7,6 +7,7 @@
 #include "menu_callback.h"
 #include "stdarg.h"
 #include "joystick.h"
+#include "drums.h"
 #include "tm_stm32f4_keypad.h"
 
 static char filename[13];
@@ -87,6 +88,7 @@ void menuInit(){
 					initParentNode(MOVE_BAR_BACK_END_NODE,messages[ONE_BAR_BACK_END],NULL);			// [MOVE BAR BACK]
 					initParentNode(MOVE_BAR_FORW_END_NODE,messages[ONE_BAR_FORW_END],NULL);			// [MOVE BAR FORW]
 					initParentNode(SAVE_ALL_LOOPS_NODE,"Save all loops",NULL);
+				initParentNode(RECORD_DRUMS,"Record rhythm",record_rhythm);
 				initParentNode(LOAD_RHYTHM_FROM_SD,"Select rhythm",select_rhythm);
 		connectChildNode(MAIN_MENU,TM_KEYPAD_Button_1,AUDIO_NODE);
 
@@ -95,6 +97,7 @@ void menuInit(){
 			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_1,DOWNLOAD_RHYTHM_NODE);
 			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_2,LOAD_RHYTHM_FROM_SD);
 			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_3,SELECT_BARS_NODE);
+			connectChildNode(RHYTHM_NODE,TM_KEYPAD_Button_4,RECORD_DRUMS);
 
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_1,MOVE_BAR_BACK_START_NODE);
 				connectChildNode(SELECT_BARS_NODE,TM_KEYPAD_Button_2,MOVE_BAR_FORW_START_NODE);

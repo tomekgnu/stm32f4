@@ -9,6 +9,7 @@ void audio_rhythm(void);
 void drums_only(void);
 void audio_drums(void);
 void download_rhythm(void);
+void record_rhythm(void);
 void select_bars(void);
 void select_channel(TM_KEYPAD_Button_t key);
 void select_loops(void);

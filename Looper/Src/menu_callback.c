@@ -19,6 +19,7 @@
 #include "audio.h"
 #include "stm32f429i_discovery.h"
 #include "tm_stm32f4_fatfs.h"
+#include "tim.h"
 
 extern TM_KEYPAD_Button_t Keypad_Button;
 extern BOOL Skip_Read_Button;
@@ -546,4 +547,21 @@ void select_bars() {
 	Skip_Read_Button = TRUE;
 }
 
+void record_rhythm(){
+
+
+	while(TRUE){
+		Keypad_Button = TM_KEYPAD_Read();
+		looper.DrumState = DRUMS_PAUSED;
+		switch(Keypad_Button){
+
+			case TM_KEYPAD_Button_1:	record_drums();
+										break;
+			case TM_KEYPAD_Button_0:	return;
+
+		}
+
+	}
+
+}
 

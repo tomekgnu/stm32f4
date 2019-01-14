@@ -13,7 +13,9 @@
 #include "menu.h"
 #include "stm32f429i_discovery.h"
 
-uint32_t drumBeatIndex;
+__IO uint32_t drumBeatIndex = 0;
+__IO uint32_t drumBufferIndex = 0;
+__IO uint16_t midiDrumClock;
 __IO BOOL switch_buff;
 __IO BOOL first_beat;
 
@@ -216,21 +218,22 @@ void updatePatternTime(__IO PatternBeats *p,__IO PatternTimes *t){
 }
 
 
+void midiMetronomeHandler(){
+
+
+}
 
 void midiDrumHandler(){
 	uint32_t i;
-	if(looper.DrumState != DRUMS_STARTED){
-		return;
-	}
 
-	if(looper.Metronome == TRUE){
-		if(midiDrumClock % 1000 == 0){
-			playPercussion(NOTEON,Metronome_Click);
-		}
+	if(looper.DrumState != DRUMS_STARTED && looper.DrumState != DRUMS_PAUSED){
+		return;
 	}
 
 	if(midiDrumClock < timptr->barDuration){
 		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->subBeatDuration + timptr->remainder):timptr->subBeatDuration) == 0){
+			if(looper.Metronome == TRUE && drumBeatIndex % patptr->beats == 0)
+				playPercussion(NOTEON,Metronome_Click);
 			for(i = drumBeatIndex; i < drumBeatIndex + NUM_DRUM_TRACKS; i++){
 				if(drumBuffReadPtr[i] != 0 && looper.DrumState == DRUMS_STARTED)
 					playPercussion(NOTEON,drumBuffReadPtr[i]);
@@ -254,53 +257,68 @@ void midiDrumHandler(){
 
 }
 
-void recordDrums(){
-	PatternTimes pattim;
-	uint32_t barMillis;
-	midiMetronomePointer = 0;
-	  pattim.barDuration = 4000;
-	  pattim.subBeatDuration = 250;
-	  pattim.subbeats = 16;
-	  pattim.remainder = 0;
-	  drumBuffReadPtr = drumBuffA;
-	  drumBuffWritePtr = drumBuffB;
-	  timptr = &pattim;
-	  HAL_TIM_Base_Start_IT(&htim2);
+void record_drums(){
+		PatternTimes pattim;
+		PatternBeats patbeats;
+		uint32_t barMillis;
+		uint8_t drum,part;
+		drumBeatIndex = 0;
+		midiDrumClock = 0;
+		drumBufferIndex = 0;
+		pattim.barDuration = 4000;
+		pattim.subBeatDuration = 250;
+		pattim.subbeats = 16;
+		pattim.remainder = 0;
+		patbeats.beats = 4;
+		drumBuffReadPtr = drumBuffA;
+		drumBuffWritePtr = drumBuffB;
+		timptr = &pattim;
+		patptr = &patbeats;
+		looper.Metronome = TRUE;
+
+		HAL_TIM_Base_Start_IT(&htim2);
 
 	  while(TRUE){
 		  while(looper.DrumState != DRUMS_STARTED)
-		  	 continue;
-		  BSP_LED_On(LED_GREEN);
+		  	 continue;	// pressing drum keyboard starts recording and sets clocks to 0
 
-		  looper.Metronome = TRUE;
-		  while(midiDrumClock < 4000)
+		  BSP_LED_On(LED_GREEN);
+		  while(midiDrumClock < 4000){
+			  if(looper.DrumState == DRUMS_STOPPED)	// blue button pressed
+				  goto end_drum_record;
 			  continue;
-		  drumBuffB[midiMetronomePointer] = No_Event;
+		  }
+		  drumBuffB[drumBufferIndex] = No_Event;
 		  looper.DrumState = DRUMS_PAUSED;
 		  BSP_LED_Off(LED_GREEN);
 		  drumBeatIndex = 0;
-		  midiMetronomePointer = 0;
-		  while(drumBuffB[midiMetronomePointer] != No_Event){
-
+		  drumBufferIndex = 0;
+		  while(drumBuffB[drumBufferIndex] != No_Event){
 			  for(barMillis = 0; barMillis < 4000; barMillis += 250){
-				  if(drumEventTimes[midiMetronomePointer] >= barMillis && drumEventTimes[midiMetronomePointer] < (barMillis + 250)){
+				  if(drumEventTimes[drumBufferIndex] >= barMillis && drumEventTimes[drumBufferIndex] < (barMillis + 250)){
 					  drumBeatIndex = barMillis / 250;
-					  if(drumEventTimes[midiMetronomePointer] < (barMillis + 125))
-						  drumBuffA[drumBeatIndex * 5] = drumBuffB[midiMetronomePointer];
+					  drum = key_to_drum_part[drumBuffB[drumBufferIndex]][0];
+					  part = key_to_drum_part[drumBuffB[drumBufferIndex]][1];
+					  if(drumEventTimes[drumBufferIndex] < (barMillis + 125))
+						  drumBuffA[drumBeatIndex * 5 + part] = drum;
 					  else
-						  drumBuffA[drumBeatIndex * 5 + 5] = drumBuffB[midiMetronomePointer];
+						  drumBuffA[drumBeatIndex * 5 + 5 + part] = drum;
 				  }
 			  }
 
-			  midiMetronomePointer++;
+			  drumBufferIndex++;
 		  }
+
 		  drumBeatIndex = 0;
 		  midiDrumClock = 0;
-		  //while(TM_KEYPAD_Read() == TM_KEYPAD_Button_NOPRESSED)
-		  	// continue;
+		  drumBufferIndex = 0;
 		  looper.DrumState = DRUMS_STARTED;
+
 	  }
 
+	  end_drum_record:
+	  stopDrums();
+	  return;
 }
 
 void resetDrums(){

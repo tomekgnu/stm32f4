@@ -3,9 +3,6 @@
 #include "usart.h"
 #include "tm_stm32f4_keypad.h"
 
-__IO uint16_t midiDrumClock = 0;
-__IO uint16_t midiMetronomeClock = 0;
-__IO uint32_t midiMetronomePointer = 0;
 
 uint16_t beats_per_minute	= 60;			// 1s = 1 quarter
 uint16_t millis_per_beat = 60000 / 60;

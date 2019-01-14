@@ -69,8 +69,9 @@
 
 #define pi 3.14159
 extern uint8_t * drumBuffWritePtr;
-extern uint32_t drumBeatIndex;
+extern __IO uint32_t drumBeatIndex;
 extern __IO uint16_t midiDrumClock;
+extern __IO uint32_t drumBufferIndex;
 extern uint32_t drumEventTimes[MAX_SUBBEATS];
 
 uint32_t adc1val = 0;
@@ -98,89 +99,82 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		case 0:
 		case 1:
 		case 2:
-		case 3:adc1val = 1;
+		case 3:adc1val = 0;
 				break;
 		case 9:
 		case 10:
 		case 11:
-		case 12:adc1val = 2;
+		case 12:adc1val = 1;
 				break;
 		case 18:
 		case 19:
 		case 20:
-		case 21:adc1val = 3;
+		case 21:adc1val = 2;
 				break;
 		case 25:
 		case 26:
 		case 27:
-		case 28:adc1val = 4;
+		case 28:adc1val = 3;
 				break;
 		case 31:
 		case 32:
 		case 33:
-		case 34:adc1val = 5;
+		case 34:adc1val = 4;
 				break;
 		case 35:
 		case 36:
 		case 37:
-		case 38:adc1val = 6;
+		case 38:adc1val = 5;
 				break;
 		case 40:
 		case 41:
-		case 42:adc1val = 7;
+		case 42:adc1val = 6;
 				break;
 		case 44:
 		case 45:
-		case 46:adc1val = 8;
+		case 46:adc1val = 7;
 				break;
 		case 47:
 		case 48:
-		case 49:adc1val = 9;
+		case 49:adc1val = 8;
 				break;
 		case 50:
 		case 51:
-		case 52:adc1val = 10;
+		case 52:adc1val = 9;
 				break;
 		case 53:
-		case 54:adc1val = 11;
+		case 54:adc1val = 10;
 				break;
 		case 55:
-		case 56:adc1val = 12;
+		case 56:adc1val = 11;
 				break;
 		case 57:
-		case 58:adc1val = 13;
+		case 58:adc1val = 12;
 				looper.timeIncrement -= 1;
 				break;
 		case 59:
-		case 60:adc1val = 14;
+		case 60:adc1val = 13;
 				looper.timeIncrement += 1;
 				break;
-		case 61: adc1val = 15;
-				if(looper.DrumState == DRUMS_STARTED)
-					looper.DrumState = DRUMS_PAUSED;
-				else if(looper.DrumState == DRUMS_PAUSED)
-					looper.DrumState = DRUMS_STARTED;
+		case 61: adc1val = 14;
 				break;
-		case 62: adc1val = 16;
+		case 62: adc1val = 15;
 				break;
 		default: return;
 
 		}
-		TM_HD44780_Clear();
-		utoa(adc1val,strval,10);
-		TM_HD44780_Puts(0,0,strval);
 
 		if(looper.DrumState != DRUMS_STARTED){
 			midiDrumClock = 0;
 			drumBeatIndex = 0;
-			midiMetronomePointer = 0;
+			drumBufferIndex = 0;
 			looper.DrumState = DRUMS_STARTED;
 		}
 
-		drumBuffWritePtr[midiMetronomePointer] = key_to_drum_part[adc1val - 1][0];
-		drumEventTimes[midiMetronomePointer] = midiDrumClock;
-		midiMetronomePointer++;
-		playPercussion(NOTEON,key_to_drum_part[adc1val - 1][0]);
+		drumBuffWritePtr[drumBufferIndex] = adc1val;	// numbers are resolved to drums and parts using key_to_drum_part array
+		drumEventTimes[drumBufferIndex] = midiDrumClock;
+		drumBufferIndex++;
+		playPercussion(NOTEON,key_to_drum_part[adc1val][0]);
 
 	}
 }
