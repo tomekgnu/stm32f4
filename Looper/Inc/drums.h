@@ -36,7 +36,7 @@ void resetDrums();
 void startDrums();
 void stopDrums();
 void playDrums();
-void midiMetronomeHandler();
+void readDrumKeyboard();
 void midiDrumHandler();
 void initDrumBeats();
 void setBarBeats(uint16_t bar,uint16_t beats);

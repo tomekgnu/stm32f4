@@ -81,6 +81,7 @@
 #include "usbd_core.h"
 #include "usbd_cdc_if.h"
 #include "joystick.h"
+#include "keyclick.h"
 
 #define pi 3.14159
 #define LOG_PAGE_SIZE       256
@@ -231,9 +232,6 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-
-
-
 
   while (TRUE)
   {

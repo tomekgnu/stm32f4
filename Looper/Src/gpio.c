@@ -86,8 +86,6 @@ uint8_t displayTime[16];
         * Output
         * EVENT_OUT
         * EXTI
-     PB11   ------> LTDC_G5
-     PG6   ------> LTDC_R7
      PA11   ------> USB_OTG_FS_DM
      PD6   ------> LTDC_B2
 */
@@ -116,8 +114,8 @@ void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, KEYPAD_COLUMN_4_Pin|SRAM_3_CS_Pin|ILI9341_CS_Pin|OTG_FS_PSO_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, uSD_CS_Pin|HD44780_D6_Pin|HD44780_D5_Pin|HD44780_D4_Pin 
-                          |HD44780_E_Pin|ADS1256_CS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOC, uSD_CS_Pin|KeyClick_SCK_Pin|HD44780_D6_Pin|HD44780_D5_Pin 
+                          |HD44780_D4_Pin|HD44780_E_Pin|ADS1256_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, SRAM_2_CS_Pin|SRAM_4_CS_Pin|HD44780_RS_Pin, GPIO_PIN_SET);
@@ -127,6 +125,9 @@ void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, SRAM_5_CS_Pin|SRAM_6_CS_Pin|SRAM_7_CS_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(KeyClick_SHLD_GPIO_Port, KeyClick_SHLD_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, ILI9341_RST_Pin|ILI9341_WRX_Pin|DAC8552_CS_Pin, GPIO_PIN_RESET);
@@ -174,8 +175,8 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PCPin PCPin */
-  GPIO_InitStruct.Pin = uSD_CS_Pin|ADS1256_CS_Pin;
+  /*Configure GPIO pins : PCPin PCPin PCPin */
+  GPIO_InitStruct.Pin = uSD_CS_Pin|KeyClick_SCK_Pin|ADS1256_CS_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
@@ -209,12 +210,11 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(BOOT1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = G5_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pin = KeyClick_SHLD_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF14_LTDC;
-  HAL_GPIO_Init(G5_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(KeyClick_SHLD_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = TE_Pin;
@@ -239,12 +239,10 @@ void MX_GPIO_Init(void)
   HAL_GPIO_Init(GPIOG, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = R7_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pin = KeyClick_DATA_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  GPIO_InitStruct.Alternate = GPIO_AF14_LTDC;
-  HAL_GPIO_Init(R7_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(KeyClick_DATA_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = HD44780_D7_Pin;
@@ -274,12 +272,6 @@ void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : PtPin */
-  GPIO_InitStruct.Pin = STLED316_INT_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(STLED316_INT_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : PtPin */
   GPIO_InitStruct.Pin = Joystick_SW_Pin;

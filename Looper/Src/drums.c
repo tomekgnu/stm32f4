@@ -12,6 +12,9 @@
 #include "joystick.h"
 #include "menu.h"
 #include "stm32f429i_discovery.h"
+#include "keyclick.h"
+
+extern BOOL Skip_Read_Button;
 
 __IO uint32_t drumBeatIndex = 0;
 __IO uint32_t drumBufferIndex = 0;
@@ -20,22 +23,22 @@ __IO BOOL switch_buff;
 __IO BOOL first_beat;
 
 uint8_t key_to_drum_part[16][2] = {
-		{Acoustic_Bass_Drum,L_FOOT},
-		{Side_Stick,L_HAND},
-		{Acoustic_Snare,L_HAND},
+		{Acoustic_Bass_Drum,R_FOOT},
+		{Side_Stick,R_HAND},
+		{Acoustic_Snare,R_HAND},
 		{Cowbell,L_HAND},
 		{Low_Floor_Tom,L_HAND},
 		{High_Floor_Tom,L_HAND},
 		{Low_Mid_Tom,L_HAND},
 		{Hi_Mid_Tom,L_HAND},
 		{High_Tom,L_HAND},
-		{Closed_Hi_Hat,L_HAND},
-		{Open_Hi_Hat,L_HAND},
-		{Pedal_Hi_Hat,L_HAND},
+		{Closed_Hi_Hat,R_HAND},
+		{Open_Hi_Hat,R_HAND},
+		{Pedal_Hi_Hat,L_FOOT},
 		{Crash_Cymbal_1,L_HAND},
-		{Ride_Cymbal_2,L_HAND},
+		{Ride_Cymbal_2,R_HAND},
 		{Splash_Cymbal,L_HAND},
-		{Chinese_Cymbal,L_HAND}
+		{Chinese_Cymbal,R_HAND}
 };
 
 
@@ -53,6 +56,29 @@ __IO PatternTimes tim2;
 __IO PatternTimes *timptr;
 __IO PatternBeats *patptr;
 
+static inline key_index(uint16_t code){
+	switch(code){
+	case 1:	return 0;
+	case 2: return 1;
+	case 4: return 2;
+	case 8:	return 3;
+	case 16: return 4;
+	case 32: return 5;
+	case 64: return 6;
+	case 128: return 7;
+	case 256: return 8;
+	case 512: return 9;
+	case 1024: return 10;
+	case 2048: return 11;
+	case 32768: return 12;
+	case 4096: return 13;
+	case 8192: return 14;
+	case 16384: return 15;
+
+	}
+
+}
+
 static void seekPattern(PatternData *pattern_audio_map,uint32_t ind){
 	switch_buff = FALSE;
 	SRAM_seekRead(pattern_audio_map[ind].sram_position,SRAM_SET);
@@ -61,6 +87,7 @@ static void seekPattern(PatternData *pattern_audio_map,uint32_t ind){
 	readSRAM((uint8_t *)drumBuffA,tim1.subbeats * 5);
 
 }
+
 
 void drumAudioSync(){
 	//looper.SampleOffset = pattern_audio_map[looper.StartPattern].sample_position;
@@ -218,8 +245,39 @@ void updatePatternTime(__IO PatternBeats *p,__IO PatternTimes *t){
 }
 
 
-void midiMetronomeHandler(){
+void readDrumKeyboard(){
+	//static uint16_t lastKeys = 0;
+	//uint16_t currentKeys = read_shift_regs();
+//	if(currentKeys != lastKeys && currentKeys != 0){
+//		if(looper.DrumState != DRUMS_STARTED){
+//			midiDrumClock = 0;
+//			drumBeatIndex = 0;
+//			drumBufferIndex = 0;
+//			looper.DrumState = DRUMS_STARTED;
+//		}
+//
+//		drumBuffWritePtr[drumBufferIndex] = key_index(currentKeys);	// numbers are resolved to drums and parts using key_to_drum_part array
+//		playPercussion(NOTEON,key_to_drum_part[drumBuffWritePtr[drumBufferIndex]][0]);
+//		drumEventTimes[drumBufferIndex] = midiDrumClock;
+//		drumBufferIndex++;
+//
+//	}
 
+	//lastKeys = currentKeys;
+	TM_KEYPAD_Button_t key = TM_KEYPAD_Read();
+	if(key != TM_KEYPAD_Button_NOPRESSED){
+		if(looper.DrumState != DRUMS_STARTED){
+					midiDrumClock = 0;
+					drumBeatIndex = 0;
+					drumBufferIndex = 0;
+					looper.DrumState = DRUMS_STARTED;
+				}
+
+				drumBuffWritePtr[drumBufferIndex] = key;	// numbers are resolved to drums and parts using key_to_drum_part array
+				playPercussion(NOTEON,key_to_drum_part[drumBuffWritePtr[drumBufferIndex]][0]);
+				drumEventTimes[drumBufferIndex] = midiDrumClock;
+				drumBufferIndex++;
+	}
 
 }
 
@@ -229,6 +287,8 @@ void midiDrumHandler(){
 	if(looper.DrumState != DRUMS_STARTED && looper.DrumState != DRUMS_PAUSED){
 		return;
 	}
+
+	readDrumKeyboard();
 
 	if(midiDrumClock < timptr->barDuration){
 		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->subBeatDuration + timptr->remainder):timptr->subBeatDuration) == 0){
@@ -265,25 +325,25 @@ void record_drums(){
 		drumBeatIndex = 0;
 		midiDrumClock = 0;
 		drumBufferIndex = 0;
-		pattim.barDuration = 4000;
-		pattim.subBeatDuration = 250;
-		pattim.subbeats = 16;
-		pattim.remainder = 0;
+		patbeats.beattime = 60;
+		patbeats.division = 4;
 		patbeats.beats = 4;
 		drumBuffReadPtr = drumBuffA;
 		drumBuffWritePtr = drumBuffB;
 		timptr = &pattim;
 		patptr = &patbeats;
 		looper.Metronome = TRUE;
-
+		setPatternTime(&patbeats,&pattim);
 		HAL_TIM_Base_Start_IT(&htim2);
 
-	  while(TRUE){
-		  while(looper.DrumState != DRUMS_STARTED)
-		  	 continue;	// pressing drum keyboard starts recording and sets clocks to 0
+		while(TRUE){
+		  while(looper.DrumState != DRUMS_STARTED){
+			  updatePatternTime(&patbeats,&pattim);
+			  continue;	// pressing drum keyboard starts recording and sets clocks to 0
+		  }
 
 		  BSP_LED_On(LED_GREEN);
-		  while(midiDrumClock < 4000){
+		  while(midiDrumClock < pattim.barDuration){
 			  if(looper.DrumState == DRUMS_STOPPED)	// blue button pressed
 				  goto end_drum_record;
 			  continue;
@@ -294,12 +354,12 @@ void record_drums(){
 		  drumBeatIndex = 0;
 		  drumBufferIndex = 0;
 		  while(drumBuffB[drumBufferIndex] != No_Event){
-			  for(barMillis = 0; barMillis < 4000; barMillis += 250){
-				  if(drumEventTimes[drumBufferIndex] >= barMillis && drumEventTimes[drumBufferIndex] < (barMillis + 250)){
-					  drumBeatIndex = barMillis / 250;
+			  for(barMillis = 0; barMillis < pattim.barDuration; barMillis += pattim.subBeatDuration){
+				  if(drumEventTimes[drumBufferIndex] >= barMillis && drumEventTimes[drumBufferIndex] < (barMillis + pattim.subBeatDuration)){
+					  drumBeatIndex = barMillis / pattim.subBeatDuration;
 					  drum = key_to_drum_part[drumBuffB[drumBufferIndex]][0];
 					  part = key_to_drum_part[drumBuffB[drumBufferIndex]][1];
-					  if(drumEventTimes[drumBufferIndex] < (barMillis + 125))
+					  if(drumEventTimes[drumBufferIndex] < (barMillis + pattim.subBeatDuration / 2))
 						  drumBuffA[drumBeatIndex * 5 + part] = drum;
 					  else
 						  drumBuffA[drumBeatIndex * 5 + 5 + part] = drum;
@@ -318,6 +378,7 @@ void record_drums(){
 
 	  end_drum_record:
 	  stopDrums();
+	  Skip_Read_Button = TRUE;
 	  return;
 }
 

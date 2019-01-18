@@ -68,11 +68,6 @@
 #include "joystick.h"
 
 #define pi 3.14159
-extern uint8_t * drumBuffWritePtr;
-extern __IO uint32_t drumBeatIndex;
-extern __IO uint16_t midiDrumClock;
-extern __IO uint32_t drumBufferIndex;
-extern uint32_t drumEventTimes[MAX_SUBBEATS];
 
 uint32_t adc1val = 0;
 uint32_t adc2val = 0;
@@ -150,31 +145,24 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 				break;
 		case 57:
 		case 58:adc1val = 12;
+				looper.DrumState = DRUMS_STOPPED;
 				looper.timeIncrement -= 1;
+				looper.DrumState = DRUMS_PAUSED;
 				break;
 		case 59:
 		case 60:adc1val = 13;
+				looper.DrumState = DRUMS_STOPPED;
 				looper.timeIncrement += 1;
+				looper.DrumState = DRUMS_PAUSED;
 				break;
 		case 61: adc1val = 14;
+				looper.Metronome = !looper.Metronome;
 				break;
 		case 62: adc1val = 15;
 				break;
 		default: return;
 
 		}
-
-		if(looper.DrumState != DRUMS_STARTED){
-			midiDrumClock = 0;
-			drumBeatIndex = 0;
-			drumBufferIndex = 0;
-			looper.DrumState = DRUMS_STARTED;
-		}
-
-		drumBuffWritePtr[drumBufferIndex] = adc1val;	// numbers are resolved to drums and parts using key_to_drum_part array
-		drumEventTimes[drumBufferIndex] = midiDrumClock;
-		drumBufferIndex++;
-		playPercussion(NOTEON,key_to_drum_part[adc1val][0]);
 
 	}
 }

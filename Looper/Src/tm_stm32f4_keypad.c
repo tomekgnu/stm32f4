@@ -20,6 +20,7 @@
 #include "stm32f429xx.h"
 #include "main.h"
 #include "midi.h"
+#include "spi.h"
 
 /* Pins configuration, columns are outputs */
 #define KEYPAD_COLUMN_1_HIGH		HAL_GPIO_WritePin(KEYPAD_COLUMN_1_GPIO_Port, KEYPAD_COLUMN_1_GPIO_Port,GPIO_PIN_SET)
@@ -170,7 +171,10 @@ uint8_t TM_KEYPAD_INT_Read(void) {
 
 
 void TM_KEYPAD_Update(void) {
+	uint8_t data[2];
+
 	KeyCode = (TM_KEYPAD_Button_t) TM_KEYPAD_INT_Read();
+
 
 	/* Every X ms read */
 	if (++millis >= KEYPAD_READ_INTERVAL) {
