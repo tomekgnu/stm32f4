@@ -31,18 +31,21 @@ typedef struct{
 
 void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution);
 void drumLoop();
+void updateMetronome();
 void drumAudioSync();
 void resetDrums();
 void startDrums();
 void stopDrums();
 void playDrums();
-void readDrumKeyboard();
+void readDrumKeyboard(BOOL record);
 void midiDrumHandler();
 void initDrumBeats();
 void setBarBeats(uint16_t bar,uint16_t beats);
 void setPatternTime(__IO PatternBeats *p,__IO PatternTimes *t);
 void updatePatternTime(__IO PatternBeats *p,__IO PatternTimes *t);
 void record_drums();
+void preview_drums();
+void clear_drums();
 
 #define BEAT_MILLIS(x)	(60000 / (x))	// convert beat time signature (e.g. 60,120) to milliseconds
 #define NUM_DRUM_TRACKS	4
@@ -65,7 +68,6 @@ void record_drums();
 
 extern PatternData pattern_audio_map[MAX_PATTERNS + 1];
 extern __IO PatternTimes *timptr;
-extern __IO uint32_t drumBeatIndex;
 extern uint8_t key_to_drum_part[][2];
 
 #endif

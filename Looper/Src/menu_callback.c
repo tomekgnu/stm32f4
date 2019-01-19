@@ -548,18 +548,27 @@ void select_bars() {
 }
 
 void record_rhythm(){
-
+	menuMultiLine(5,30,"[1] Preview sounds","[2] Press to record","[3] Clear current","[4] Save as first","[5] Save as next");
 
 	while(TRUE){
 		Keypad_Button = TM_KEYPAD_Read();
 		looper.DrumState = DRUMS_PAUSED;
 		switch(Keypad_Button){
-
-			case TM_KEYPAD_Button_1:	record_drums();
-										break;
 			case TM_KEYPAD_Button_0:	return;
+			case TM_KEYPAD_Button_1:	preview_drums();
+										break;
+			case TM_KEYPAD_Button_2:	record_drums();
+										break;
+			case TM_KEYPAD_Button_3:	clear_drums();
+										break;
 
 		}
+
+		if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
+			menuClearLines(2,3,5);
+			menuMultiLine(5,30,"[1] Preview sounds","[2] Press to record","[3] Clear current","[4] Save as first","[5] Save as next");
+		}
+
 
 	}
 

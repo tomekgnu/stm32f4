@@ -173,6 +173,21 @@ void menuStatusLine(char *text){
 	TM_ILI9341_Puts(0, 221,lcdline, &TM_Font_11x18, ILI9341_COLOR_YELLOW, ILI9341_COLOR_BLACK);
 }
 
+
+void menuClearLines(uint8_t lines,...){
+
+	uint8_t i;
+	int line;
+	va_list ap;
+	va_start(ap, lines);
+	for(i = 0;lines > 0 && i < lines; i++){
+		line = va_arg(ap,int);
+		TM_ILI9341_DrawFilledRectangle(10,line * 20 + 10,320,line * 20 + 30,ILI9341_COLOR_MAGENTA);
+	}
+
+	va_end(ap);
+}
+
 void menuMultiLine(uint8_t lines,uint8_t offset,...){
 	uint8_t i;
 	char *line;

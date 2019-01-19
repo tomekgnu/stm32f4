@@ -146,13 +146,16 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		case 57:
 		case 58:adc1val = 12;
 				looper.timeIncrement -= 1;
+				updateMetronome();
 				break;
 		case 59:
 		case 60:adc1val = 13;
 				looper.timeIncrement += 1;
+				updateMetronome();
 				break;
 		case 61: adc1val = 14;
 				looper.Metronome = !looper.Metronome;
+				updateMetronome();
 				break;
 		case 62: adc1val = 15;
 				break;

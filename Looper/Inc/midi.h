@@ -10,7 +10,6 @@ void playBass(byte onoff,byte tone);
 
 
 extern __IO DrumFunction DrumState;
-extern __IO uint16_t midiDrumClock;
 extern __IO uint16_t midiMetronomeClock;
 
 extern __IO uint32_t midiMetronomePointer;
