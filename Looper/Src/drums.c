@@ -13,6 +13,7 @@
 #include "menu.h"
 #include "stm32f429i_discovery.h"
 #include "keyclick.h"
+#include "string.h"
 
 extern BOOL Skip_Read_Button;
 
@@ -267,9 +268,7 @@ void readDrumKeyboard(){
 	TM_KEYPAD_Button_t key = TM_KEYPAD_Read();
 	if(key != TM_KEYPAD_Button_NOPRESSED){
 		if(looper.DrumState != DRUMS_STARTED){
-					midiDrumClock = 0;
-					drumBeatIndex = 0;
-					drumBufferIndex = 0;
+					resetDrums();
 					looper.DrumState = DRUMS_STARTED;
 				}
 
@@ -277,6 +276,7 @@ void readDrumKeyboard(){
 				playPercussion(NOTEON,key_to_drum_part[drumBuffWritePtr[drumBufferIndex]][0]);
 				drumEventTimes[drumBufferIndex] = midiDrumClock;
 				drumBufferIndex++;
+				BSP_LED_On(LED_RED);
 	}
 
 }
@@ -334,25 +334,34 @@ void record_drums(){
 		patptr = &patbeats;
 		looper.Metronome = TRUE;
 		setPatternTime(&patbeats,&pattim);
+		memset(drumBuffA,0,MAX_SUBBEATS * NUM_ALL_TRACKS);
+		memset(drumBuffB,0,MAX_SUBBEATS * NUM_ALL_TRACKS);
+		memset(drumEventTimes,0,MAX_SUBBEATS * 4);
+
 		HAL_TIM_Base_Start_IT(&htim2);
 
 		while(TRUE){
-		  while(looper.DrumState != DRUMS_STARTED){
-			  updatePatternTime(&patbeats,&pattim);
-			  continue;	// pressing drum keyboard starts recording and sets clocks to 0
-		  }
-
-		  BSP_LED_On(LED_GREEN);
+			// metronome is ticking
+			// pressing drum keyboard starts recording and sets clocks to 0
+			while(looper.DrumState != DRUMS_STARTED){
+				  updatePatternTime(&patbeats,&pattim);
+				  if(looper.DrumState == DRUMS_STOPPED)	// blue button pressed
+					  goto end_drum_record;
+			}
+		// recording loop and playback: drum events added to buffer in readDrumKeyboard(), called in midiDrumHandler()
 		  while(midiDrumClock < pattim.barDuration){
+			  updatePatternTime(&patbeats,&pattim);
 			  if(looper.DrumState == DRUMS_STOPPED)	// blue button pressed
 				  goto end_drum_record;
 			  continue;
 		  }
+
 		  drumBuffB[drumBufferIndex] = No_Event;
-		  looper.DrumState = DRUMS_PAUSED;
-		  BSP_LED_Off(LED_GREEN);
-		  drumBeatIndex = 0;
-		  drumBufferIndex = 0;
+		  looper.DrumState = DRUMS_STOPPED;
+		  resetDrums();
+		  BSP_LED_Off(LED_RED);
+		  BSP_LED_On(LED_GREEN);
+		  // add new drum events if any
 		  while(drumBuffB[drumBufferIndex] != No_Event){
 			  for(barMillis = 0; barMillis < pattim.barDuration; barMillis += pattim.subBeatDuration){
 				  if(drumEventTimes[drumBufferIndex] >= barMillis && drumEventTimes[drumBufferIndex] < (barMillis + pattim.subBeatDuration)){
@@ -369,10 +378,8 @@ void record_drums(){
 			  drumBufferIndex++;
 		  }
 
-		  drumBeatIndex = 0;
-		  midiDrumClock = 0;
-		  drumBufferIndex = 0;
-		  looper.DrumState = DRUMS_STARTED;
+		 resetDrums();
+		 looper.DrumState = DRUMS_STARTED;
 
 	  }
 
@@ -385,5 +392,6 @@ void record_drums(){
 void resetDrums(){
 	midiDrumClock = 0;
 	drumBeatIndex = 0;
+	drumBufferIndex = 0;
 }
 

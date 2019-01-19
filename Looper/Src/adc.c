@@ -145,15 +145,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 				break;
 		case 57:
 		case 58:adc1val = 12;
-				looper.DrumState = DRUMS_STOPPED;
 				looper.timeIncrement -= 1;
-				looper.DrumState = DRUMS_PAUSED;
 				break;
 		case 59:
 		case 60:adc1val = 13;
-				looper.DrumState = DRUMS_STOPPED;
 				looper.timeIncrement += 1;
-				looper.DrumState = DRUMS_PAUSED;
 				break;
 		case 61: adc1val = 14;
 				looper.Metronome = !looper.Metronome;
