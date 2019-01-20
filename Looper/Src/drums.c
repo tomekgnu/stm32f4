@@ -194,8 +194,24 @@ void save_first(){
 }
 
 void save_next(){
-
-
+	uint32_t currentBytes;
+	uint32_t header[3];		// number of patterns, number of bytes, max. resolution
+	SRAM_seekRead(0,SRAM_SET);
+	SRAM_seekWrite(0,SRAM_SET);
+	readSRAM((uint8_t *)header,sizeof(header));
+	currentBytes = header[HEADER_NUM_BYTES];
+	if(currentBytes == 0){
+		save_first();
+		return;
+	}
+	header[HEADER_NUM_BYTES] += (sizeof(PatternBeats) + pat1.beats * pat1.division * NUM_ALL_TRACKS);
+	header[HEADER_NUM_PATTS]++;
+	if(tim1.subbeats > header[HEADER_MAX_BEATS])
+		header[HEADER_MAX_BEATS] = tim1.subbeats;
+	writeSRAM((uint8_t *)header,sizeof(header));
+	SRAM_seekWrite(currentBytes,SRAM_SET);
+	writeSRAM((uint8_t *)&pat1,sizeof(PatternBeats));
+	writeSRAM((uint8_t *)drumBuffA,pat1.beats * pat1.division * NUM_ALL_TRACKS);
 }
 
 void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution){

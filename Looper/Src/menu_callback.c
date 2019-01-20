@@ -565,6 +565,8 @@ void record_rhythm(){
 										break;
 			case TM_KEYPAD_Button_5:	save_first();
 										break;
+			case TM_KEYPAD_Button_6:	save_next();
+										break;
 
 		}
 
