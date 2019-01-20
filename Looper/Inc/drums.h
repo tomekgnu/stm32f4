@@ -45,7 +45,10 @@ void setPatternTime(__IO PatternBeats *p,__IO PatternTimes *t);
 void updatePatternTime(__IO PatternBeats *p,__IO PatternTimes *t);
 void record_drums();
 void preview_drums();
+void play_drums();
 void clear_drums();
+void save_first();
+void save_next();
 
 #define BEAT_MILLIS(x)	(60000 / (x))	// convert beat time signature (e.g. 60,120) to milliseconds
 #define NUM_DRUM_TRACKS	4

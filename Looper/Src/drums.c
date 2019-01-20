@@ -182,6 +182,22 @@ void drumLoop(){
 		BSP_LED_Off(LED_RED);
 }
 
+void save_first(){
+	uint32_t header[3];
+	SRAM_seekWrite(0,SRAM_SET);
+	header[HEADER_NUM_BYTES] = sizeof(header) + sizeof(PatternBeats) + pat1.beats * pat1.division * NUM_ALL_TRACKS;
+	header[HEADER_NUM_PATTS] = 1;
+	header[HEADER_MAX_BEATS] = tim1.subbeats;
+	writeSRAM((uint8_t *)header,sizeof(header));
+	writeSRAM((uint8_t *)&pat1,sizeof(PatternBeats));
+	writeSRAM((uint8_t *)drumBuffA,pat1.beats * pat1.division * NUM_ALL_TRACKS);
+}
+
+void save_next(){
+
+
+}
+
 void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution){
 	PatternBeats tmp;
 	uint32_t header[3];		// number of patterns, number of bytes, max. resolution
@@ -337,6 +353,16 @@ void preview_drums(){
 	while(looper.DrumState == DRUMS_PAUSED){
 		readDrumKeyboard(FALSE);
 	}
+
+}
+void play_drums(){
+	looper.Metronome = FALSE;
+	HAL_TIM_Base_Start_IT(&htim2);
+	resetDrums();
+	looper.DrumState = DRUMS_STARTED;
+	while(looper.DrumState == DRUMS_STARTED)
+		continue;
+	stopDrums();
 
 }
 
