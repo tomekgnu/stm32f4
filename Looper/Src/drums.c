@@ -24,6 +24,22 @@ static __IO uint16_t midiDrumClock;
 static __IO BOOL switch_buff;
 static __IO BOOL first_beat;
 
+char *drum_names[] = {"Bass drum","Side stick","Snare",
+		"Cowbell","Low floor tom","High floor tom","Low mid tom","Hi mid tom","High tom","Closed hi-hat","Open hi-hat","Pedal hi-hat","Crash","Ride","Splash","Chinese",
+};
+
+char *part_names[] = {"[left hand]","[right hand]","[left foot]","[right foot]"};
+uint8_t drum_midi_values[] = {Acoustic_Bass_Drum,Side_Stick,Acoustic_Snare,Cowbell,Low_Floor_Tom,High_Floor_Tom,
+		Low_Mid_Tom,Hi_Mid_Tom,High_Tom,Closed_Hi_Hat,Open_Hi_Hat,Pedal_Hi_Hat,Crash_Cymbal_1,Ride_Cymbal_2,Splash_Cymbal,Chinese_Cymbal};
+
+uint8_t drum_parts[16][2] = {
+		{L_FOOT,R_FOOT},{L_HAND,R_HAND},{L_HAND,R_HAND},{L_HAND,R_HAND},
+		{L_HAND,R_HAND},{L_HAND,R_HAND},{L_HAND,R_HAND},{L_HAND,R_HAND},
+		{L_HAND,R_HAND},{L_HAND,R_HAND},{L_HAND,R_HAND},{L_FOOT,R_FOOT},
+		{L_HAND,R_HAND},{L_HAND,R_HAND},{L_HAND,R_HAND},{L_HAND,R_HAND},
+
+};
+
 uint8_t key_to_drum_part[16][2] = {
 		{Acoustic_Bass_Drum,R_FOOT},
 		{Side_Stick,R_HAND},
@@ -58,28 +74,6 @@ __IO PatternTimes tim2;
 __IO PatternTimes *timptr;
 __IO PatternBeats *patptr;
 
-static inline uint8_t key_index(uint16_t code){
-	switch(code){
-	case 1:	return 0;
-	case 2: return 1;
-	case 4: return 2;
-	case 8:	return 3;
-	case 16: return 4;
-	case 32: return 5;
-	case 64: return 6;
-	case 128: return 7;
-	case 256: return 8;
-	case 512: return 9;
-	case 1024: return 10;
-	case 2048: return 11;
-	case 32768: return 12;
-	case 4096: return 13;
-	case 8192: return 14;
-	case 16384: return 15;
-
-	}
-
-}
 
 static void seekPattern(PatternData *pattern_audio_map,uint32_t ind){
 	switch_buff = FALSE;
@@ -281,42 +275,27 @@ void updatePatternTime(__IO PatternBeats *p,__IO PatternTimes *t){
 }
 
 
-void readDrumKeyboard(BOOL record){
-	//static uint16_t lastKeys = 0;
-	//uint16_t currentKeys = read_shift_regs();
-//	if(currentKeys != lastKeys && currentKeys != 0){
-//		if(looper.DrumState != DRUMS_STARTED){
-//			midiDrumClock = 0;
-//			drumBeatIndex = 0;
-//			drumBufferIndex = 0;
-//			looper.DrumState = DRUMS_STARTED;
-//		}
-//
-//		drumBuffWritePtr[drumBufferIndex] = key_index(currentKeys);	// numbers are resolved to drums and parts using key_to_drum_part array
-//		playPercussion(NOTEON,key_to_drum_part[drumBuffWritePtr[drumBufferIndex]][0]);
-//		drumEventTimes[drumBufferIndex] = midiDrumClock;
-//		drumBufferIndex++;
-//
-//	}
+TM_KEYPAD_Button_t readDrumKeyboard(BOOL record){
 
-	//lastKeys = currentKeys;
 	TM_KEYPAD_Button_t key = TM_KEYPAD_Read();
 	if(key != TM_KEYPAD_Button_NOPRESSED){
-		if(record == FALSE){
+		if(record == FALSE)
 			playPercussion(NOTEON,key_to_drum_part[key][0]);
-			return;
-		}
-		if(looper.DrumState != DRUMS_STARTED){
+		else{
+				if(looper.DrumState != DRUMS_STARTED){
 					resetDrums();
 					looper.DrumState = DRUMS_STARTED;
 				}
 
-				drumBuffWritePtr[drumBufferIndex] = key;	// numbers are resolved to drums and parts using key_to_drum_part array
-				playPercussion(NOTEON,key_to_drum_part[drumBuffWritePtr[drumBufferIndex]][0]);
-				drumEventTimes[drumBufferIndex] = midiDrumClock;
-				drumBufferIndex++;
-				BSP_LED_On(LED_RED);
+			drumBuffWritePtr[drumBufferIndex] = key;	// numbers are resolved to drums and parts using key_to_drum_part array
+			playPercussion(NOTEON,key_to_drum_part[drumBuffWritePtr[drumBufferIndex]][0]);
+			drumEventTimes[drumBufferIndex] = midiDrumClock;
+			drumBufferIndex++;
+			BSP_LED_On(LED_RED);
+		}
 	}
+
+	return key;
 
 }
 
@@ -363,13 +342,91 @@ void clear_drums(){
 }
 
 void preview_drums(){
-	menuClearLines(1,4);
-	menuMultiLine(5,30,"Press keys to hear drums.","Use joystick to change","drum sound assignment","to specific keys","Press blue button to finish.");
-	looper.DrumState = DRUMS_PAUSED;
-	while(looper.DrumState == DRUMS_PAUSED){
-		readDrumKeyboard(FALSE);
+	uint16_t x,y,i;
+	JOYSTICK js;
+	TM_KEYPAD_Button_t key = TM_KEYPAD_Button_0;
+	uint8_t joydrumkey = 0,joypartkey = 0;
+	BOOL pressed = FALSE;
+	//menuClearLines(2,4,6);
+
+	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
+	menuMultiLine(3,180,"Press keys to hear drums.","Change with joystick","Blue button to finish.");
+
+	for(x = 10; x < 160; x += 42){
+		for(y = 10; y < 160; y += 42){
+			TM_ILI9341_DrawFilledRectangle(x,y,x + 40,y + 40,ILI9341_COLOR_BLUE2);
+		}
 	}
 
+	looper.DrumState = DRUMS_PAUSED;
+	while(looper.DrumState == DRUMS_PAUSED){
+		key = readDrumKeyboard(FALSE);
+		switch(key){
+					case TM_KEYPAD_Button_0: y = 136; x = 52; break;
+					case TM_KEYPAD_Button_1: y = 10; x = 10; break;
+					case TM_KEYPAD_Button_2: y = 10; x = 52; break;
+					case TM_KEYPAD_Button_3: y = 10; x = 94; break;
+					case TM_KEYPAD_Button_4: y = 52; x = 10; break;
+					case TM_KEYPAD_Button_5: y = 52; x = 52; break;
+					case TM_KEYPAD_Button_6: y = 52; x = 94; break;
+					case TM_KEYPAD_Button_7: y = 94; x = 10; break;
+					case TM_KEYPAD_Button_8: y = 94; x = 52; break;
+					case TM_KEYPAD_Button_9: y = 94; x = 94; break;
+					case TM_KEYPAD_Button_A: y = 10; x = 136; break;
+					case TM_KEYPAD_Button_B: y = 52; x = 136; break;
+					case TM_KEYPAD_Button_C: y = 94; x = 136; break;
+					case TM_KEYPAD_Button_D: y = 136; x = 136; break;
+					case TM_KEYPAD_Button_STAR: y = 136; x = 10; break;
+					case TM_KEYPAD_Button_HASH: y = 136; x = 94; break;
+
+					}
+		if(key != TM_KEYPAD_Button_NOPRESSED){
+			pressed = TRUE;
+			joydrumkey = key;
+			for(i = 0; key_to_drum_part[key][0] != drum_midi_values[i];i++)
+				continue;
+			sprintf(lcdline,"%s ",drum_names[i]);
+			if(key_to_drum_part[key][1] == drum_parts[key][0])
+				joypartkey = 0;
+			else
+				joypartkey = 1;
+			strcat(lcdline,part_names[key_to_drum_part[key][1]]);
+			TM_ILI9341_DrawFilledRectangle(x,y,x + 40,y + 40,ILI9341_COLOR_RED);	// square on keyboard
+			TM_ILI9341_DrawFilledRectangle(10,180,320,240,ILI9341_COLOR_MAGENTA);	// clear text field
+			TM_ILI9341_Puts(10,180,lcdline, &TM_Font_11x18,ILI9341_COLOR_WHITE, ILI9341_COLOR_MAGENTA);	// put text
+		}
+
+		else if(pressed == TRUE){
+			TM_ILI9341_DrawFilledRectangle(x,y,x + 40,y + 40,ILI9341_COLOR_BLUE2);
+			pressed = FALSE;
+		}
+		else{
+			if(Active_Joystick() == TRUE){
+				js = Read_Joystick();
+				if(Movement_X() == TRUE){
+					if(js.xpos > CENTER && joydrumkey < 15)
+						joydrumkey++;
+					if(js.xpos < CENTER && joydrumkey > 0)
+						joydrumkey--;
+				}
+				else if(Movement_Y() == TRUE){
+					if(joypartkey == 0)
+						joypartkey = 1;
+					else
+						joypartkey = 0;
+				}
+
+				for(i = 0; key_to_drum_part[joydrumkey][0] != drum_midi_values[i];i++)
+					continue;
+				sprintf(lcdline,"%s ",drum_names[i]);
+				strcat(lcdline,part_names[drum_parts[joydrumkey][joypartkey]]);
+				TM_ILI9341_DrawFilledRectangle(10,180,320,240,ILI9341_COLOR_MAGENTA);	// clear text field
+				TM_ILI9341_Puts(10,180,lcdline, &TM_Font_11x18,ILI9341_COLOR_WHITE, ILI9341_COLOR_MAGENTA);	// put text
+
+			}
+		}
+
+	}
 }
 void play_drums(){
 	looper.Metronome = FALSE;

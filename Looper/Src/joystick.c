@@ -23,6 +23,13 @@ JOYSTICK Read_Joystick(){
 	return jstick;
 }
 
+BOOL Movement_Y(){
+	return jstick.ypos != CENTER;
+}
+
+BOOL Movement_X(){
+	return jstick.xpos != CENTER;
+}
 
 void Update_Joystick(){
 	Read_Joystick_INT();

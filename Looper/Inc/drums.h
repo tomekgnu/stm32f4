@@ -37,7 +37,7 @@ void resetDrums();
 void startDrums();
 void stopDrums();
 void playDrums();
-void readDrumKeyboard(BOOL record);
+TM_KEYPAD_Button_t readDrumKeyboard(BOOL record);
 void midiDrumHandler();
 void initDrumBeats();
 void setBarBeats(uint16_t bar,uint16_t beats);

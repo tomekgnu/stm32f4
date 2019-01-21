@@ -14,6 +14,8 @@ typedef struct{
 #define MIN_JOY		0
 
 JOYSTICK Read_Joystick();
+BOOL Movement_X();
+BOOL Movement_Y();
 void Wait_Joystick();
 void Update_Joystick();
 BOOL Active_Joystick();

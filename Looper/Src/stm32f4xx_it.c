@@ -218,7 +218,7 @@ void TIM1_BRK_TIM9_IRQHandler(void)
   /* USER CODE BEGIN TIM1_BRK_TIM9_IRQn 1 */
   TM_KEYPAD_Update();
   //midiMetronomeHandler();
-  //Update_Joystick();
+  Update_Joystick();
   /* USER CODE END TIM1_BRK_TIM9_IRQn 1 */
 }
 
