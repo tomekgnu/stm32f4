@@ -16,7 +16,7 @@
 #include "string.h"
 
 extern BOOL Skip_Read_Button;
-
+static uint32_t beattime = 60;
 static BOOL metronomeUpdated = FALSE;
 static __IO uint32_t drumBeatIndex = 0;
 static __IO uint32_t drumBufferIndex = 0;
@@ -279,20 +279,19 @@ TM_KEYPAD_Button_t readDrumKeyboard(BOOL record){
 
 	TM_KEYPAD_Button_t key = TM_KEYPAD_Read();
 	if(key != TM_KEYPAD_Button_NOPRESSED){
-		if(record == FALSE)
-			playPercussion(NOTEON,key_to_drum_part[key][0]);
-		else{
-				if(looper.DrumState != DRUMS_STARTED){
+		if(record == TRUE){
+			if(looper.DrumState != DRUMS_STARTED){
 					resetDrums();
 					looper.DrumState = DRUMS_STARTED;
-				}
+			}
 
 			drumBuffWritePtr[drumBufferIndex] = key;	// numbers are resolved to drums and parts using key_to_drum_part array
-			playPercussion(NOTEON,key_to_drum_part[drumBuffWritePtr[drumBufferIndex]][0]);
 			drumEventTimes[drumBufferIndex] = midiDrumClock;
 			drumBufferIndex++;
 			BSP_LED_On(LED_RED);
 		}
+
+		playPercussion(NOTEON,key_to_drum_part[key][0]);
 	}
 
 	return key;
@@ -341,108 +340,182 @@ void clear_drums(){
 	memset(drumEventTimes,0,MAX_SUBBEATS * 4);
 }
 
-void preview_drums(){
-	uint16_t x,y,i;
+void preview_drums() {
+	uint16_t x, y, i;
 	JOYSTICK js;
-	TM_KEYPAD_Button_t key = TM_KEYPAD_Button_0;
-	uint8_t joydrumkey = 0,joypartkey = 0;
-	BOOL pressed = FALSE;
+	TM_KEYPAD_Button_t currentkey = TM_KEYPAD_Button_NOPRESSED, tmpkey =
+			TM_KEYPAD_Button_NOPRESSED;
+	uint8_t joydrumkey = 0, joypartkey = 0;
+	BOOL pressed = FALSE, changed = FALSE;
 	//menuClearLines(2,4,6);
 
 	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
-	menuMultiLine(3,180,"Press keys to hear drums.","Change with joystick","Blue button to finish.");
+	menuMultiLine(3, 180, "Press keys to hear drums.", "Change with joystick",
+			"Blue button to finish.");
 
-	for(x = 10; x < 160; x += 42){
-		for(y = 10; y < 160; y += 42){
-			TM_ILI9341_DrawFilledRectangle(x,y,x + 40,y + 40,ILI9341_COLOR_BLUE2);
+	for (x = 10; x < 160; x += 42) {
+		for (y = 10; y < 160; y += 42) {
+			TM_ILI9341_DrawFilledRectangle(x, y, x + 40, y + 40,ILI9341_COLOR_BLUE2);
 		}
 	}
 
 	looper.DrumState = DRUMS_PAUSED;
-	while(looper.DrumState == DRUMS_PAUSED){
-		key = readDrumKeyboard(FALSE);
-		switch(key){
-					case TM_KEYPAD_Button_0: y = 136; x = 52; break;
-					case TM_KEYPAD_Button_1: y = 10; x = 10; break;
-					case TM_KEYPAD_Button_2: y = 10; x = 52; break;
-					case TM_KEYPAD_Button_3: y = 10; x = 94; break;
-					case TM_KEYPAD_Button_4: y = 52; x = 10; break;
-					case TM_KEYPAD_Button_5: y = 52; x = 52; break;
-					case TM_KEYPAD_Button_6: y = 52; x = 94; break;
-					case TM_KEYPAD_Button_7: y = 94; x = 10; break;
-					case TM_KEYPAD_Button_8: y = 94; x = 52; break;
-					case TM_KEYPAD_Button_9: y = 94; x = 94; break;
-					case TM_KEYPAD_Button_A: y = 10; x = 136; break;
-					case TM_KEYPAD_Button_B: y = 52; x = 136; break;
-					case TM_KEYPAD_Button_C: y = 94; x = 136; break;
-					case TM_KEYPAD_Button_D: y = 136; x = 136; break;
-					case TM_KEYPAD_Button_STAR: y = 136; x = 10; break;
-					case TM_KEYPAD_Button_HASH: y = 136; x = 94; break;
+	while (looper.DrumState == DRUMS_PAUSED) {
+		if ((currentkey = readDrumKeyboard(FALSE))
+				!= TM_KEYPAD_Button_NOPRESSED) {
+			switch (currentkey) {
+			case TM_KEYPAD_Button_0:
+				y = 136;
+				x = 52;
+				break;
+			case TM_KEYPAD_Button_1:
+				y = 10;
+				x = 10;
+				break;
+			case TM_KEYPAD_Button_2:
+				y = 10;
+				x = 52;
+				break;
+			case TM_KEYPAD_Button_3:
+				y = 10;
+				x = 94;
+				break;
+			case TM_KEYPAD_Button_4:
+				y = 52;
+				x = 10;
+				break;
+			case TM_KEYPAD_Button_5:
+				y = 52;
+				x = 52;
+				break;
+			case TM_KEYPAD_Button_6:
+				y = 52;
+				x = 94;
+				break;
+			case TM_KEYPAD_Button_7:
+				y = 94;
+				x = 10;
+				break;
+			case TM_KEYPAD_Button_8:
+				y = 94;
+				x = 52;
+				break;
+			case TM_KEYPAD_Button_9:
+				y = 94;
+				x = 94;
+				break;
+			case TM_KEYPAD_Button_A:
+				y = 10;
+				x = 136;
+				break;
+			case TM_KEYPAD_Button_B:
+				y = 52;
+				x = 136;
+				break;
+			case TM_KEYPAD_Button_C:
+				y = 94;
+				x = 136;
+				break;
+			case TM_KEYPAD_Button_D:
+				y = 136;
+				x = 136;
+				break;
+			case TM_KEYPAD_Button_STAR:
+				y = 136;
+				x = 10;
+				break;
+			case TM_KEYPAD_Button_HASH:
+				y = 136;
+				x = 94;
+				break;
 
-					}
-		if(key != TM_KEYPAD_Button_NOPRESSED){
+			}
+			changed = FALSE;
 			pressed = TRUE;
-			joydrumkey = key;
-			for(i = 0; key_to_drum_part[key][0] != drum_midi_values[i];i++)
+			tmpkey = currentkey;
+			for (i = 0; key_to_drum_part[currentkey][0] != drum_midi_values[i];i++)
 				continue;
 			sprintf(lcdline,"%s ",drum_names[i]);
-			if(key_to_drum_part[key][1] == drum_parts[key][0])
+			joydrumkey = i;
+			if (key_to_drum_part[currentkey][1] == drum_parts[currentkey][0])
 				joypartkey = 0;
 			else
 				joypartkey = 1;
-			strcat(lcdline,part_names[key_to_drum_part[key][1]]);
-			TM_ILI9341_DrawFilledRectangle(x,y,x + 40,y + 40,ILI9341_COLOR_RED);	// square on keyboard
-			TM_ILI9341_DrawFilledRectangle(10,180,320,240,ILI9341_COLOR_MAGENTA);	// clear text field
-			TM_ILI9341_Puts(10,180,lcdline, &TM_Font_11x18,ILI9341_COLOR_WHITE, ILI9341_COLOR_MAGENTA);	// put text
+			strcat(lcdline, part_names[key_to_drum_part[currentkey][1]]);
+			TM_ILI9341_DrawFilledRectangle(x, y, x + 40, y + 40,
+					ILI9341_COLOR_RED);	// square on keyboard
+			TM_ILI9341_DrawFilledRectangle(10, 180, 320, 240,
+					ILI9341_COLOR_MAGENTA);	// clear text field
+			TM_ILI9341_Puts(10, 180, lcdline, &TM_Font_11x18,
+					ILI9341_COLOR_WHITE, ILI9341_COLOR_MAGENTA);	// put text
 		}
 
-		else if(pressed == TRUE){
-			TM_ILI9341_DrawFilledRectangle(x,y,x + 40,y + 40,ILI9341_COLOR_BLUE2);
-			pressed = FALSE;
-		}
-		else{
-			if(Active_Joystick() == TRUE){
-				js = Read_Joystick();
-				if(Movement_X() == TRUE){
-					if(js.xpos > CENTER && joydrumkey < 15)
-						joydrumkey++;
-					if(js.xpos < CENTER && joydrumkey > 0)
-						joydrumkey--;
-				}
-				else if(Movement_Y() == TRUE){
-					if(joypartkey == 0)
-						joypartkey = 1;
-					else
-						joypartkey = 0;
-				}
-
-				for(i = 0; key_to_drum_part[joydrumkey][0] != drum_midi_values[i];i++)
-					continue;
-				sprintf(lcdline,"%s ",drum_names[i]);
-				strcat(lcdline,part_names[drum_parts[joydrumkey][joypartkey]]);
-				TM_ILI9341_DrawFilledRectangle(10,180,320,240,ILI9341_COLOR_MAGENTA);	// clear text field
-				TM_ILI9341_Puts(10,180,lcdline, &TM_Font_11x18,ILI9341_COLOR_WHITE, ILI9341_COLOR_MAGENTA);	// put text
-
+		else {
+			if (pressed == TRUE) {
+				TM_ILI9341_DrawFilledRectangle(x, y, x + 40, y + 40,ILI9341_COLOR_BLUE2);
+				pressed = FALSE;
 			}
+			if (Active_Joystick() == TRUE) {
+				js = Read_Joystick();
+				if (js.xpos == MAX_JOY && joydrumkey < 15) {
+					joydrumkey++;
+					changed = TRUE;
+				}
+				if (js.xpos == MIN_JOY && joydrumkey > 0) {
+					joydrumkey--;
+					changed = TRUE;
+				}
+
+				if (js.ypos == MAX_JOY) {
+					joypartkey = 1;
+					changed = TRUE;
+				} else if (js.ypos == MIN_JOY) {
+					joypartkey = 0;
+					changed = TRUE;
+				}
+
+				// assign new values in key_to_drum_part[]
+				if (changed == TRUE) {
+					sprintf(lcdline, "%s ", drum_names[joydrumkey]);
+					strcat(lcdline,part_names[drum_parts[joydrumkey][joypartkey]]);
+					TM_ILI9341_DrawFilledRectangle(10, 180, 320, 240,ILI9341_COLOR_MAGENTA);	// clear text field
+					TM_ILI9341_Puts(10, 180, lcdline, &TM_Font_11x18,ILI9341_COLOR_WHITE, ILI9341_COLOR_MAGENTA);// put text
+					key_to_drum_part[tmpkey][0] = drum_midi_values[joydrumkey];
+					key_to_drum_part[tmpkey][1] = drum_parts[joydrumkey][joypartkey];
+					changed = FALSE;
+					HAL_Delay(100);
+				}
+			}
+
 		}
 
 	}
+
 }
-void play_drums(){
+
+void play_drums() {
 	looper.Metronome = FALSE;
 	HAL_TIM_Base_Start_IT(&htim2);
 	resetDrums();
+	pat1.beattime = beattime;
+	updatePatternTime(&pat1, &tim1);
 	looper.DrumState = DRUMS_STARTED;
-	while(looper.DrumState == DRUMS_STARTED)
-		continue;
-	stopDrums();
+	while(TRUE) {
+		if (metronomeUpdated == TRUE) {
+			updatePatternTime(&pat1, &tim1);
+			metronomeUpdated = FALSE;
+		}
+		if(looper.DrumState == DRUMS_STOPPED)
+			break;
+	}
 
+	stopDrums();
+	beattime += looper.timeIncrement;
 }
 
 void record_drums(){
 		uint32_t barMillis;
 		uint8_t drum,part;
-		static uint32_t beattime = 60;
 		drumBeatIndex = 0;
 		midiDrumClock = 0;
 		drumBufferIndex = 0;

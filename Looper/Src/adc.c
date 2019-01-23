@@ -90,75 +90,25 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 	if(hadc->Instance == ADC1){
 
 		adc1val = HAL_ADC_GetValue(hadc);
-		switch(adc1val){
+		if(adc1val == 63)
+			return;
+
+		switch(adc1val >> 3){
+
 		case 0:
-		case 1:
-		case 2:
-		case 3:adc1val = 0;
-				break;
-		case 9:
-		case 10:
-		case 11:
-		case 12:adc1val = 1;
-				break;
-		case 18:
-		case 19:
-		case 20:
-		case 21:adc1val = 2;
-				break;
-		case 25:
-		case 26:
-		case 27:
-		case 28:adc1val = 3;
-				break;
-		case 31:
-		case 32:
-		case 33:
-		case 34:adc1val = 4;
-				break;
-		case 35:
-		case 36:
-		case 37:
-		case 38:adc1val = 5;
-				break;
-		case 40:
-		case 41:
-		case 42:adc1val = 6;
-				break;
-		case 44:
-		case 45:
-		case 46:adc1val = 7;
-				break;
-		case 47:
-		case 48:
-		case 49:adc1val = 8;
-				break;
-		case 50:
-		case 51:
-		case 52:adc1val = 9;
-				break;
-		case 53:
-		case 54:adc1val = 10;
-				break;
-		case 55:
-		case 56:adc1val = 11;
-				break;
-		case 57:
-		case 58:adc1val = 12;
-				looper.timeIncrement -= 1;
-				updateMetronome();
-				break;
-		case 59:
-		case 60:adc1val = 13;
-				looper.timeIncrement += 1;
-				updateMetronome();
-				break;
-		case 61: adc1val = 14;
-				looper.Metronome = !looper.Metronome;
-				updateMetronome();
-				break;
-		case 62: adc1val = 15;
-				break;
+					break;
+		case 3 :	looper.timeIncrement -= 1;
+					updateMetronome();
+					break;
+		case 5 :	looper.timeIncrement += 1;
+					updateMetronome();
+					break;
+		case 6: 	//adc1val = 15;
+				 	 break;
+
+		case 7: looper.Metronome = !looper.Metronome;
+				 break;
+
 		default: return;
 
 		}
