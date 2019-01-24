@@ -94,6 +94,7 @@ typedef struct {
 	__IO BOOL Playback;
 	__IO BOOL StartLooper;
 	__IO BOOL TwoChannels;
+	__IO BOOL PlayBass;
 	__IO BOOL Metronome;
 	__IO uint32_t SamplesRead;
 	__IO uint32_t SamplesWritten;

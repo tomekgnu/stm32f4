@@ -40,6 +40,7 @@ uint8_t drum_parts[16][2] = {
 
 };
 
+
 uint8_t key_to_drum_part[16][2] = {
 		{Acoustic_Bass_Drum,R_FOOT},
 		{Side_Stick,R_HAND},
@@ -291,7 +292,10 @@ TM_KEYPAD_Button_t readDrumKeyboard(BOOL record){
 			BSP_LED_On(LED_RED);
 		}
 
-		playPercussion(NOTEON,key_to_drum_part[key][0]);
+		if(looper.PlayBass == FALSE)
+			playPercussion(NOTEON,key_to_drum_part[key][0]);
+		else
+			playBass(NOTEON,28 + key);	// Bass lowest E midi code = 28, each key adds half-tone
 	}
 
 	return key;
@@ -513,6 +517,8 @@ void play_drums() {
 	beattime += looper.timeIncrement;
 }
 
+
+
 void record_drums(){
 		uint32_t barMillis;
 		uint8_t drum,part;
@@ -563,12 +569,19 @@ void record_drums(){
 			  for(barMillis = 0; barMillis < tim1.barDuration; barMillis += tim1.subBeatDuration){
 				  if(drumEventTimes[drumBufferIndex] >= barMillis && drumEventTimes[drumBufferIndex] < (barMillis + tim1.subBeatDuration)){
 					  drumBeatIndex = barMillis / tim1.subBeatDuration;
-					  drum = key_to_drum_part[drumBuffB[drumBufferIndex]][0];
-					  part = key_to_drum_part[drumBuffB[drumBufferIndex]][1];
+					  if(looper.PlayBass == FALSE){
+						  drum = key_to_drum_part[drumBuffB[drumBufferIndex]][0];
+						  part = key_to_drum_part[drumBuffB[drumBufferIndex]][1];
+					  }
+					  else{
+						  drum = 28 + drumBuffB[drumBufferIndex];
+						  part = BASS;
+					  }
 					  if(drumEventTimes[drumBufferIndex] < (barMillis + tim1.subBeatDuration / 2))
 						  drumBuffA[drumBeatIndex * 5 + part] = drum;
 					  else
 						  drumBuffA[drumBeatIndex * 5 + 5 + part] = drum;
+
 				  }
 			  }
 

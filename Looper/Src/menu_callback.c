@@ -568,6 +568,7 @@ void record_rhythm(){
 			case TM_KEYPAD_Button_6:	save_next();
 										break;
 
+
 		}
 
 		if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){

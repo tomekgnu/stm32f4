@@ -70,7 +70,6 @@
 #define pi 3.14159
 
 uint32_t adc1val = 0;
-uint32_t adc2val = 0;
 uint32_t adcvals[2];
 
 char strval[5];
@@ -95,7 +94,14 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 
 		switch(adc1val >> 3){
 
-		case 0:
+		case 0:		if(looper.PlayBass == TRUE){
+						looper.PlayBass = FALSE;
+						TM_HD44780_Puts(0,1,"Drums active");
+					}
+					else{
+						looper.PlayBass = TRUE;
+						TM_HD44780_Puts(0,1,"Bass active ");
+					}
 					break;
 		case 3 :	looper.timeIncrement -= 1;
 					updateMetronome();
@@ -104,7 +110,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 					updateMetronome();
 					break;
 		case 6: 	//adc1val = 15;
-				 	 break;
+				 	break;
 
 		case 7: looper.Metronome = !looper.Metronome;
 				 break;
