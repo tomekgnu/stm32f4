@@ -24,6 +24,9 @@ static __IO uint16_t midiDrumClock;
 static __IO BOOL switch_buff;
 static __IO BOOL first_beat;
 
+static uint8_t prevNote;	// previous note
+static uint8_t currNote;	// current note
+
 char *drum_names[] = {"Bass drum","Side stick","Snare",
 		"Cowbell","Low floor tom","High floor tom","Low mid tom","Hi mid tom","High tom","Closed hi-hat","Open hi-hat","Pedal hi-hat","Crash","Ride","Splash","Chinese",
 };
@@ -279,6 +282,7 @@ void updatePatternTime(__IO PatternBeats *p,__IO PatternTimes *t){
 TM_KEYPAD_Button_t readDrumKeyboard(BOOL record){
 
 	TM_KEYPAD_Button_t key = TM_KEYPAD_Read();
+
 	if(key != TM_KEYPAD_Button_NOPRESSED){
 		if(record == TRUE){
 			if(looper.DrumState != DRUMS_STARTED){
@@ -294,8 +298,14 @@ TM_KEYPAD_Button_t readDrumKeyboard(BOOL record){
 
 		if(looper.PlayBass == FALSE)
 			playPercussion(NOTEON,key_to_drum_part[key][0]);
-		else
-			playBass(NOTEON,28 + key);	// Bass lowest E midi code = 28, each key adds half-tone
+		else{
+				currNote = 28 + key;
+				if(prevNote != currNote)
+					playBass(NOTEOFF,prevNote);
+				playBass(NOTEON,currNote);	// Bass lowest E midi code = 28, each key adds half-tone
+
+				prevNote = currNote;
+		}
 	}
 
 	return key;
@@ -320,8 +330,13 @@ void midiDrumHandler(){
 					playPercussion(NOTEON,drumBuffReadPtr[i]);
 			}
 
-			if(drumBuffReadPtr[i] != 0 && looper.DrumState == DRUMS_STARTED)
-				playBass(NOTEON,drumBuffReadPtr[i]);
+			if(drumBuffReadPtr[i] != 0 && looper.DrumState == DRUMS_STARTED){
+				currNote = drumBuffReadPtr[i];
+				if(prevNote != currNote)
+					playBass(NOTEOFF,prevNote);
+				playBass(NOTEON,currNote);
+				prevNote = currNote;
+			}
 
 			drumBeatIndex += NUM_ALL_TRACKS;
 
@@ -530,6 +545,8 @@ void record_drums(){
 		pat1.beats = 4;
 		drumBuffReadPtr = drumBuffA;
 		drumBuffWritePtr = drumBuffB;
+		memset(drumBuffB,0,MAX_SUBBEATS * NUM_ALL_TRACKS);
+		memset(drumEventTimes,0,MAX_SUBBEATS * 4);
 		timptr = &tim1;
 		patptr = &pat1;
 		looper.Metronome = TRUE;
