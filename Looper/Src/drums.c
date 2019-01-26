@@ -1,3 +1,4 @@
+#include "stm32f429i_discovery_sdram.h"
 #include "drums.h"
 #include "main.h"
 #include "midi.h"
@@ -15,12 +16,17 @@
 #include "keyclick.h"
 #include "string.h"
 
+extern TM_KEYPAD_Button_t Keypad_Button;
 extern BOOL Skip_Read_Button;
+
 static uint32_t beattime = 60;
+static uint32_t division = 4;
+static uint32_t beats = 4;
+static uint32_t bars = 4;
 static BOOL metronomeUpdated = FALSE;
 static __IO uint32_t drumBeatIndex = 0;
 static __IO uint32_t drumBufferIndex = 0;
-static __IO uint16_t midiDrumClock;
+static __IO uint32_t midiDrumClock;
 static __IO BOOL switch_buff;
 static __IO BOOL first_beat;
 
@@ -164,7 +170,7 @@ void drumLoop(){
 					switch_buff = FALSE;
 					first_beat = FALSE;
 					seekPattern(pattern_audio_map,looper.StartPattern);
-
+					resetDrums();
 				}
 
 		}
@@ -180,7 +186,7 @@ void drumLoop(){
 		BSP_LED_Off(LED_RED);
 }
 
-void save_first(){
+void save_first(uint8_t *ptr){
 	uint32_t header[3];
 	SRAM_seekWrite(0,SRAM_SET);
 	header[HEADER_NUM_BYTES] = sizeof(header) + sizeof(PatternBeats) + pat1.beats * pat1.division * NUM_ALL_TRACKS;
@@ -188,10 +194,42 @@ void save_first(){
 	header[HEADER_MAX_BEATS] = tim1.subbeats;
 	writeSRAM((uint8_t *)header,sizeof(header));
 	writeSRAM((uint8_t *)&pat1,sizeof(PatternBeats));
-	writeSRAM((uint8_t *)drumBuffA,pat1.beats * pat1.division * NUM_ALL_TRACKS);
+	writeSRAM((uint8_t *)ptr,pat1.beats * pat1.division * NUM_ALL_TRACKS);
 }
 
-void save_next(){
+
+void select_rhythm_params(){
+	uint8_t currentPosition = 0;
+	char *options[4] = {"Beat","Subbeats","Time","Other"};
+	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
+	menuMultiLine(3,10,"[0] Exit","[1] Move between parameters","[J] Set value");
+	menuMultiLine(4,90,options[0],options[1],options[2],options[3]);
+	TM_ILI9341_Puts(10, 90 + currentPosition * 20,options[currentPosition], &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE);
+	while(TRUE){
+		Keypad_Button = TM_KEYPAD_Read();
+		switch(Keypad_Button){
+			case TM_KEYPAD_Button_0: goto end_select_params;
+			case TM_KEYPAD_Button_1: if(currentPosition < 3)
+										currentPosition++;
+									 else
+										currentPosition = 0;
+									TM_ILI9341_Puts(10, 90 + currentPosition * 20,options[currentPosition], &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE);
+									if(currentPosition > 0)
+										TM_ILI9341_Puts(10, 90 + currentPosition * 20 - 20,options[currentPosition - 1], &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE2);
+									 else
+										 TM_ILI9341_Puts(10, 90 + 3 * 20,options[3], &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE2);
+									 break;
+
+		}
+	}
+
+	end_select_params:
+	Skip_Read_Button = TRUE;
+	return;
+
+}
+
+void save_next(uint8_t *ptr){
 	uint32_t currentBytes;
 	uint32_t header[3];		// number of patterns, number of bytes, max. resolution
 	SRAM_seekRead(0,SRAM_SET);
@@ -199,7 +237,7 @@ void save_next(){
 	readSRAM((uint8_t *)header,sizeof(header));
 	currentBytes = header[HEADER_NUM_BYTES];
 	if(currentBytes == 0){
-		save_first();
+		save_first(ptr);
 		return;
 	}
 	header[HEADER_NUM_BYTES] += (sizeof(PatternBeats) + pat1.beats * pat1.division * NUM_ALL_TRACKS);
@@ -209,7 +247,7 @@ void save_next(){
 	writeSRAM((uint8_t *)header,sizeof(header));
 	SRAM_seekWrite(currentBytes,SRAM_SET);
 	writeSRAM((uint8_t *)&pat1,sizeof(PatternBeats));
-	writeSRAM((uint8_t *)drumBuffA,pat1.beats * pat1.division * NUM_ALL_TRACKS);
+	writeSRAM((uint8_t *)ptr,pat1.beats * pat1.division * NUM_ALL_TRACKS);
 }
 
 void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution){
@@ -311,6 +349,33 @@ TM_KEYPAD_Button_t readDrumKeyboard(BOOL record){
 	return key;
 
 }
+
+static void addMidiEvent(TM_KEYPAD_Button_t event,uint32_t time){
+	uint32_t value = time | ((uint32_t)event) << 24;
+	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + sdram_pointer,&value, 1);
+	sdram_pointer++;
+	return;
+
+}
+
+void midiRecordHandler(){
+	uint8_t event;
+	if(midiDrumClock < timptr->barDuration * bars){
+		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->subBeatDuration + timptr->remainder):timptr->subBeatDuration) == 0){
+			if(looper.Metronome == TRUE && drumBeatIndex % patptr->beats == 0)
+				playPercussion(NOTEON,Metronome_Click);
+
+			drumBeatIndex += NUM_ALL_TRACKS;
+
+		}
+		if((event = readDrumKeyboard(FALSE)) != TM_KEYPAD_Button_NOPRESSED)
+			addMidiEvent(event,midiDrumClock);
+
+		midiDrumClock++;
+	}
+}
+
+
 
 void midiDrumHandler(){
 	uint32_t i;
@@ -534,39 +599,85 @@ void play_drums() {
 
 
 
-void record_drums(){
-		uint32_t barMillis;
-		uint8_t drum,part;
-		drumBeatIndex = 0;
-		midiDrumClock = 0;
-		drumBufferIndex = 0;
+static void wait_metronome(){
+	while(looper.DrumState != DRUMS_STARTED){
+		  if(metronomeUpdated == TRUE){
+			  updatePatternTime(&pat1,&tim1);
+			  metronomeUpdated = FALSE;
+		  }
+		  if(looper.DrumState == DRUMS_STOPPED)	// blue button pressed
+			  break;
+	}
+}
+
+static void fit_events(){
+	uint32_t barMillis;
+	uint8_t drum,part;
+	 while(drumBuffWritePtr[drumBufferIndex] != No_Event){
+		for(barMillis = 0; barMillis < tim1.barDuration; barMillis += tim1.subBeatDuration){
+		  if(drumEventTimes[drumBufferIndex] >= barMillis && drumEventTimes[drumBufferIndex] < (barMillis + tim1.subBeatDuration)){
+			  drumBeatIndex = barMillis / tim1.subBeatDuration;
+			  if(looper.PlayBass == FALSE){
+				  drum = key_to_drum_part[drumBuffWritePtr[drumBufferIndex]][0];
+				  part = key_to_drum_part[drumBuffWritePtr[drumBufferIndex]][1];
+			  }
+			  else{
+				  drum = 28 + drumBuffB[drumBufferIndex];
+				  part = BASS;
+			  }
+			  if(drumEventTimes[drumBufferIndex] < (barMillis + tim1.subBeatDuration / 2))
+				  drumBuffReadPtr[drumBeatIndex * 5 + part] = drum;
+			  else
+				  drumBuffReadPtr[drumBeatIndex * 5 + 5 + part] = drum;
+
+		  }
+		}
+
+		drumBufferIndex++;
+	 }
+}
+
+
+
+void record_drums_bars(){
+	pat1.beattime = beattime;
+	pat1.division = division;
+	pat1.beats = beats;
+	timptr = &tim1;
+	patptr = &pat1;
+	looper.Metronome = TRUE;
+	setPatternTime(&pat1,&tim1);
+	sdram_pointer = 0;
+	resetDrums();
+	HAL_TIM_Base_Start_IT(&htim2);
+	looper.DrumState = DRUMS_RECORD;
+	while(looper.DrumState == DRUMS_RECORD)
+		continue;
+
+	stopDrums();
+
+}
+
+void record_drums_fill(){
+
 		pat1.beattime = beattime;
-		pat1.division = 4;
-		pat1.beats = 4;
+		pat1.division = division;
+		pat1.beats = beats;
 		drumBuffReadPtr = drumBuffA;
 		drumBuffWritePtr = drumBuffB;
-		memset(drumBuffB,0,MAX_SUBBEATS * NUM_ALL_TRACKS);
-		memset(drumEventTimes,0,MAX_SUBBEATS * 4);
+		clear_drums();
 		timptr = &tim1;
 		patptr = &pat1;
 		looper.Metronome = TRUE;
 		setPatternTime(&pat1,&tim1);
-
+		resetDrums();
 		HAL_TIM_Base_Start_IT(&htim2);
 
 		while(TRUE){
-			// metronome is ticking
-			// pressing drum keyboard starts recording and sets clocks to 0
-			while(looper.DrumState != DRUMS_STARTED){
-				  if(metronomeUpdated == TRUE){
-					  updatePatternTime(&pat1,&tim1);
-					  metronomeUpdated = FALSE;
-				  }
-				  if(looper.DrumState == DRUMS_STOPPED)	// blue button pressed
-					  goto end_drum_record;
-			}
-		// recording loop and playback: drum events added to buffer in readDrumKeyboard(), called in midiDrumHandler()
-		  while(midiDrumClock < tim1.barDuration){
+			// Metronome is ticking. Pressing drum keyboard starts recording and sets clocks to 0
+			wait_metronome();
+			// recording loop and playback: drum events added to buffer in readDrumKeyboard(), called in midiDrumHandler()
+			while(midiDrumClock < tim1.barDuration){
 			  if(metronomeUpdated == TRUE){
 				  updatePatternTime(&pat1,&tim1);
 				  metronomeUpdated = FALSE;
@@ -576,37 +687,15 @@ void record_drums(){
 			  continue;
 		  }
 
-		  drumBuffB[drumBufferIndex] = No_Event;
+		  drumBuffWritePtr[drumBufferIndex] = No_Event;
 		  looper.DrumState = DRUMS_STOPPED;
 		  resetDrums();
 		  BSP_LED_Off(LED_RED);
 		  BSP_LED_On(LED_GREEN);
-		  // add new drum events if any
-		  while(drumBuffB[drumBufferIndex] != No_Event){
-			  for(barMillis = 0; barMillis < tim1.barDuration; barMillis += tim1.subBeatDuration){
-				  if(drumEventTimes[drumBufferIndex] >= barMillis && drumEventTimes[drumBufferIndex] < (barMillis + tim1.subBeatDuration)){
-					  drumBeatIndex = barMillis / tim1.subBeatDuration;
-					  if(looper.PlayBass == FALSE){
-						  drum = key_to_drum_part[drumBuffB[drumBufferIndex]][0];
-						  part = key_to_drum_part[drumBuffB[drumBufferIndex]][1];
-					  }
-					  else{
-						  drum = 28 + drumBuffB[drumBufferIndex];
-						  part = BASS;
-					  }
-					  if(drumEventTimes[drumBufferIndex] < (barMillis + tim1.subBeatDuration / 2))
-						  drumBuffA[drumBeatIndex * 5 + part] = drum;
-					  else
-						  drumBuffA[drumBeatIndex * 5 + 5 + part] = drum;
-
-				  }
-			  }
-
-			  drumBufferIndex++;
-		  }
-
-		 resetDrums();
-		 looper.DrumState = DRUMS_STARTED;
+		  // fit events into playing buffer
+		  fit_events();
+		  resetDrums();
+		  looper.DrumState = DRUMS_STARTED;
 
 	  }
 

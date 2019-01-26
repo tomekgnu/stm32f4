@@ -548,7 +548,13 @@ void select_bars() {
 }
 
 void record_rhythm(){
-	menuMultiLine(6,30,"[1] Preview sounds","[2] Press to record","[3] Play current","[4] Clear current","[5] Save as first","[6] Save as next");
+	menuMultiLine(7,30,"[1] Preview sounds",
+						"[2] Press to record",
+						"[3] Play current",
+						"[4] Clear current",
+						"[5] Save as first",
+						"[6] Save as next",
+						"[7] Set parameters");
 
 	while(TRUE){
 		Keypad_Button = TM_KEYPAD_Read();
@@ -557,15 +563,17 @@ void record_rhythm(){
 			case TM_KEYPAD_Button_0:	return;
 			case TM_KEYPAD_Button_1:	preview_drums();
 										break;
-			case TM_KEYPAD_Button_2:	record_drums();
+			case TM_KEYPAD_Button_2:	record_drums_fill();
 										break;
 			case TM_KEYPAD_Button_3:	play_drums();
 										break;
 			case TM_KEYPAD_Button_4:	clear_drums();
 										break;
-			case TM_KEYPAD_Button_5:	save_first();
+			case TM_KEYPAD_Button_5:	save_first(drumBuffA);
 										break;
-			case TM_KEYPAD_Button_6:	save_next();
+			case TM_KEYPAD_Button_6:	save_next(drumBuffA);
+										break;
+			case TM_KEYPAD_Button_7:	select_rhythm_params();
 										break;
 
 
@@ -573,7 +581,13 @@ void record_rhythm(){
 
 		if(Keypad_Button != TM_KEYPAD_Button_NOPRESSED){
 			menuClearLines(2,3,5);
-			menuMultiLine(6,30,"[1] Preview sounds","[2] Press to record","[3] Play current","[4] Clear current","[5] Save as first","[6] Save as next");
+			menuMultiLine(7,30,"[1] Preview sounds",
+								"[2] Press to record",
+								"[3] Play current",
+								"[4] Clear current",
+								"[5] Save as first",
+								"[6] Save as next",
+								"[7] Set parameters");
 		}
 
 

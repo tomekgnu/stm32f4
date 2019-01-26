@@ -40,16 +40,19 @@ void playDrums();
 TM_KEYPAD_Button_t readDrumKeyboard(BOOL record);
 TM_KEYPAD_Button_t readBassKeyboard(BOOL record);
 void midiDrumHandler();
+void midiRecordHandler();
 void initDrumBeats();
 void setBarBeats(uint16_t bar,uint16_t beats);
 void setPatternTime(__IO PatternBeats *p,__IO PatternTimes *t);
 void updatePatternTime(__IO PatternBeats *p,__IO PatternTimes *t);
-void record_drums();
+void record_drums_fill();
+void record_drums_bars();
 void preview_drums();
 void play_drums();
+void select_rhythm_params();
 void clear_drums();
-void save_first();
-void save_next();
+void save_first(uint8_t *ptr);
+void save_next(uint8_t *ptr);
 
 #define BEAT_MILLIS(x)	(60000 / (x))	// convert beat time signature (e.g. 60,120) to milliseconds
 #define NUM_DRUM_TRACKS	4
@@ -73,5 +76,5 @@ void save_next();
 extern PatternData pattern_audio_map[MAX_PATTERNS + 1];
 extern __IO PatternTimes *timptr;
 extern uint8_t key_to_drum_part[][2];
-
+extern uint8_t drumBuffA[MAX_SUBBEATS * NUM_ALL_TRACKS];
 #endif

@@ -188,6 +188,19 @@ void menuClearLines(uint8_t lines,...){
 	va_end(ap);
 }
 
+void menuMultiLineSmall(uint8_t lines,uint8_t offset,...){
+	uint8_t i;
+	char *line;
+	va_list ap;
+
+	va_start(ap, offset);
+	for(i = 0; i < lines; i++,offset += 12) {
+		 line = va_arg(ap, char *);
+		 TM_ILI9341_Puts(10, offset,line, &TM_Font_7x10, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE2);
+	}
+	va_end(ap);
+}
+
 void menuMultiLine(uint8_t lines,uint8_t offset,...){
 	uint8_t i;
 	char *line;
