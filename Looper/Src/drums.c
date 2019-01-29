@@ -15,6 +15,7 @@
 #include "stm32f429i_discovery.h"
 #include "keyclick.h"
 #include "string.h"
+#include "joystick.h"
 
 extern TM_KEYPAD_Button_t Keypad_Button;
 extern BOOL Skip_Read_Button;
@@ -22,7 +23,6 @@ extern BOOL Skip_Read_Button;
 static uint32_t beattime = 60;
 static uint32_t division = 4;
 static uint32_t beats = 4;
-static uint32_t bars = 4;
 static BOOL metronomeUpdated = FALSE;
 static __IO uint32_t drumBeatIndex = 0;
 static __IO uint32_t drumBufferIndex = 0;
@@ -186,6 +186,89 @@ void drumLoop(){
 		BSP_LED_Off(LED_RED);
 }
 
+static void show_rhythm_param_values(uint8_t currentPosition){
+	switch(currentPosition){
+		case 0: sprintf(lcdline,"%3u",(unsigned int)beats);
+				TM_ILI9341_Puts(120, 90,lcdline, &TM_Font_11x18, ILI9341_COLOR_YELLOW, ILI9341_COLOR_BLUE2);
+				break;
+		case 1: sprintf(lcdline,"%3u",(unsigned int)division);
+				TM_ILI9341_Puts(120, 110,lcdline, &TM_Font_11x18, ILI9341_COLOR_YELLOW, ILI9341_COLOR_BLUE2);
+				break;
+		case 2: sprintf(lcdline,"%3u",(unsigned int)beattime);
+				TM_ILI9341_Puts(120, 130,lcdline, &TM_Font_11x18, ILI9341_COLOR_YELLOW, ILI9341_COLOR_BLUE2);
+				break;
+		}
+
+}
+
+static void show_rhythm_params(uint8_t currentPosition){
+	char *options[4] = {"Beats","Subbeats","Time [bpm]","Other"};
+	menuMultiLine(4,90,options[0],options[1],options[2],options[3]);
+	TM_ILI9341_Puts(10, 90 + currentPosition * 20,options[currentPosition], &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE);
+	if(currentPosition > 0)
+		TM_ILI9341_Puts(10, 90 + currentPosition * 20 - 20,options[currentPosition - 1], &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE2);
+	 else
+		 TM_ILI9341_Puts(10, 90 + 3 * 20,options[3], &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE2);
+}
+
+static void change_value(uint8_t currentPosition,uint8_t xpos){
+	uint32_t *ptr;
+	switch(currentPosition){
+	case 0: ptr = &beats;
+			break;
+	case 1: ptr = &division;
+			break;
+	case 2: ptr = &beattime;
+			break;
+	}
+
+	if(*ptr == 0)
+		return;
+
+	if(xpos < CENTER && beats > 1 && division > 1)
+		(*ptr)--;
+	else if(xpos > CENTER && division * beats < MAX_SUBBEATS)
+		(*ptr)++;
+	if(division * beats > MAX_SUBBEATS)
+		(*ptr)--;
+}
+
+
+void select_rhythm_params(){
+	uint8_t currentPosition = 0;
+	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
+	menuMultiLine(3,10,"[0] Exit","[1] Move between parameters","[J] Set value");
+	show_rhythm_params(0);
+	show_rhythm_param_values(0);
+	show_rhythm_param_values(1);
+	show_rhythm_param_values(2);
+	while(TRUE){
+		Keypad_Button = TM_KEYPAD_Read();
+		switch(Keypad_Button){
+			case TM_KEYPAD_Button_0: goto end_select_params;
+			case TM_KEYPAD_Button_1:
+				if(currentPosition < 3)
+					currentPosition++;
+				else
+					currentPosition = 0;
+				show_rhythm_params(currentPosition);
+				break;
+
+		}
+		if(Active_Joystick() == TRUE){
+			JOYSTICK js = Read_Joystick();
+			change_value(currentPosition,js.xpos);
+			show_rhythm_param_values(currentPosition);
+			HAL_Delay(200);
+		}
+	}
+
+	end_select_params:
+	Skip_Read_Button = TRUE;
+	return;
+
+}
+
 void save_first(uint8_t *ptr){
 	uint32_t header[3];
 	SRAM_seekWrite(0,SRAM_SET);
@@ -197,49 +280,17 @@ void save_first(uint8_t *ptr){
 	writeSRAM((uint8_t *)ptr,pat1.beats * pat1.division * NUM_ALL_TRACKS);
 }
 
-
-void select_rhythm_params(){
-	uint8_t currentPosition = 0;
-	char *options[4] = {"Beat","Subbeats","Time","Other"};
-	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
-	menuMultiLine(3,10,"[0] Exit","[1] Move between parameters","[J] Set value");
-	menuMultiLine(4,90,options[0],options[1],options[2],options[3]);
-	TM_ILI9341_Puts(10, 90 + currentPosition * 20,options[currentPosition], &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE);
-	while(TRUE){
-		Keypad_Button = TM_KEYPAD_Read();
-		switch(Keypad_Button){
-			case TM_KEYPAD_Button_0: goto end_select_params;
-			case TM_KEYPAD_Button_1: if(currentPosition < 3)
-										currentPosition++;
-									 else
-										currentPosition = 0;
-									TM_ILI9341_Puts(10, 90 + currentPosition * 20,options[currentPosition], &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE);
-									if(currentPosition > 0)
-										TM_ILI9341_Puts(10, 90 + currentPosition * 20 - 20,options[currentPosition - 1], &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE2);
-									 else
-										 TM_ILI9341_Puts(10, 90 + 3 * 20,options[3], &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE2);
-									 break;
-
-		}
-	}
-
-	end_select_params:
-	Skip_Read_Button = TRUE;
-	return;
-
-}
-
 void save_next(uint8_t *ptr){
-	uint32_t currentBytes;
 	uint32_t header[3];		// number of patterns, number of bytes, max. resolution
+	uint32_t currentBytes;
 	SRAM_seekRead(0,SRAM_SET);
 	SRAM_seekWrite(0,SRAM_SET);
 	readSRAM((uint8_t *)header,sizeof(header));
-	currentBytes = header[HEADER_NUM_BYTES];
-	if(currentBytes == 0){
+	if(header[HEADER_NUM_BYTES] == 0){
 		save_first(ptr);
 		return;
 	}
+	currentBytes = header[HEADER_NUM_BYTES];
 	header[HEADER_NUM_BYTES] += (sizeof(PatternBeats) + pat1.beats * pat1.division * NUM_ALL_TRACKS);
 	header[HEADER_NUM_PATTS]++;
 	if(tim1.subbeats > header[HEADER_MAX_BEATS])
@@ -249,6 +300,7 @@ void save_next(uint8_t *ptr){
 	writeSRAM((uint8_t *)&pat1,sizeof(PatternBeats));
 	writeSRAM((uint8_t *)ptr,pat1.beats * pat1.division * NUM_ALL_TRACKS);
 }
+
 
 void readDrums(uint32_t *numOfPatterns,uint32_t *numOfBytes,uint32_t *maxResolution){
 	PatternBeats tmp;
@@ -350,32 +402,6 @@ TM_KEYPAD_Button_t readDrumKeyboard(BOOL record){
 
 }
 
-static void addMidiEvent(TM_KEYPAD_Button_t event,uint32_t time){
-	uint32_t value = time | ((uint32_t)event) << 24;
-	BSP_SDRAM_WriteData(SDRAM_DEVICE_ADDR + sdram_pointer,&value, 1);
-	sdram_pointer++;
-	return;
-
-}
-
-void midiRecordHandler(){
-	uint8_t event;
-	if(midiDrumClock < timptr->barDuration * bars){
-		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->subBeatDuration + timptr->remainder):timptr->subBeatDuration) == 0){
-			if(looper.Metronome == TRUE && drumBeatIndex % patptr->beats == 0)
-				playPercussion(NOTEON,Metronome_Click);
-
-			drumBeatIndex += NUM_ALL_TRACKS;
-
-		}
-		if((event = readDrumKeyboard(FALSE)) != TM_KEYPAD_Button_NOPRESSED)
-			addMidiEvent(event,midiDrumClock);
-
-		midiDrumClock++;
-	}
-}
-
-
 
 void midiDrumHandler(){
 	uint32_t i;
@@ -388,7 +414,7 @@ void midiDrumHandler(){
 
 	if(midiDrumClock < timptr->barDuration){
 		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->subBeatDuration + timptr->remainder):timptr->subBeatDuration) == 0){
-			if(looper.Metronome == TRUE && drumBeatIndex % patptr->beats == 0)
+			if(looper.Metronome == TRUE && drumBeatIndex % (patptr->division * NUM_ALL_TRACKS) == 0)
 				playPercussion(NOTEON,Metronome_Click);
 			for(i = drumBeatIndex; i < drumBeatIndex + NUM_DRUM_TRACKS; i++){
 				if(drumBuffReadPtr[i] != 0 && looper.DrumState == DRUMS_STARTED)
@@ -638,34 +664,13 @@ static void fit_events(){
 }
 
 
-
-void record_drums_bars(){
-	pat1.beattime = beattime;
-	pat1.division = division;
-	pat1.beats = beats;
-	timptr = &tim1;
-	patptr = &pat1;
-	looper.Metronome = TRUE;
-	setPatternTime(&pat1,&tim1);
-	sdram_pointer = 0;
-	resetDrums();
-	HAL_TIM_Base_Start_IT(&htim2);
-	looper.DrumState = DRUMS_RECORD;
-	while(looper.DrumState == DRUMS_RECORD)
-		continue;
-
-	stopDrums();
-
-}
-
-void record_drums_fill(){
+void record_drums(){
 
 		pat1.beattime = beattime;
 		pat1.division = division;
 		pat1.beats = beats;
 		drumBuffReadPtr = drumBuffA;
 		drumBuffWritePtr = drumBuffB;
-		clear_drums();
 		timptr = &tim1;
 		patptr = &pat1;
 		looper.Metronome = TRUE;

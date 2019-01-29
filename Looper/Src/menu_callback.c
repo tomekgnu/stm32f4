@@ -563,7 +563,7 @@ void record_rhythm(){
 			case TM_KEYPAD_Button_0:	return;
 			case TM_KEYPAD_Button_1:	preview_drums();
 										break;
-			case TM_KEYPAD_Button_2:	record_drums_fill();
+			case TM_KEYPAD_Button_2:	record_drums();
 										break;
 			case TM_KEYPAD_Button_3:	play_drums();
 										break;
