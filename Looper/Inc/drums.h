@@ -51,6 +51,7 @@ void select_rhythm_params();
 void clear_drums();
 void save_first(uint8_t *ptr);
 void save_next(uint8_t *ptr);
+void getRhythmParams(uint32_t *beats,uint32_t *division,uint32_t *beattime);
 
 #define BEAT_MILLIS(x)	(60000 / (x))	// convert beat time signature (e.g. 60,120) to milliseconds
 #define NUM_DRUM_TRACKS	4

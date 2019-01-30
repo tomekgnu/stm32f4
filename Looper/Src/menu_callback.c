@@ -548,6 +548,8 @@ void select_bars() {
 }
 
 void record_rhythm(){
+	uint32_t beats,division,beattime;
+
 	menuMultiLine(7,30,"[1] Preview sounds",
 						"[2] Press to record",
 						"[3] Play current",
@@ -555,6 +557,9 @@ void record_rhythm(){
 						"[5] Save as first",
 						"[6] Save as next",
 						"[7] Set parameters");
+	getRhythmParams(&beats,&division,&beattime);
+	sprintf(lcdline,"Beats: %u Subbeats: %u Time: %u",(unsigned int)beats,(unsigned int)division,(unsigned int)beattime);
+	menuStatusLine(lcdline);
 
 	while(TRUE){
 		Keypad_Button = TM_KEYPAD_Read();
@@ -588,6 +593,9 @@ void record_rhythm(){
 								"[5] Save as first",
 								"[6] Save as next",
 								"[7] Set parameters");
+			getRhythmParams(&beats,&division,&beattime);
+			sprintf(lcdline,"Beats: %u Subbeats: %u Time: %u",(unsigned int)beats,(unsigned int)division,(unsigned int)beattime);
+			menuStatusLine(lcdline);
 		}
 
 

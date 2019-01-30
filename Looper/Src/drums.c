@@ -85,6 +85,12 @@ __IO PatternTimes *timptr;
 __IO PatternBeats *patptr;
 
 
+void getRhythmParams(uint32_t *bts,uint32_t *div,uint32_t *time){
+	*bts = beats;
+	*div = division;
+	*time = beattime;
+}
+
 static void seekPattern(PatternData *pattern_audio_map,uint32_t ind){
 	switch_buff = FALSE;
 	SRAM_seekRead(pattern_audio_map[ind].sram_position,SRAM_SET);
@@ -211,7 +217,7 @@ static void show_rhythm_params(uint8_t currentPosition){
 		 TM_ILI9341_Puts(10, 90 + 3 * 20,options[3], &TM_Font_11x18, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE2);
 }
 
-static void change_value(uint8_t currentPosition,uint8_t xpos){
+static void change_value(uint8_t currentPosition,TM_KEYPAD_Button_t key){
 	uint32_t *ptr;
 	switch(currentPosition){
 	case 0: ptr = &beats;
@@ -225,9 +231,9 @@ static void change_value(uint8_t currentPosition,uint8_t xpos){
 	if(*ptr == 0)
 		return;
 
-	if(xpos < CENTER && beats > 1 && division > 1)
+	if(key == TM_KEYPAD_Button_5 && beats > 1 && division > 1)
 		(*ptr)--;
-	else if(xpos > CENTER && division * beats < MAX_SUBBEATS)
+	else if(key == TM_KEYPAD_Button_2 && division * beats < MAX_SUBBEATS)
 		(*ptr)++;
 	if(division * beats > MAX_SUBBEATS)
 		(*ptr)--;
@@ -237,7 +243,7 @@ static void change_value(uint8_t currentPosition,uint8_t xpos){
 void select_rhythm_params(){
 	uint8_t currentPosition = 0;
 	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
-	menuMultiLine(3,10,"[0] Exit","[1] Move between parameters","[J] Set value");
+	menuMultiLine(3,10,"[0] Exit","[1:4] Select options","[2:5] Set value");
 	show_rhythm_params(0);
 	show_rhythm_param_values(0);
 	show_rhythm_param_values(1);
@@ -247,19 +253,21 @@ void select_rhythm_params(){
 		switch(Keypad_Button){
 			case TM_KEYPAD_Button_0: goto end_select_params;
 			case TM_KEYPAD_Button_1:
-				if(currentPosition < 3)
-					currentPosition++;
-				else
-					currentPosition = 0;
+				if(currentPosition > 0)
+					currentPosition--;
 				show_rhythm_params(currentPosition);
 				break;
+			case TM_KEYPAD_Button_4:
+				if(currentPosition < 3)
+					currentPosition++;
+				show_rhythm_params(currentPosition);
+				break;
+			case TM_KEYPAD_Button_2:
+			case TM_KEYPAD_Button_5:
+				change_value(currentPosition,Keypad_Button);
+				show_rhythm_param_values(currentPosition);
+				break;
 
-		}
-		if(Active_Joystick() == TRUE){
-			JOYSTICK js = Read_Joystick();
-			change_value(currentPosition,js.xpos);
-			show_rhythm_param_values(currentPosition);
-			HAL_Delay(200);
 		}
 	}
 
