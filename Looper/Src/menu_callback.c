@@ -558,7 +558,7 @@ void record_rhythm(){
 						"[6] Save as next",
 						"[7] Set parameters");
 	getRhythmParams(&beats,&division,&beattime);
-	sprintf(lcdline,"Beats: %u Subbeats: %u Time: %u",(unsigned int)beats,(unsigned int)division,(unsigned int)beattime);
+	sprintf(lcdline,"Beats:%2u Subbeats:%2u Time:%3u",(unsigned int)beats,(unsigned int)division,(unsigned int)beattime);
 	menuStatusLine(lcdline);
 
 	while(TRUE){
@@ -594,7 +594,7 @@ void record_rhythm(){
 								"[6] Save as next",
 								"[7] Set parameters");
 			getRhythmParams(&beats,&division,&beattime);
-			sprintf(lcdline,"Beats: %u Subbeats: %u Time: %u",(unsigned int)beats,(unsigned int)division,(unsigned int)beattime);
+			sprintf(lcdline,"Beats:%2u Subbeats:%2u Time:%3u",(unsigned int)beats,(unsigned int)division,(unsigned int)beattime);
 			menuStatusLine(lcdline);
 		}
 

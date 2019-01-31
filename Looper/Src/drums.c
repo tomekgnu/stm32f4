@@ -29,7 +29,7 @@ static __IO uint32_t drumBufferIndex = 0;
 static __IO uint32_t midiDrumClock;
 static __IO BOOL switch_buff;
 static __IO BOOL first_beat;
-
+static __IO BOOL every_beat;
 static uint8_t prevNote;	// previous note
 static uint8_t currNote;	// current note
 
@@ -422,8 +422,10 @@ void midiDrumHandler(){
 
 	if(midiDrumClock < timptr->barDuration){
 		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->subBeatDuration + timptr->remainder):timptr->subBeatDuration) == 0){
-			if(looper.Metronome == TRUE && drumBeatIndex % (patptr->division * NUM_ALL_TRACKS) == 0)
+			if(looper.Metronome == TRUE && drumBeatIndex % (patptr->division * NUM_ALL_TRACKS) == 0){
 				playPercussion(NOTEON,Metronome_Click);
+				every_beat = TRUE;
+			}
 			for(i = drumBeatIndex; i < drumBeatIndex + NUM_DRUM_TRACKS; i++){
 				if(drumBuffReadPtr[i] != 0 && looper.DrumState == DRUMS_STARTED)
 					playPercussion(NOTEON,drumBuffReadPtr[i]);
@@ -673,7 +675,7 @@ static void fit_events(){
 
 
 void record_drums(){
-
+		uint8_t beat_counter = 0;
 		pat1.beattime = beattime;
 		pat1.division = division;
 		pat1.beats = beats;
@@ -691,6 +693,11 @@ void record_drums(){
 			wait_metronome();
 			// recording loop and playback: drum events added to buffer in readDrumKeyboard(), called in midiDrumHandler()
 			while(midiDrumClock < tim1.barDuration){
+			  if(every_beat == TRUE){
+				  sprintf(lcdline,"Beat: %2u",(unsigned int)++beat_counter);
+				  menuStatusLine(lcdline);
+				  every_beat = FALSE;
+			  }
 			  if(metronomeUpdated == TRUE){
 				  updatePatternTime(&pat1,&tim1);
 				  metronomeUpdated = FALSE;
@@ -702,6 +709,7 @@ void record_drums(){
 
 		  drumBuffWritePtr[drumBufferIndex] = No_Event;
 		  looper.DrumState = DRUMS_STOPPED;
+		  beat_counter = 0;
 		  resetDrums();
 		  BSP_LED_Off(LED_RED);
 		  BSP_LED_On(LED_GREEN);
