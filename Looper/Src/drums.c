@@ -16,6 +16,7 @@
 #include "keyclick.h"
 #include "string.h"
 #include "joystick.h"
+#include "tm_stm32_hd44780.h"
 
 extern TM_KEYPAD_Button_t Keypad_Button;
 extern BOOL Skip_Read_Button;
@@ -422,9 +423,11 @@ void midiDrumHandler(){
 
 	if(midiDrumClock < timptr->barDuration){
 		if(midiDrumClock % ((timptr->remainder > 0 && drumBeatIndex == NUM_ALL_TRACKS)?(timptr->subBeatDuration + timptr->remainder):timptr->subBeatDuration) == 0){
-			if(looper.Metronome == TRUE && drumBeatIndex % (patptr->division * NUM_ALL_TRACKS) == 0){
-				playPercussion(NOTEON,Metronome_Click);
+			if(drumBeatIndex % (patptr->division * NUM_ALL_TRACKS) == 0){
 				every_beat = TRUE;
+				if(looper.Metronome == TRUE)
+					playPercussion(NOTEON,Metronome_Click);
+
 			}
 			for(i = drumBeatIndex; i < drumBeatIndex + NUM_DRUM_TRACKS; i++){
 				if(drumBuffReadPtr[i] != 0 && looper.DrumState == DRUMS_STARTED)
@@ -615,22 +618,29 @@ void preview_drums() {
 
 void play_drums() {
 	looper.Metronome = FALSE;
+	uint8_t beat_counter = 0;
 	HAL_TIM_Base_Start_IT(&htim2);
 	resetDrums();
 	pat1.beattime = beattime;
-	updatePatternTime(&pat1, &tim1);
+	setPatternTime(&pat1, &tim1);
 	looper.DrumState = DRUMS_STARTED;
 	while(TRUE) {
-		if (metronomeUpdated == TRUE) {
-			updatePatternTime(&pat1, &tim1);
-			metronomeUpdated = FALSE;
+		while(midiDrumClock < tim1.barDuration){
+			 if(every_beat == TRUE){
+				  sprintf(lcdline,"Beat: %2u",(unsigned int)++beat_counter);
+				  TM_HD44780_Puts(0,1,lcdline);
+				  every_beat = FALSE;
+			 }
+			 if(looper.DrumState == DRUMS_STOPPED)
+			 	goto end_play_drums;
 		}
-		if(looper.DrumState == DRUMS_STOPPED)
-			break;
+
+		beat_counter = 0;
+
 	}
 
+	end_play_drums:
 	stopDrums();
-	beattime += looper.timeIncrement;
 }
 
 
@@ -695,13 +705,10 @@ void record_drums(){
 			while(midiDrumClock < tim1.barDuration){
 			  if(every_beat == TRUE){
 				  sprintf(lcdline,"Beat: %2u",(unsigned int)++beat_counter);
-				  menuStatusLine(lcdline);
+				  TM_HD44780_Puts(0,1,lcdline);
 				  every_beat = FALSE;
 			  }
-			  if(metronomeUpdated == TRUE){
-				  updatePatternTime(&pat1,&tim1);
-				  metronomeUpdated = FALSE;
-			  }
+
 			  if(looper.DrumState == DRUMS_STOPPED)	// blue button pressed
 				  goto end_drum_record;
 			  continue;
