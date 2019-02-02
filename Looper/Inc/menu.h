@@ -72,6 +72,7 @@ void menuShowOptions();
 void menuShow(TM_KEYPAD_Button_t);
 void menuInit();
 void menuWaitReturn();
+void menuTextBox(uint8_t lines,uint8_t xoff,uint8_t yoff,...);
 void menuMultiLine(uint8_t lines, uint8_t offset, ...);
 void menuMultiLineSmall(uint8_t lines, uint8_t offset, ...);
 void menuClearLines(uint8_t lines,...);

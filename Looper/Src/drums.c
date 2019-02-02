@@ -473,8 +473,8 @@ void preview_drums() {
 	//menuClearLines(2,4,6);
 
 	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
-	menuMultiLine(3, 180, "Press keys to hear drums.", "Change with joystick",
-			"Blue button to finish.");
+	menuTextBox(3, 190, 10,"Press keys","Move joystick",
+			"Blue button finish");
 
 	for (x = 10; x < 160; x += 42) {
 		for (y = 10; y < 160; y += 42) {
@@ -565,12 +565,10 @@ void preview_drums() {
 			else
 				joypartkey = 1;
 			strcat(lcdline, part_names[key_to_drum_part[currentkey][1]]);
+			menuStatusLine(lcdline);
 			TM_ILI9341_DrawFilledRectangle(x, y, x + 40, y + 40,
 					ILI9341_COLOR_RED);	// square on keyboard
-			TM_ILI9341_DrawFilledRectangle(10, 180, 320, 240,
-					ILI9341_COLOR_MAGENTA);	// clear text field
-			TM_ILI9341_Puts(10, 180, lcdline, &TM_Font_11x18,
-					ILI9341_COLOR_WHITE, ILI9341_COLOR_MAGENTA);	// put text
+
 		}
 
 		else {
@@ -601,8 +599,9 @@ void preview_drums() {
 				if (changed == TRUE) {
 					sprintf(lcdline, "%s ", drum_names[joydrumkey]);
 					strcat(lcdline,part_names[drum_parts[joydrumkey][joypartkey]]);
-					TM_ILI9341_DrawFilledRectangle(10, 180, 320, 240,ILI9341_COLOR_MAGENTA);	// clear text field
-					TM_ILI9341_Puts(10, 180, lcdline, &TM_Font_11x18,ILI9341_COLOR_WHITE, ILI9341_COLOR_MAGENTA);// put text
+					menuStatusLine(lcdline);
+					//TM_ILI9341_DrawFilledRectangle(10, 180, 320, 240,ILI9341_COLOR_MAGENTA);	// clear text field
+					//TM_ILI9341_Puts(10, 180, lcdline, &TM_Font_11x18,ILI9341_COLOR_WHITE, ILI9341_COLOR_MAGENTA);// put text
 					key_to_drum_part[tmpkey][0] = drum_midi_values[joydrumkey];
 					key_to_drum_part[tmpkey][1] = drum_parts[joydrumkey][joypartkey];
 					changed = FALSE;

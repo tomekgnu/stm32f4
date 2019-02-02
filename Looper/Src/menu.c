@@ -201,6 +201,20 @@ void menuMultiLineSmall(uint8_t lines,uint8_t offset,...){
 	va_end(ap);
 }
 
+void menuTextBox(uint8_t lines,uint8_t xoff,uint8_t yoff,...){
+	uint8_t i;
+	char *line;
+	va_list ap;
+
+	va_start(ap, yoff);
+	for(i = 0; i < lines; i++,yoff += 12) {
+		 line = va_arg(ap, char *);
+		 TM_ILI9341_Puts(xoff,yoff,line, &TM_Font_7x10, ILI9341_COLOR_RED, ILI9341_COLOR_BLUE2);
+	}
+	va_end(ap);
+
+}
+
 void menuMultiLine(uint8_t lines,uint8_t offset,...){
 	uint8_t i;
 	char *line;
@@ -304,26 +318,6 @@ void drumMenuInput(uint32_t numOfPatterns,BOOL *play){
 			else if(looper.Recording == TRUE || looper.Playback == TRUE){
 				*play = TRUE;
 				break;
-			}
-			else if(Active_Joystick() == TRUE){
-				input = TRUE;
-				JOYSTICK js = Read_Joystick();
-				if(js.ypos > CENTER)
-					forwardBar(startBar,numOfPatterns);
-				else if(js.ypos < CENTER)
-					backwardBar(startBar);
-
-				if(js.but == TRUE){
-					if((looper.DrumState == DRUMS_READY || looper.DrumState == DRUMS_STOPPED) && *play == FALSE){
-						*play = TRUE;
-						 break;
-					}
-					if(looper.DrumState == DRUMS_READY && *play == TRUE)
-						*play = FALSE;
-
-				}
-
-
 			}
 
 			if(input == TRUE){
