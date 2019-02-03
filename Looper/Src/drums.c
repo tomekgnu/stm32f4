@@ -473,7 +473,7 @@ void preview_drums() {
 	//menuClearLines(2,4,6);
 
 	TM_ILI9341_Fill(ILI9341_COLOR_MAGENTA);
-	menuTextBox(3, 190, 10,"Press keys","Move joystick",
+	menuTextBox(5, 190, 10,"Press keys to hear","drum sounds","Move joystick","to change sound",
 			"Blue button finish");
 
 	for (x = 10; x < 160; x += 42) {
@@ -553,6 +553,8 @@ void preview_drums() {
 				break;
 
 			}
+
+
 			changed = FALSE;
 			pressed = TRUE;
 			tmpkey = currentkey;
@@ -612,6 +614,7 @@ void preview_drums() {
 		}
 
 	}
+
 
 }
 

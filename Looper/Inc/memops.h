@@ -10,6 +10,7 @@
 #define BYTE_SIZE	(WORD_SIZE * 2)
 
 extern FATFS FatFs;
+extern spiffs fs;
 
 void SD_readSingleTrack(FIL *fp);
 void SD_WriteAudio(uint32_t start,uint32_t end,FIL *fp);

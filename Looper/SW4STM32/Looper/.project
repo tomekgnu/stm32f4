@@ -51,6 +51,36 @@
 			<location>PARENT-2-PROJECT_LOC/Src/unicode.c</location>
 		</link>
 		<link>
+			<name>Application/SPIFFS/spi_flash.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/spi_flash.c</location>
+		</link>
+		<link>
+			<name>Application/SPIFFS/spiffs_cache.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/spiffs_cache.c</location>
+		</link>
+		<link>
+			<name>Application/SPIFFS/spiffs_check.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/spiffs_check.c</location>
+		</link>
+		<link>
+			<name>Application/SPIFFS/spiffs_gc.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/spiffs_gc.c</location>
+		</link>
+		<link>
+			<name>Application/SPIFFS/spiffs_hydrogen.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/spiffs_hydrogen.c</location>
+		</link>
+		<link>
+			<name>Application/SPIFFS/spiffs_nucleus.c</name>
+			<type>1</type>
+			<location>PARENT-2-PROJECT_LOC/Src/spiffs_nucleus.c</location>
+		</link>
+		<link>
 			<name>Application/SW4STM32/startup_stm32f429xx.s</name>
 			<type>1</type>
 			<location>PARENT-1-PROJECT_LOC/startup_stm32f429xx.s</location>

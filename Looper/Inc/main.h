@@ -136,8 +136,8 @@ extern uint32_t sdram_pointer;
 
 /* Private define ------------------------------------------------------------*/
 
-#define uSD_CD_Pin GPIO_PIN_2
-#define uSD_CD_GPIO_Port GPIOE
+#define SF3_CS_Pin GPIO_PIN_2
+#define SF3_CS_GPIO_Port GPIOE
 #define VS1053_RESET_Pin GPIO_PIN_3
 #define VS1053_RESET_GPIO_Port GPIOE
 #define KEYPAD_COLUMN_1_Pin GPIO_PIN_4
@@ -319,8 +319,8 @@ extern uint32_t sdram_pointer;
 #define AD_KBD_INT_Pin GPIO_PIN_11
 #define AD_KBD_INT_GPIO_Port GPIOG
 #define AD_KBD_INT_EXTI_IRQn EXTI15_10_IRQn
-#define ADC3_Trigger_Pin GPIO_PIN_12
-#define ADC3_Trigger_GPIO_Port GPIOG
+#define uSD_CD_Pin GPIO_PIN_12
+#define uSD_CD_GPIO_Port GPIOG
 #define LD3_Pin GPIO_PIN_13
 #define LD3_GPIO_Port GPIOG
 #define LD4_Pin GPIO_PIN_14
