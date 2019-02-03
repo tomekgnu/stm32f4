@@ -122,7 +122,7 @@ void drumLoop(){
 	//setStartEndPatterns(looper.StartPattern,looper.EndPattern);
 
 	while(looper.DrumState == DRUMS_STARTED && looper.StartPattern < (looper.EndPattern + 1)){
-
+			updateSdramPointer();
 			looper.StartLooper = TRUE;
 
 			if(switch_buff == FALSE){

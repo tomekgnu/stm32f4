@@ -23,6 +23,10 @@ static uint32_t sampleCounter = 0;
 static BOOL recordState = FALSE;
 static BOOL playbackState = FALSE;
 
+void updateSdramPointer(){
+	sdram_pointer = pattern_audio_map[looper.StartPattern].sample_position * looper.SampleBytes;
+}
+
 void setSampleCounter(uint32_t cnt){
 	sampleCounter = cnt;
 }
