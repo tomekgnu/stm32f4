@@ -33,6 +33,7 @@ static __IO BOOL first_beat;
 static __IO BOOL every_beat;
 static uint8_t prevNote;	// previous note
 static uint8_t currNote;	// current note
+static int8_t octave = 0;	// octave offset for bass
 
 char *drum_names[] = {"Bass drum","Side stick","Snare",
 		"Cowbell","Low floor tom","High floor tom","Low mid tom","Hi mid tom","High tom","Closed hi-hat","Open hi-hat","Pedal hi-hat","Crash","Ride","Splash","Chinese",
@@ -70,6 +71,29 @@ uint8_t key_to_drum_part[16][2] = {
 		{Chinese_Cymbal,R_HAND}
 };
 
+uint8_t key_to_bass[16] = {
+	53,	// 0
+
+	40, // 1
+	41, // 2
+	42, // 3
+
+	44, // 4
+	45, // 5
+	46, // 6
+
+	48, // 7
+	49, // 8
+	50, // 9
+
+	52, // *
+	54, // #
+
+	43, // 12
+	47, // 13
+	51, // 14
+	55  // 15
+};
 
 PatternData pattern_audio_map[MAX_PATTERNS + 1];
 uint8_t drumBuffA[MAX_SUBBEATS * NUM_ALL_TRACKS];
@@ -381,6 +405,13 @@ void updatePatternTime(__IO PatternBeats *p,__IO PatternTimes *t){
 TM_KEYPAD_Button_t readDrumKeyboard(BOOL record){
 
 	TM_KEYPAD_Button_t key = TM_KEYPAD_Read();
+	JOYSTICK js = Read_Joystick();
+	if(js.xpos == MAX_JOY)
+		octave = 12;
+	else if(js.xpos == MIN_JOY)
+		octave = -12;
+	else
+		octave = 0;
 
 	if(key != TM_KEYPAD_Button_NOPRESSED){
 		if(record == TRUE){
@@ -389,7 +420,10 @@ TM_KEYPAD_Button_t readDrumKeyboard(BOOL record){
 					looper.DrumState = DRUMS_STARTED;
 			}
 
-			drumBuffWritePtr[drumBufferIndex] = key;	// numbers are resolved to drums and parts using key_to_drum_part array
+			if(looper.PlayBass == FALSE)
+				drumBuffWritePtr[drumBufferIndex] = key;	// numbers are resolved to drums and parts using key_to_drum_part array
+			else
+				drumBuffWritePtr[drumBufferIndex] = key_to_bass[key] + octave;
 			drumEventTimes[drumBufferIndex] = midiDrumClock;
 			drumBufferIndex++;
 			BSP_LED_On(LED_RED);
@@ -398,7 +432,8 @@ TM_KEYPAD_Button_t readDrumKeyboard(BOOL record){
 		if(looper.PlayBass == FALSE)
 			playPercussion(NOTEON,key_to_drum_part[key][0]);
 		else{
-				currNote = 28 + key;
+
+				currNote = key_to_bass[key] + octave;
 				if(prevNote != currNote)
 					playBass(NOTEOFF,prevNote);
 				playBass(NOTEON,currNote);	// Bass lowest E midi code = 28, each key adds half-tone
@@ -578,7 +613,7 @@ void preview_drums() {
 				TM_ILI9341_DrawFilledRectangle(x, y, x + 40, y + 40,ILI9341_COLOR_BLUE2);
 				pressed = FALSE;
 			}
-			if (Active_Joystick() == TRUE) {
+			if (Active_Joystick() == TRUE && looper.PlayBass == FALSE) {
 				js = Read_Joystick();
 				if (js.xpos == MAX_JOY && joydrumkey < 15) {
 					joydrumkey++;
@@ -670,7 +705,7 @@ static void fit_events(){
 				  part = key_to_drum_part[drumBuffWritePtr[drumBufferIndex]][1];
 			  }
 			  else{
-				  drum = 28 + drumBuffB[drumBufferIndex];
+				  drum = drumBuffB[drumBufferIndex];
 				  part = BASS;
 			  }
 			  if(drumEventTimes[drumBufferIndex] < (barMillis + tim1.subBeatDuration / 2))
