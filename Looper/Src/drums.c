@@ -138,11 +138,12 @@ void drumLoop(){
 	uint32_t tmp = looper.StartPattern;
 	switch_buff = FALSE;
 	first_beat = FALSE;
-	seekPattern(pattern_audio_map,looper.StartPattern);
-	resetDrums();
 	HAL_TIM_Base_Start_IT(&htim2);
+	seekPattern(pattern_audio_map,looper.StartPattern);
 	looper.Function = AUDIO_DRUMS;
 	looper.DrumState = DRUMS_STARTED;
+	resetDrums();
+
 	//setStartEndPatterns(looper.StartPattern,looper.EndPattern);
 
 	while(looper.DrumState == DRUMS_STARTED && looper.StartPattern < (looper.EndPattern + 1)){
