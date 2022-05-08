@@ -1,7 +1,0 @@
-../Core/Src/joystick.c:15:13:Read_Joystick_INT	8	static
-../Core/Src/joystick.c:22:10:Read_Joystick	16	static
-../Core/Src/joystick.c:26:6:Movement_Y	4	static
-../Core/Src/joystick.c:30:6:Movement_X	4	static
-../Core/Src/joystick.c:34:6:Update_Joystick	8	static
-../Core/Src/joystick.c:38:6:Active_Joystick	4	static
-../Core/Src/joystick.c:42:6:Wait_Joystick	16	static

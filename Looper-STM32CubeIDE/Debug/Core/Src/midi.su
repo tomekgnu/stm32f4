@@ -1,7 +1,0 @@
-../Core/Src/midi.c:11:6:setupMidi	8	static
-../Core/Src/midi.c:21:6:noteOn	16	static
-../Core/Src/midi.c:26:6:noteOff	16	static
-../Core/Src/midi.c:31:6:talkMIDI	16	static
-../Core/Src/midi.c:42:6:playPercussion	16	static
-../Core/Src/midi.c:51:6:playBass	16	static
-../Core/Src/midi.c:60:6:playUsbDrums	16	static
