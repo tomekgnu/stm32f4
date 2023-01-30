@@ -1,0 +1,6 @@
+../Core/Src/spiffs_gc.c:9:14:spiffs_gc_erase_block	24	static
+../Core/Src/spiffs_gc.c:32:7:spiffs_gc_quick	72	static
+../Core/Src/spiffs_gc.c:109:7:spiffs_gc_check	48	static
+../Core/Src/spiffs_gc.c:199:7:spiffs_gc_erase_page_stats	64	static
+../Core/Src/spiffs_gc.c:236:7:spiffs_gc_find_candidate	112	static
+../Core/Src/spiffs_gc.c:377:7:spiffs_gc_clean	144	static
