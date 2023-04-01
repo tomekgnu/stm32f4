@@ -335,6 +335,7 @@ void Error_Handler(void);
 #define KEYPAD_ROW_4_GPIO_Port GPIOB
 #define NBL1_Pin GPIO_PIN_1
 #define NBL1_GPIO_Port GPIOE
+
 /* USER CODE BEGIN Private defines */
 #define SDRAM_SIZE			((uint32_t)0x800000)
 
