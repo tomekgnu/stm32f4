@@ -1,0 +1,5 @@
+loop.c:37:6:loopBack	1
+loop.c:43:6:recordLoop	8
+loop.c:103:7:calculateOffset	2
+loop.c:116:6:adjustPot	5
+loop.c:137:6:correctOffset	2
